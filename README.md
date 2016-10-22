@@ -1,3 +1,7 @@
+
+[![Build Status](https://api.travis-ci.org/danielfrg/s3contents.svg)](https://travis-ci.org/danielfrg/s3contents)
+[![Coverage Status](https://coveralls.io/repos/github/danielfrg/s3contents/badge.svg?branch=master&t=ggwXvD)](https://coveralls.io/github/danielfrg/s3contents?branch=master)
+
 # S3Contents
 
 A S3 backed ContentsManager implementation for Jupyter.

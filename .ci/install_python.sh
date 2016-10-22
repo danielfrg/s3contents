@@ -14,4 +14,4 @@ conda --version
 # Create `test` environment
 conda create -n test python=$TRAVIS_PYTHON_VERSION
 export PATH=$HOME/miniconda/envs/test/bin:$PATH
-pip install pytest pytest-cov python-coveralls
+pip install nose pytest pytest-cov python-coveralls

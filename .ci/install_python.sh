@@ -8,6 +8,7 @@ wget http://repo.continuum.io/miniconda/Miniconda3-3.19.0-Linux-x86_64.sh -O ~/m
 bash ~/miniconda.sh -b -p $HOME/miniconda
 export PATH=$HOME/miniconda/bin:$PATH
 
+conda config --set always_yes yes --set changeps1 no
 conda --version
 
 # Create `test` environment

@@ -1,2 +1,4 @@
+include LICENSE
+include *requirements.txt
 include versioneer.py
 include s3contents/_version.py

@@ -22,6 +22,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
     bucket_name = Unicode("notebooks", help="The").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
     region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
     endpoint_url = Unicode("s3.amazonaws.com", help="The").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
+    signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
     def __init__(self, *args, **kwargs):
@@ -33,6 +34,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             bucket_name=self.bucket_name,
             region_name=self.region_name,
             endpoint_url=self.endpoint_url,
+            signature_version=self.signature_version,
             delimiter=self.delimiter
         )
 
@@ -219,7 +221,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         if self.file_exists(old_path):
             self.s3fs.mv(old_path, new_path)
         elif self.dir_exists(old_path):
-            self.do_error("Cannot rename a directory")
+            self.do_error("Cannot rename a directory", 409)
         else:
             self.no_such_entity(old_path)
 
@@ -229,7 +231,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         if self.file_exists(path):
             self.s3fs.rm(path)
         elif self.dir_exists(path):
-            self.do_error("Cannot dielete directory")
+            self.do_error("Cannot delete directory")
         else:
             self.no_such_entity(path)
 

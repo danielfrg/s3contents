@@ -3,6 +3,7 @@ Utilities to make S3 look like a regular file system
 """
 import six
 import boto3
+from botocore.client import Config
 
 from s3contents.ipycompat import HasTraits, Unicode
 
@@ -15,19 +16,25 @@ class S3FS(HasTraits):
     bucket_name = Unicode("notebooks", help="The").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
     region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
     endpoint_url = Unicode("s3.amazonaws.com", help="The").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
+    signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
-    dir_keep_file = Unicode(".s3keep", help="Empy file to create when creating directories").tag(config=True)
+    dir_keep_file = Unicode(".s3keep", help="Empty file to create when creating directories").tag(config=True)
 
     def __init__(self, **kwargs):
         super(S3FS, self).__init__(**kwargs)
+
+        config = None
+        if self.signature_version:
+            config = Config(signature_version=self.signature_version)
 
         self.client = boto3.client(
             "s3",
             aws_access_key_id=self.access_key_id,
             aws_secret_access_key=self.secret_access_key,
             endpoint_url=self.endpoint_url,
-            region_name=self.region_name
+            region_name=self.region_name,
+            config=config
         )
 
         self.resource = boto3.resource(
@@ -35,7 +42,8 @@ class S3FS(HasTraits):
             aws_access_key_id=self.access_key_id,
             aws_secret_access_key=self.secret_access_key,
             endpoint_url=self.endpoint_url,
-            region_name=self.region_name
+            region_name=self.region_name,
+            config=config
         )
 
         self.bucket = self.resource.Bucket(self.bucket_name)

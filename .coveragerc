@@ -1,0 +1,6 @@
+[run]
+omit =
+    s3contents/tests/*
+    s3contents/_version.py
+source =
+    s3contents

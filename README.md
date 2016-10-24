@@ -10,7 +10,7 @@ It aims to a be a transparent, drop-in replacement for Jupyter standard filesyst
 With this implementation of a Jupyter Contents Manager you can save all your notebooks, regular file, directories
 structure directly to an S3 bucket, this could be on AWS or a self hosted S3 like [minio](http://minio.io).
 
-While there is some implementations of this functionality already available online [2] I wasn't able to make
+While there is some implementations of this functionality already available online [2, 3] I wasn't able to make
 them work in a newer Jupyter installation. This aims to be a better tested one
 by being highly based on the nice [PGContents](https://github.com/quantopian/pgcontents).
 
@@ -18,7 +18,7 @@ by being highly based on the nice [PGContents](https://github.com/quantopian/pgc
 
 ### Prerequisites
 
-Write access (valid credentials) to an S3 bucket, this could be on AWS or a self hosted S3 like [minio](http://minio.io)
+Write access (valid credentials) to an S3 bucket, this could be on AWS or a self hosted S3 like [minio](http://minio.io).
 
 ### Installation
 
@@ -56,10 +56,11 @@ c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = "Q3AM3UQ867SPQQA43P2F"
 c.S3ContentsManager.secret_access_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
 c.S3ContentsManager.bucket_name = "danielfrg"
-c.S3ContentsManager.endpoint_url = "http://localhost:9000"
+c.S3ContentsManager.endpoint_url = "http://play.minio.io:9000"
 ```
 
 ## See also
 
 1. [PGContents](https://github.com/quantopian/pgcontents)
-2. [s3drive](https://github.com/stitchfix/s3drive)
+2. [s3nb](https://github.com/monetate/s3nb)
+3. [s3drive](https://github.com/stitchfix/s3drive)

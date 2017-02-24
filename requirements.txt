@@ -1,3 +1,4 @@
 jupyter
 boto3
 requests
+nose

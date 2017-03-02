@@ -39,10 +39,14 @@ c = get_config()
 
 # Tell Jupyter to use S3ContentsManager for all storage.
 c.NotebookApp.contents_manager_class = S3ContentsManager
-c.S3ContentsManager.access_key_id = ""
-c.S3ContentsManager.secret_access_key = ""
+c.S3ContentsManager.access_key_id = <IAM Access Key ID>
+c.S3ContentsManager.secret_access_key = <IAM Secret Access Key>
 c.S3ContentsManager.bucket_name = ""
 ```
+
+Note that it is also possible to use IAM Role-based access to the S3 bucket from an Amazon EC2 instance; to do that,
+just leave ```access_key_id``` and ```secret_access_key``` set to their default values (```None```), and ensure that
+the EC2 instance has an IAM role which provides sufficient permissions for the bucket and the operations necessary.
 
 Example for `play.minio.io:9000`:
 

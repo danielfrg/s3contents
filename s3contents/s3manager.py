@@ -16,8 +16,8 @@ NBFORMAT_VERSION = 4
 
 class S3ContentsManager(ContentsManager, HasTraits):
 
-    access_key_id = Unicode(help="S3/AWS access key ID").tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
-    secret_access_key = Unicode(help="S3/AWS secret access key").tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+    access_key_id = Unicode(help="S3/AWS access key ID", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
+    secret_access_key = Unicode(help="S3/AWS secret access key", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
     bucket_name = Unicode("notebooks", help="The").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
     region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")

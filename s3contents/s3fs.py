@@ -72,7 +72,7 @@ class S3FS(HasTraits):
             files = [self.join(prefix.strip(self.delimiter), f).strip(self.delimiter) for f in files]
         else:
             files = list(files)
-        return self.as_path(files)
+        return map(self.as_path, files)
 
     def isfile(self, path):
         self.log.debug("S3contents[S3FS] Checking if `%s` is a file", path)

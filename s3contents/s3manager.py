@@ -113,7 +113,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         model = base_directory_model(path)
         if content:
             model["format"] = "json"
-            model["content"] = self._convert_file_records(self.s3fs.listdir(path=path, with_prefix=True))
+            dir_content = self.s3fs.listdir(path=path, with_prefix=True)
+            model["content"] = self._convert_file_records(dir_content)
         return model
 
     def _notebook_model_from_path(self, path, content=False, format=None):

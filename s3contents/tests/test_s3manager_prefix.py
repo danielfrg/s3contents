@@ -14,6 +14,8 @@ class S3ContentsManagerTestCase(TestContentsManager):
             secret_access_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
             endpoint_url="http://localhost:9000",
             bucket_name="notebooks",
+            # endpoint_url="https://play.minio.io:9000",
+            # bucket_name="s3contents-test",
             prefix="this/is/the/prefix",
             signature_version="s3v4"
         )

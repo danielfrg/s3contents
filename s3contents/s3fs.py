@@ -162,8 +162,7 @@ class S3FS(HasTraits):
         """Utility: remove a prefix from a string
         """
         if text.startswith(prefix):
-            return text[len(prefix):]
-        return text
+            return text[len(prefix):].strip("/")
 
     def join(self, *args):
         """Utility: join using the delimiter
@@ -176,9 +175,8 @@ class S3FS(HasTraits):
         """
         path = path.strip("/")
         if self.prefix:
-            return self.join(self.prefix, path)
-        else:
-            return path
+            path = self.join(self.prefix, path)
+        return path.strip("/")
 
 
 class S3FSError(Exception):

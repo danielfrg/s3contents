@@ -5,7 +5,7 @@ from datetime import datetime
 
 from tornado.web import HTTPError
 
-from s3contents.s3fs import S3FS, S3FSError
+from s3contents.s3fs import S3FS, S3FSError, NoSuchFile
 from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
@@ -152,6 +152,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         if content:
             try:
                 content = self.s3fs.read(path)
+            except NoSuchFile as e:
+                self.no_such_entity(e.path)
             except S3FSError as e:
                 self.do_error(str(e), 500)
             model["format"] = format or "text"

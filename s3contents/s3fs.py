@@ -150,7 +150,7 @@ class S3FS(HasTraits):
     def read(self, path):
         key = self.as_key(path)
         if not self.isfile(path):
-            raise S3FSError("Key '%s' doesn't exist" % key)
+            raise NoSuchFile(self.as_path(key))
         obj = self.resource.Object(self.bucket_name, key)
         text = obj.get()["Body"].read().decode("utf-8")
         return text
@@ -205,3 +205,9 @@ class S3FS(HasTraits):
 
 class S3FSError(Exception):
     pass
+
+class NoSuchFile(S3FSError):
+
+    def __init__(self, path, *args, **kwargs):
+        super(NoSuchFile, self).__init__(*args, **kwargs)
+        self.path = path

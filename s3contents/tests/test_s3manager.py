@@ -16,7 +16,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
             bucket_name="notebooks",
             # endpoint_url="https://play.minio.io:9000",
             # bucket_name="s3contents-test",
-            signature_version='s3v4'
+            signature_version="s3v4"
         )
 
     def tearDown(self):

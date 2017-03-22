@@ -108,13 +108,10 @@ class S3FS(HasTraits):
 
     def cp(self, old_path, new_path):
         self.log.debug("S3contents[S3FS] Copy `%s` to `%s`", old_path, new_path)
-        if self.isfile(new_path) or self.isdir(new_path):
-            raise S3FSError("Path '%s' already exists" % new_path)
         if self.isdir(old_path):
             old_key = self.as_key(old_path)
             for obj in self.bucket.objects.filter(Prefix=old_key):
                 old_item_path = self.as_path(obj.key)
-                # old_item_path = self.remove_prefix(old_item_path)
                 item_name = os.path.basename(old_item_path)
                 new_item_path = self.join(new_path, item_name)
                 self.cp(old_item_path, new_item_path)

@@ -16,6 +16,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
             bucket_name="notebooks",
             # endpoint_url="https://play.minio.io:9000",
             # bucket_name="s3contents-test",
+            prefix="this/is/the/prefix",
             signature_version="s3v4"
         )
 

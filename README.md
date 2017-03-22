@@ -28,7 +28,7 @@ $ pip install s3contents
 
 ### Jupyter config
 
-Configure Jupyter to use s3contents as its storage backend.
+Configure Jupyter to use s3contents as it's storage backend.
 
 Edit `~/.jupyter/jupyter_notebook_config.py` by filling the missing values:
 
@@ -39,9 +39,9 @@ c = get_config()
 
 # Tell Jupyter to use S3ContentsManager for all storage.
 c.NotebookApp.contents_manager_class = S3ContentsManager
-c.S3ContentsManager.access_key_id = <IAM Access Key ID>
-c.S3ContentsManager.secret_access_key = <IAM Secret Access Key>
-c.S3ContentsManager.bucket_name = ""
+c.S3ContentsManager.access_key_id = <AWS Access Key ID / IAM Access Key ID>
+c.S3ContentsManager.secret_access_key = <AWS Secret Access Key / IAM Secret Access Key>
+c.S3ContentsManager.bucket_name = "<>"
 ```
 
 Note that it is also possible to use IAM Role-based access to the S3 bucket from an Amazon EC2 instance; to do that,
@@ -59,8 +59,9 @@ c = get_config()
 c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = "Q3AM3UQ867SPQQA43P2F"
 c.S3ContentsManager.secret_access_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-c.S3ContentsManager.bucket_name = "danielfrg"
 c.S3ContentsManager.endpoint_url = "http://play.minio.io:9000"
+c.S3ContentsManager.bucket_name = "s3contents-demo"
+c.S3ContentsManager.prefix = "notebooks/test"
 ```
 
 ## See also

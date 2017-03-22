@@ -13,16 +13,18 @@ class S3FS(HasTraits):
     access_key_id = Unicode(help="S3/AWS access key ID", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
     secret_access_key = Unicode(help="S3/AWS secret access key", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    bucket_name = Unicode("notebooks", help="The").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    endpoint_url = Unicode("s3.amazonaws.com", help="S3 endpoint URL").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
-    endpoint_url = Unicode("s3.amazonaws.com", help="The").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
+    bucket_name = Unicode("notebooks", help="Bucket name to store notebooks").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
     dir_keep_file = Unicode(".s3keep", help="Empty file to create when creating directories").tag(config=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
+        self.log = log
 
         config = None
         if self.signature_version:
@@ -49,29 +51,8 @@ class S3FS(HasTraits):
         self.bucket = self.resource.Bucket(self.bucket_name)
         self.delimiter = "/"
 
-    def as_key(self, data):
-        if isinstance(data, six.string_types):
-            # return data.replace("/", delimiter).strip(delimiter)
-            # data = data.replace(" ", "_")
-            return data.strip(self.delimiter)
-        if isinstance(data, list):
-            return [self.as_key(item) for item in data]
-
-    def as_path(self, data):
-        if isinstance(data, six.string_types):
-            return data.strip(self.delimiter)
-            # return data.replace(delimiter, "/").strip("/")
-        if isinstance(data, list):
-            return [self.as_path(item) for item in data]
-        return
-
-    def remove_prefix(self, text, prefix):
-        if text.startswith(prefix):
-            return text[len(prefix):]
-        return text
-
-    def join(self, *args):
-        return self.delimiter.join(args)
+        if self.prefix:
+            self.mkdir("")
 
     def get_keys(self, prefix=""):
         ret = []
@@ -79,8 +60,9 @@ class S3FS(HasTraits):
             ret.append(obj.key)
         return ret
 
-    def listdir(self, prefix="", with_prefix=False):
-        prefix = self.as_key(prefix)
+    def listdir(self, path="", with_prefix=False):
+        self.log.debug("S3contents[S3FS] Listing directory: `%s`", path)
+        prefix = self.as_key(path)
         fnames = self.get_keys(prefix=prefix)
         fnames_no_prefix = [self.remove_prefix(n, prefix) for n in fnames]
         fnames_no_prefix = [n.lstrip(self.delimiter) for n in fnames_no_prefix]
@@ -91,43 +73,59 @@ class S3FS(HasTraits):
             files = list(files)
         return self.as_path(files)
 
-    def isfile(self, key):
-        key = self.as_key(key)
+    def isfile(self, path):
+        self.log.debug("S3contents[S3FS] Checking if `%s` is a file", path)
+        key = self.as_key(path)
+        is_file = None
         if key == "":
-            return False
+            is_file = False
         try:
             self.client.head_object(Bucket=self.bucket_name, Key=key)
-            return True
+            is_file = True
         except Exception as e:
-            return False
+            is_file = False
+        self.log.debug("S3contents[S3FS] `%s` is a file: %s", path, is_file)
+        return is_file
 
     def isdir(self, path):
-        path = self.as_key(path)
-        if path == "":
+        self.log.debug("S3contents[S3FS] Checking if `%s` is a directory", path)
+        key = self.as_key(path)
+        if key == "":
             return True
-        if not path.endswith(self.delimiter):
-            path = path + self.delimiter
-        if path == "":
+        if not key.endswith(self.delimiter):
+            key = key + self.delimiter
+        if key == "":
             return True
-        objs = list(self.bucket.objects.filter(Prefix=path))
-        return len(objs) > 0
+        objs = list(self.bucket.objects.filter(Prefix=key))
+        is_dir = len(objs) > 0
+        self.log.debug("S3contents[S3FS] `%s` is a directory: %s", path, is_dir)
+        return is_dir
 
     def mv(self, old_path, new_path):
         self.cp(old_path, new_path)
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
+        self.log.debug("S3contents[S3FS] Copy `%s` to `%s`", old_path, new_path)
         old_key = self.as_key(old_path)
         new_key = self.as_key(new_path)
         source = "{bucket_name}/{old_key}".format(bucket_name=self.bucket_name, old_key=old_key)
         self.client.copy_object(Bucket=self.bucket_name, CopySource=source, Key=new_key)
 
     def rm(self, path):
-        self.client.delete_object(Bucket=self.bucket_name, Key=path)
+        self.log.debug("S3contents[S3FS] Deleting: `%s`", path)
+        key = self.as_key(path)
+        self.client.delete_object(Bucket=self.bucket_name, Key=key)
 
     def mkdir(self, path):
-        obj_path = self.join(path, self.dir_keep_file)
-        self.write(obj_path, "")
+        self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
+        if self.isfile(path):
+            self.log.debug("S3contents[S3FS] File `%s` already exists, not creating anything", path)
+        elif self.isdir(path):
+            self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything", path)
+        else:
+            obj_path = self.join(path, self.dir_keep_file)
+            self.write(obj_path, "")
 
     def read(self, path):
         key = self.as_key(path)
@@ -140,6 +138,45 @@ class S3FS(HasTraits):
     def write(self, path, content):
         key = self.as_key(path)
         self.client.put_object(Bucket=self.bucket_name, Key=key, Body=content)
+
+    def as_key(self, data):
+        """Utility: Make a path a S3 key
+        """
+        data_ = self.abspath(data)
+        self.log.debug("S3contents[S3FS] Understanding `%s` as `%s`", data, data_)
+        if isinstance(data_, six.string_types):
+            return data_.strip(self.delimiter)
+        if isinstance(data_, list):
+            return [self.as_key(item) for item in data_]
+
+    def as_path(self, data):
+        """Utility: Make a S3 key a path
+        """
+        if isinstance(data, six.string_types):
+            return data.strip(self.delimiter)
+        if isinstance(data, list):
+            return [self.as_path(item) for item in data]
+        return
+
+    def remove_prefix(self, text, prefix):
+        """Utility: remove a prefix from a string
+        """
+        if text.startswith(prefix):
+            return text[len(prefix):].strip("/")
+
+    def join(self, *args):
+        """Utility: join using the delimiter
+        """
+        return self.delimiter.join(args)
+
+    def abspath(self, path):
+        """Utility: Return a normalized absolutized version of the pathname path
+        Basically prepends the path with the prefix
+        """
+        path = path.strip("/")
+        if self.prefix:
+            path = self.join(self.prefix, path)
+        return path.strip("/")
 
 
 class S3FSError(Exception):

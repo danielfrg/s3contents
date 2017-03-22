@@ -19,9 +19,10 @@ class S3ContentsManager(ContentsManager, HasTraits):
     access_key_id = Unicode(help="S3/AWS access key ID", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
     secret_access_key = Unicode(help="S3/AWS secret access key", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    bucket_name = Unicode("notebooks", help="The").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    endpoint_url = Unicode("s3.amazonaws.com", help="S3 endpoint URL").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
-    endpoint_url = Unicode("s3.amazonaws.com", help="The").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
+    bucket_name = Unicode("notebooks", help="Bucket name to store notebooks").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
@@ -29,11 +30,13 @@ class S3ContentsManager(ContentsManager, HasTraits):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
         self.s3fs = S3FS(
+            log=self.log,
             access_key_id=self.access_key_id,
             secret_access_key=self.secret_access_key,
-            bucket_name=self.bucket_name,
-            region_name=self.region_name,
             endpoint_url=self.endpoint_url,
+            region_name=self.region_name,
+            bucket_name=self.bucket_name,
+            prefix=self.prefix,
             signature_version=self.signature_version,
             delimiter=self.delimiter
         )
@@ -66,17 +69,17 @@ class S3ContentsManager(ContentsManager, HasTraits):
 
     def dir_exists(self, path):
         # Does a directory exist at the given path?
-        self.log.debug("dir_exists '%s'", path)
+        self.log.debug("S3contents[S3manager]: dir_exists '%s'", path)
         return self.s3fs.isdir(path)
 
     def file_exists(self, path):
         # Does a file exist at the given path?
-        self.log.debug("file_exists '%s'", path)
+        self.log.debug("S3contents[S3manager]: file_exists '%s'", path)
         return self.s3fs.isfile(path)
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
-        self.log.debug("get '%s' %s %s", path, type, format)
+        self.log.debug("S3contents[S3manager]: get '%s' %s %s", path, type, format)
         path = path.strip('/')
 
         if type is None:
@@ -93,23 +96,25 @@ class S3ContentsManager(ContentsManager, HasTraits):
         return fn(path=path, content=content, format=format)
 
     def _get_directory(self, path, content=True, format=None):
-        self.log.debug("get_directory '%s' %s %s", path, type, format)
+        self.log.debug("S3contents[S3manager]: get_directory '%s' %s %s", path, type, format)
         # key = self._path_to_s3_key_dir(path)
         return self._directory_model_from_path(path, content=content)
 
     def _get_notebook(self, path, content=True, format=None):
-        self.log.debug("get_notebook '%s' %s %s", path, content, format)
+        self.log.debug("S3contents[S3manager]: get_notebook '%s' %s %s", path, content, format)
         return self._notebook_model_from_path(path, content=content, format=format)
 
     def _get_file(self, path, content=True, format=None):
-        self.log.debug("get_file '%s' %s %s", path, content, format)
+        self.log.debug("S3contents[S3manager]: get_file '%s' %s %s", path, content, format)
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
+        self.log.debug("S3contents[S3manager]: _directory_model_from_path '%s' %s", path, content)
         model = base_directory_model(path)
         if content:
             model["format"] = "json"
-            model["content"] = self._convert_file_records(self.s3fs.listdir(prefix=path, with_prefix=True))
+            dir_content = self.s3fs.listdir(path=path, with_prefix=True)
+            model["content"] = self._convert_file_records(dir_content)
         return model
 
     def _notebook_model_from_path(self, path, content=False, format=None):
@@ -150,16 +155,17 @@ class S3ContentsManager(ContentsManager, HasTraits):
             if format == "base64":
                 model["format"] = format or "base64"
                 from base64 import b64decode
-                model["content"] = content = b64decode(content)
+                model["content"] = b64decode(content)
         return model
 
     def _convert_file_records(self, paths):
         """
-        Apply _notebook_model_from_s3_path or _file_model_from_s3_path to each entry
-        in paths, depending on the result of `guess_type`.
+        Applies _notebook_model_from_s3_path or _file_model_from_s3_path to each entry of `paths`,
+        depending on the result of `guess_type`.
         """
         ret = []
         for path in paths:
+            path = self.s3fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
             if os.path.basename(path) == self.s3fs.dir_keep_file:
                 continue
             type_ = self.guess_type(path, allow_directory=True)
@@ -174,8 +180,9 @@ class S3ContentsManager(ContentsManager, HasTraits):
         return ret
 
     def save(self, model, path):
-        # Save a file or directory model to path.
-        self.log.debug("save %s: '%s'", model, path)
+        """Save a file or directory model to path.
+        """
+        self.log.debug("S3contents[S3manager]: save %s: '%s'", model, path)
         if "type" not in model:
             self.do_error("No model type provided", 400)
         if "content" not in model and model["type"] != "directory":
@@ -216,8 +223,9 @@ class S3ContentsManager(ContentsManager, HasTraits):
         self.s3fs.mkdir(path)
 
     def rename_file(self, old_path, new_path):
-        # Rename a file or directory.
-        self.log.debug("rename_file '%s' '%s'", old_path, new_path)
+        """Rename a file or directory.
+        """
+        self.log.debug("S3contents[S3manager]: rename_file '%s' '%s'", old_path, new_path)
         if self.file_exists(old_path):
             self.s3fs.mv(old_path, new_path)
         elif self.dir_exists(old_path):
@@ -226,8 +234,9 @@ class S3ContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(old_path)
 
     def delete_file(self, path):
-        # Delete the file or directory at path.
-        self.log.debug("delete_file '%s'", path)
+        """Delete the file or directory at path.
+        """
+        self.log.debug("S3contents[S3manager]: delete_file '%s'", path)
         if self.file_exists(path):
             self.s3fs.rm(path)
         elif self.dir_exists(path):
@@ -236,8 +245,9 @@ class S3ContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(path)
 
     def is_hidden(self, path):
-        # Is path a hidden directory or file?
-        self.log.debug("is_hidden '%s'", path)
+        """Is path a hidden directory or file?
+        """
+        self.log.debug("S3contents[S3manager]: is_hidden '%s'", path)
         return False
 
 

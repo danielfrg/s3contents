@@ -175,9 +175,6 @@ class S3FS(HasTraits):
         key_ = self.remove_prefix(key)
         if isinstance(key_, six.string_types):
             return key_.strip(self.delimiter)
-        if isinstance(key_, list):
-            return [self.as_path(item) for item in key_]
-        return
 
     def remove_prefix(self, text, prefix=None):
         """Utility: remove a prefix from a string

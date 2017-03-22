@@ -114,7 +114,8 @@ class S3FS(HasTraits):
 
     def rm(self, path):
         self.log.debug("S3contents[S3FS] Deleting: `%s`", path)
-        self.client.delete_object(Bucket=self.bucket_name, Key=path)
+        key = self.as_key(path)
+        self.client.delete_object(Bucket=self.bucket_name, Key=key)
 
     def mkdir(self, path):
         self.log.debug("S3contents[S3FS] Making dir: `%s`", path)

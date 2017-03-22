@@ -50,6 +50,10 @@ class S3ContentsManager(ContentsManager, HasTraits):
     def no_such_entity(self, path):
         self.do_error("No such entity: [{path}]".format(path=path), 404)
 
+    def already_exists(self, path):
+        thing = "File" if self.file_exists(path) else "Directory"
+        self.do_error(u"%s already exists: [{path}]".format(thing=thing, path=path), 409)
+
     def guess_type(self, path, allow_directory=True):
         """
         Guess the type of a file.
@@ -67,15 +71,15 @@ class S3ContentsManager(ContentsManager, HasTraits):
         else:
             return "file"
 
-    def dir_exists(self, path):
-        # Does a directory exist at the given path?
-        self.log.debug("S3contents[S3manager]: dir_exists '%s'", path)
-        return self.s3fs.isdir(path)
-
     def file_exists(self, path):
         # Does a file exist at the given path?
         self.log.debug("S3contents[S3manager]: file_exists '%s'", path)
         return self.s3fs.isfile(path)
+
+    def dir_exists(self, path):
+        # Does a directory exist at the given path?
+        self.log.debug("S3contents[S3manager]: dir_exists '%s'", path)
+        return self.s3fs.isdir(path)
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
@@ -226,10 +230,10 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """Rename a file or directory.
         """
         self.log.debug("S3contents[S3manager]: rename_file '%s' '%s'", old_path, new_path)
-        if self.file_exists(old_path):
+        if self.file_exists(new_path) or self.dir_exists(new_path):
+            self.already_exists(new_path)
+        elif self.file_exists(old_path) or self.dir_exists(old_path):
             self.s3fs.mv(old_path, new_path)
-        elif self.dir_exists(old_path):
-            self.do_error("Cannot rename a directory", 409)
         else:
             self.no_such_entity(old_path)
 
@@ -237,10 +241,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """Delete the file or directory at path.
         """
         self.log.debug("S3contents[S3manager]: delete_file '%s'", path)
-        if self.file_exists(path):
+        if self.file_exists(path) or self.dir_exists(path):
             self.s3fs.rm(path)
-        elif self.dir_exists(path):
-            self.do_error("Cannot delete directory")
         else:
             self.no_such_entity(path)
 

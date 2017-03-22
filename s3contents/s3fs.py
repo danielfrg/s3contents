@@ -1,6 +1,7 @@
 """
 Utilities to make S3 look like a regular file system
 """
+import os
 import six
 import boto3
 from botocore.client import Config
@@ -64,9 +65,9 @@ class S3FS(HasTraits):
         self.log.debug("S3contents[S3FS] Listing directory: `%s`", path)
         prefix = self.as_key(path)
         fnames = self.get_keys(prefix=prefix)
-        fnames_no_prefix = [self.remove_prefix(n, prefix) for n in fnames]
-        fnames_no_prefix = [n.lstrip(self.delimiter) for n in fnames_no_prefix]
-        files = set(n.split(self.delimiter)[0] for n in fnames_no_prefix)
+        fnames_no_prefix = [self.remove_prefix(fname, prefix=prefix) for fname in fnames]
+        fnames_no_prefix = [fname.lstrip(self.delimiter) for fname in fnames_no_prefix]
+        files = set(fname.split(self.delimiter)[0] for fname in fnames_no_prefix)
         if with_prefix:
             files = [self.join(prefix.strip(self.delimiter), f).strip(self.delimiter) for f in files]
         else:
@@ -107,15 +108,37 @@ class S3FS(HasTraits):
 
     def cp(self, old_path, new_path):
         self.log.debug("S3contents[S3FS] Copy `%s` to `%s`", old_path, new_path)
-        old_key = self.as_key(old_path)
-        new_key = self.as_key(new_path)
-        source = "{bucket_name}/{old_key}".format(bucket_name=self.bucket_name, old_key=old_key)
-        self.client.copy_object(Bucket=self.bucket_name, CopySource=source, Key=new_key)
+        if self.isfile(new_path) or self.isdir(new_path):
+            raise S3FSError("Path '%s' already exists" % new_path)
+        if self.isdir(old_path):
+            old_key = self.as_key(old_path)
+            for obj in self.bucket.objects.filter(Prefix=old_key):
+                old_item_path = self.as_path(obj.key)
+                # old_item_path = self.remove_prefix(old_item_path)
+                item_name = os.path.basename(old_item_path)
+                new_item_path = self.join(new_path, item_name)
+                self.cp(old_item_path, new_item_path)
+        elif self.isfile(old_path):
+            old_key = self.as_key(old_path)
+            new_key = self.as_key(new_path)
+            source = "{bucket_name}/{old_key}".format(bucket_name=self.bucket_name, old_key=old_key)
+            self.client.copy_object(Bucket=self.bucket_name, CopySource=source, Key=new_key)
 
     def rm(self, path):
         self.log.debug("S3contents[S3FS] Deleting: `%s`", path)
-        key = self.as_key(path)
-        self.client.delete_object(Bucket=self.bucket_name, Key=key)
+        if self.isfile(path):
+            key = self.as_key(path)
+            self.client.delete_object(Bucket=self.bucket_name, Key=key)
+        elif self.isdir(path):
+            key = self.as_key(path)
+            objects_to_delete = []
+            for obj in self.bucket.objects.filter(Prefix=key):
+                objects_to_delete.append({"Key": obj.key})
+            self.bucket.delete_objects(
+                Delete={
+                    "Objects": objects_to_delete
+                }
+            )
 
     def mkdir(self, path):
         self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
@@ -132,37 +155,41 @@ class S3FS(HasTraits):
         if not self.isfile(path):
             raise S3FSError("Key '%s' doesn't exist" % key)
         obj = self.resource.Object(self.bucket_name, key)
-        text = obj.get()['Body'].read().decode('utf-8')
+        text = obj.get()["Body"].read().decode("utf-8")
         return text
 
     def write(self, path, content):
         key = self.as_key(path)
         self.client.put_object(Bucket=self.bucket_name, Key=key, Body=content)
 
-    def as_key(self, data):
+    def as_key(self, path):
         """Utility: Make a path a S3 key
         """
-        data_ = self.abspath(data)
-        self.log.debug("S3contents[S3FS] Understanding `%s` as `%s`", data, data_)
-        if isinstance(data_, six.string_types):
-            return data_.strip(self.delimiter)
-        if isinstance(data_, list):
-            return [self.as_key(item) for item in data_]
+        path_ = self.abspath(path)
+        self.log.debug("S3contents[S3FS] Understanding `%s` as `%s`", path, path_)
+        if isinstance(path_, six.string_types):
+            return path_.strip(self.delimiter)
+        if isinstance(path_, list):
+            return [self.as_key(item) for item in path_]
 
-    def as_path(self, data):
+    def as_path(self, key):
         """Utility: Make a S3 key a path
         """
-        if isinstance(data, six.string_types):
-            return data.strip(self.delimiter)
-        if isinstance(data, list):
-            return [self.as_path(item) for item in data]
+        key_ = self.remove_prefix(key)
+        if isinstance(key_, six.string_types):
+            return key_.strip(self.delimiter)
+        if isinstance(key_, list):
+            return [self.as_path(item) for item in key_]
         return
 
-    def remove_prefix(self, text, prefix):
+    def remove_prefix(self, text, prefix=None):
         """Utility: remove a prefix from a string
         """
+        if prefix is None:
+            prefix = self.prefix
         if text.startswith(prefix):
             return text[len(prefix):].strip("/")
+        return text.strip("/")
 
     def join(self, *args):
         """Utility: join using the delimiter

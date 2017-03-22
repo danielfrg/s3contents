@@ -20,7 +20,7 @@ install:
   - pip install dist/*.tar.gz
 
 script:
-  - py.test -s -vv --cov=s3contents --cov-report term-missing -k "not test_rename"
+  - py.test -s -vv --cov=s3contents --cov-report term-missing
 
 after_success:
   - coveralls

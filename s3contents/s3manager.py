@@ -101,7 +101,6 @@ class S3ContentsManager(ContentsManager, HasTraits):
 
     def _get_directory(self, path, content=True, format=None):
         self.log.debug("S3contents[S3manager]: get_directory '%s' %s %s", path, type, format)
-        # key = self._path_to_s3_key_dir(path)
         return self._directory_model_from_path(path, content=content)
 
     def _get_notebook(self, path, content=True, format=None):
@@ -116,6 +115,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         self.log.debug("S3contents[S3manager]: _directory_model_from_path '%s' %s", path, content)
         model = base_directory_model(path)
         if content:
+            if not self.dir_exists(path):
+                self.no_such_entity(path)
             model["format"] = "json"
             dir_content = self.s3fs.listdir(path=path, with_prefix=True)
             model["content"] = self._convert_file_records(dir_content)

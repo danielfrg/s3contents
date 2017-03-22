@@ -231,11 +231,15 @@ class S3ContentsManager(ContentsManager, HasTraits):
 
     def rename_file(self, old_path, new_path):
         """Rename a file or directory.
+
+        NOTE: This method is unfortunately named on the base class.  It
+        actually moves a file or a directory.
         """
-        self.log.debug("S3contents[S3manager]: rename_file '%s' '%s'", old_path, new_path)
+        self.log.debug("S3contents[S3manager]: Init rename of '%s' to '%s'", old_path, new_path)
         if self.file_exists(new_path) or self.dir_exists(new_path):
             self.already_exists(new_path)
         elif self.file_exists(old_path) or self.dir_exists(old_path):
+            self.log.debug("S3contents[S3manager]: Actually renaming '%s' to '%s'", old_path, new_path)
             self.s3fs.mv(old_path, new_path)
         else:
             self.no_such_entity(old_path)

@@ -55,14 +55,12 @@ class S3FS(HasTraits):
             self.mkdir("")
 
     def get_keys(self, prefix=""):
-        # prefix = self.abspath(prefix)
         ret = []
         for obj in self.bucket.objects.filter(Prefix=prefix):
             ret.append(obj.key)
         return ret
 
     def listdir(self, path="", with_prefix=False):
-        # path = self.abspath(path)
         self.log.debug("S3contents[S3FS] Listing directory: `%s`", path)
         prefix = self.as_key(path)
         fnames = self.get_keys(prefix=prefix)
@@ -76,7 +74,6 @@ class S3FS(HasTraits):
         return self.as_path(files)
 
     def isfile(self, path):
-        # path = self.abspath(path)
         self.log.debug("S3contents[S3FS] Checking if `%s` is a file", path)
         key = self.as_key(path)
         is_file = None
@@ -91,7 +88,6 @@ class S3FS(HasTraits):
         return is_file
 
     def isdir(self, path):
-        # path = self.abspath(path)
         self.log.debug("S3contents[S3FS] Checking if `%s` is a directory", path)
         key = self.as_key(path)
         if key == "":
@@ -110,7 +106,6 @@ class S3FS(HasTraits):
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
-        # old_path, new_path = self.abspath(old_path), self.abspath(new_path)
         self.log.debug("S3contents[S3FS] Copy `%s` to `%s`", old_path, new_path)
         old_key = self.as_key(old_path)
         new_key = self.as_key(new_path)
@@ -118,14 +113,18 @@ class S3FS(HasTraits):
         self.client.copy_object(Bucket=self.bucket_name, CopySource=source, Key=new_key)
 
     def rm(self, path):
-        # path = self.abspath(path)
         self.log.debug("S3contents[S3FS] Deleting: `%s`", path)
         self.client.delete_object(Bucket=self.bucket_name, Key=path)
 
     def mkdir(self, path):
         self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
-        obj_path = self.join(path, self.dir_keep_file)
-        self.write(obj_path, "")
+        if self.isfile:
+            self.log.debug("S3contents[S3FS] File `%s` already exists, not creating anything", path)
+        elif self.isdir(path):
+            self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything", path)
+        else:
+            obj_path = self.join(path, self.dir_keep_file)
+            self.write(obj_path, "")
 
     def read(self, path):
         key = self.as_key(path)

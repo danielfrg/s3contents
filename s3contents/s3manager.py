@@ -179,7 +179,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         return ret
 
     def save(self, model, path):
-        # Save a file or directory model to path.
+        """Save a file or directory model to path.
+        """
         self.log.debug("S3contents[S3manager]: save %s: '%s'", model, path)
         if "type" not in model:
             self.do_error("No model type provided", 400)
@@ -221,7 +222,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         self.s3fs.mkdir(path)
 
     def rename_file(self, old_path, new_path):
-        # Rename a file or directory.
+        """Rename a file or directory.
+        """
         self.log.debug("S3contents[S3manager]: rename_file '%s' '%s'", old_path, new_path)
         if self.file_exists(old_path):
             self.s3fs.mv(old_path, new_path)
@@ -231,7 +233,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(old_path)
 
     def delete_file(self, path):
-        # Delete the file or directory at path.
+        """Delete the file or directory at path.
+        """
         self.log.debug("S3contents[S3manager]: delete_file '%s'", path)
         if self.file_exists(path):
             self.s3fs.rm(path)
@@ -241,7 +244,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(path)
 
     def is_hidden(self, path):
-        # Is path a hidden directory or file?
+        """Is path a hidden directory or file?
+        """
         self.log.debug("S3contents[S3manager]: is_hidden '%s'", path)
         return False
 

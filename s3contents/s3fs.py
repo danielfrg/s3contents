@@ -128,6 +128,7 @@ class S3FS(HasTraits):
             self.client.delete_object(Bucket=self.bucket_name, Key=key)
         elif self.isdir(path):
             key = self.as_key(path)
+            key = key + "/"
             objects_to_delete = []
             for obj in self.bucket.objects.filter(Prefix=key):
                 objects_to_delete.append({"Key": obj.key})

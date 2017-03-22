@@ -118,7 +118,7 @@ class S3FS(HasTraits):
 
     def mkdir(self, path):
         self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
-        if self.isfile:
+        if self.isfile(path):
             self.log.debug("S3contents[S3FS] File `%s` already exists, not creating anything", path)
         elif self.isdir(path):
             self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything", path)

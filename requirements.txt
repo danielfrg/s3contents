@@ -2,3 +2,4 @@ jupyter
 boto3
 requests
 nose
+mock

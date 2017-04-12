@@ -16,7 +16,5 @@ conda create -n test python=$TRAVIS_PYTHON_VERSION
 export PATH=$HOME/miniconda/envs/test/bin:$PATH
 pip install nose pytest pytest-cov python-coveralls
 
-if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]
-then
-    pip install mock
-fi
+# Install specific Jupyter Notebook version
+pip install -U "notebook==$JUPYTER_VERSION"

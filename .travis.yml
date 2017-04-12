@@ -6,10 +6,15 @@ notifications:
 
 matrix:
   include:
-    - python: "3.5"
-    - python: "2.7"
-
-
+    - JUPYTER_VERSION: "4.*"
+      python: "3.5"
+    - JUPYTER_VERSION: "4.*"
+      python: "2.7"
+    - JUPYTER_VERSION: "5.*"
+      python: "3.5"
+    - JUPYTER_VERSION: "5.*"
+      python: "2.7"
+      
 before_install:
   - pwd
   - source .ci/install_go.sh
@@ -18,8 +23,10 @@ before_install:
 
 install:
   - which python
+  - pip freeze
   - python setup.py sdist
   - pip install dist/*.tar.gz
+  - pip freeze
 
 script:
   - py.test -s -vv --cov=s3contents --cov-report term-missing

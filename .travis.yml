@@ -4,16 +4,18 @@ sudo: false
 notifications:
   email: false
 
-matrix:
-  include:
-    - JUPYTER_VERSION: "4.*"
-      python: "3.5"
-    - JUPYTER_VERSION: "4.*"
-      python: "2.7"
-    - JUPYTER_VERSION: "5.*"
-      python: "3.5"
-    - JUPYTER_VERSION: "5.*"
-      python: "2.7"
+python:
+  - 2.7
+  - 3.5
+
+env:
+  - JUPYTER_VERSION="4.*"
+  - JUPYTER_VERSION="5.*"
+
+# matrix:
+#   include:
+#     - python: "3.5"
+#     - python: "2.7"
       
 before_install:
   - pwd

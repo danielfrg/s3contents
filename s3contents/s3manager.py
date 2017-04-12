@@ -100,7 +100,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         if type is None:
             type = self.guess_type(path)
         try:
-            fn = {
+            func = {
                 "directory": self._get_directory,
                 "notebook": self._get_notebook,
                 "file": self._get_file,
@@ -108,7 +108,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         except KeyError:
             raise ValueError("Unknown type passed: '{}'".format(type))
 
-        return fn(path=path, content=content, format=format)
+        return func(path=path, content=content, format=format)
 
     def _get_directory(self, path, content=True, format=None):
         self.log.debug("S3contents[S3manager]: get_directory '%s' %s %s", path, type, format)
@@ -286,9 +286,9 @@ def base_model(path):
 
 
 def base_directory_model(path):
-    m = base_model(path)
-    m.update(
+    model = base_model(path)
+    model.update(
         type="directory",
         last_modified=DUMMY_CREATED_DATE,
         created=DUMMY_CREATED_DATE,)
-    return m
+    return model

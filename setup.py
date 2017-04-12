@@ -1,7 +1,8 @@
-import versioneer
-
 from distutils.core import setup
 from setuptools import find_packages
+
+import versioneer
+
 
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()

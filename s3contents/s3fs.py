@@ -1,7 +1,6 @@
 """
 Utilities to make S3 look like a regular file system
 """
-import os
 import six
 import boto3
 from botocore.client import Config

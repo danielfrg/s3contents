@@ -11,17 +11,28 @@ from s3contents.ipycompat import HasTraits, Unicode
 
 class S3FS(HasTraits):
 
-    access_key_id = Unicode(help="S3/AWS access key ID", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
-    secret_access_key = Unicode(help="S3/AWS secret access key", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+    access_key_id = Unicode(
+        help="S3/AWS access key ID", allow_none=True, default_value=None).tag(
+            config=True, env="JPYNB_S3_ACCESS_KEY_ID")
+    secret_access_key = Unicode(
+        help="S3/AWS secret access key", allow_none=True, default_value=None).tag(
+            config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    endpoint_url = Unicode("s3.amazonaws.com", help="S3 endpoint URL").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
-    region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
-    bucket_name = Unicode("notebooks", help="Bucket name to store notebooks").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    endpoint_url = Unicode(
+        "s3.amazonaws.com", help="S3 endpoint URL").tag(
+            config=True, env="JPYNB_S3_ENDPOINT_URL")
+    region_name = Unicode(
+        "us-east-1", help="Region Name").tag(
+            config=True, env="JPYNB_S3_REGION_NAME")
+    bucket_name = Unicode(
+        "notebooks", help="Bucket name to store notebooks").tag(
+            config=True, env="JPYNB_S3_BUCKET_NAME")
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
-    dir_keep_file = Unicode(".s3keep", help="Empty file to create when creating directories").tag(config=True)
+    dir_keep_file = Unicode(
+        ".s3keep", help="Empty file to create when creating directories").tag(config=True)
 
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
@@ -37,8 +48,7 @@ class S3FS(HasTraits):
             aws_secret_access_key=self.secret_access_key,
             endpoint_url=self.endpoint_url,
             region_name=self.region_name,
-            config=config
-        )
+            config=config)
 
         self.resource = boto3.resource(
             "s3",
@@ -46,8 +56,7 @@ class S3FS(HasTraits):
             aws_secret_access_key=self.secret_access_key,
             endpoint_url=self.endpoint_url,
             region_name=self.region_name,
-            config=config
-        )
+            config=config)
 
         self.bucket = self.resource.Bucket(self.bucket_name)
         self.delimiter = "/"
@@ -69,7 +78,9 @@ class S3FS(HasTraits):
         fnames_no_prefix = [fname.lstrip(self.delimiter) for fname in fnames_no_prefix]
         files = set(fname.split(self.delimiter)[0] for fname in fnames_no_prefix)
         if with_prefix:
-            files = [self.join(prefix.strip(self.delimiter), f).strip(self.delimiter) for f in files]
+            files = [
+                self.join(prefix.strip(self.delimiter), f).strip(self.delimiter) for f in files
+            ]
         else:
             files = list(files)
         return map(self.as_path, files)
@@ -132,18 +143,15 @@ class S3FS(HasTraits):
             objects_to_delete = []
             for obj in self.bucket.objects.filter(Prefix=key):
                 objects_to_delete.append({"Key": obj.key})
-            self.bucket.delete_objects(
-                Delete={
-                    "Objects": objects_to_delete
-                }
-            )
+            self.bucket.delete_objects(Delete={"Objects": objects_to_delete})
 
     def mkdir(self, path):
         self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
         if self.isfile(path):
             self.log.debug("S3contents[S3FS] File `%s` already exists, not creating anything", path)
         elif self.isdir(path):
-            self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything", path)
+            self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything",
+                           path)
         else:
             obj_path = self.join(path, self.dir_keep_file)
             self.write(obj_path, "")
@@ -203,6 +211,7 @@ class S3FS(HasTraits):
 
 class S3FSError(Exception):
     pass
+
 
 class NoSuchFile(S3FSError):
 

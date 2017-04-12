@@ -17,26 +17,18 @@ if IPY3:
     from IPython.html.services.contents.manager import ContentsManager
     from IPython.html.services.contents.checkpoints import (
         Checkpoints,
-        GenericCheckpointsMixin,
-    )
+        GenericCheckpointsMixin,)
     from IPython.html.services.contents.filemanager import FileContentsManager
-    from IPython.html.services.contents.filecheckpoints import (
-        GenericFileCheckpoints
-    )
-    from IPython.html.services.contents.tests.test_manager import (
-        TestContentsManager
-    )
-    from IPython.html.services.contents.tests.test_contents_api import (
-        APITest
-    )
+    from IPython.html.services.contents.filecheckpoints import (GenericFileCheckpoints)
+    from IPython.html.services.contents.tests.test_manager import (TestContentsManager)
+    from IPython.html.services.contents.tests.test_contents_api import (APITest)
     from IPython.html.utils import to_os_path
     from IPython.nbformat import from_dict, reads, writes
     from IPython.nbformat.v4.nbbase import (
         new_code_cell,
         new_markdown_cell,
         new_notebook,
-        new_raw_cell,
-    )
+        new_raw_cell,)
     from IPython.nbformat.v4.rwbase import strip_transient
     from IPython.utils.traitlets import (
         Any,
@@ -45,33 +37,24 @@ if IPY3:
         Instance,
         Integer,
         HasTraits,
-        Unicode,
-    )
+        Unicode,)
 else:
     from traitlets.config import Config
     from notebook.services.contents.checkpoints import (
         Checkpoints,
-        GenericCheckpointsMixin,
-    )
+        GenericCheckpointsMixin,)
     from notebook.services.contents.filemanager import FileContentsManager
-    from notebook.services.contents.filecheckpoints import (
-        GenericFileCheckpoints
-    )
+    from notebook.services.contents.filecheckpoints import (GenericFileCheckpoints)
     from notebook.services.contents.manager import ContentsManager
-    from notebook.services.contents.tests.test_manager import (
-        TestContentsManager
-    )
-    from notebook.services.contents.tests.test_contents_api import (
-        APITest
-    )
+    from notebook.services.contents.tests.test_manager import (TestContentsManager)
+    from notebook.services.contents.tests.test_contents_api import (APITest)
     from notebook.utils import to_os_path
     from nbformat import from_dict, reads, writes
     from nbformat.v4.nbbase import (
         new_code_cell,
         new_markdown_cell,
         new_notebook,
-        new_raw_cell,
-    )
+        new_raw_cell,)
     from nbformat.v4.rwbase import strip_transient
     from traitlets import (
         Any,
@@ -80,8 +63,7 @@ else:
         Instance,
         Integer,
         HasTraits,
-        Unicode,
-    )
+        Unicode,)
 
 __all__ = [
     'APITest',

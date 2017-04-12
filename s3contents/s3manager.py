@@ -16,18 +16,27 @@ NBFORMAT_VERSION = 4
 
 class S3ContentsManager(ContentsManager, HasTraits):
 
-    access_key_id = Unicode(help="S3/AWS access key ID", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
-    secret_access_key = Unicode(help="S3/AWS secret access key", allow_none=True, default_value=None).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+    access_key_id = Unicode(
+        help="S3/AWS access key ID", allow_none=True, default_value=None).tag(
+            config=True, env="JPYNB_S3_ACCESS_KEY_ID")
+    secret_access_key = Unicode(
+        help="S3/AWS secret access key", allow_none=True, default_value=None).tag(
+            config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    endpoint_url = Unicode("s3.amazonaws.com", help="S3 endpoint URL").tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
-    region_name = Unicode("us-east-1", help="Region Name").tag(config=True, env="JPYNB_S3_REGION_NAME")
-    bucket_name = Unicode("notebooks", help="Bucket name to store notebooks").tag(config=True, env="JPYNB_S3_BUCKET_NAME")
+    endpoint_url = Unicode(
+        "s3.amazonaws.com", help="S3 endpoint URL").tag(
+            config=True, env="JPYNB_S3_ENDPOINT_URL")
+    region_name = Unicode(
+        "us-east-1", help="Region Name").tag(
+            config=True, env="JPYNB_S3_REGION_NAME")
+    bucket_name = Unicode(
+        "notebooks", help="Bucket name to store notebooks").tag(
+            config=True, env="JPYNB_S3_BUCKET_NAME")
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
     root_dir = Unicode("./", config=True)
-
 
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
@@ -41,8 +50,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             bucket_name=self.bucket_name,
             prefix=self.prefix,
             signature_version=self.signature_version,
-            delimiter=self.delimiter
-        )
+            delimiter=self.delimiter)
 
     def _checkpoints_class_default(self):
         return GenericFileCheckpoints
@@ -55,7 +63,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
 
     def already_exists(self, path):
         thing = "File" if self.file_exists(path) else "Directory"
-        self.do_error(u"%s already exists: [{path}]".format(thing=thing, path=path), 409)
+        self.do_error(u"{thing} already exists: [{path}]".format(thing=thing, path=path), 409)
 
     def guess_type(self, path, allow_directory=True):
         """
@@ -175,7 +183,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """
         ret = []
         for path in paths:
-            path = self.s3fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
+            path = self.s3fs.remove_prefix(path, self.prefix)    # Remove bucket prefix from paths
             if os.path.basename(path) == self.s3fs.dir_keep_file:
                 continue
             type_ = self.guess_type(path, allow_directory=True)
@@ -242,7 +250,8 @@ class S3ContentsManager(ContentsManager, HasTraits):
         if self.file_exists(new_path) or self.dir_exists(new_path):
             self.already_exists(new_path)
         elif self.file_exists(old_path) or self.dir_exists(old_path):
-            self.log.debug("S3contents[S3manager]: Actually renaming '%s' to '%s'", old_path, new_path)
+            self.log.debug("S3contents[S3manager]: Actually renaming '%s' to '%s'", old_path,
+                           new_path)
             self.s3fs.mv(old_path, new_path)
         else:
             self.no_such_entity(old_path)
@@ -281,6 +290,5 @@ def base_directory_model(path):
     m.update(
         type="directory",
         last_modified=DUMMY_CREATED_DATE,
-        created=DUMMY_CREATED_DATE,
-    )
+        created=DUMMY_CREATED_DATE,)
     return m

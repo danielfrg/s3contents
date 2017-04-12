@@ -14,11 +14,10 @@ class S3ContentsManagerTestCase(TestContentsManager):
             secret_access_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
             endpoint_url="http://localhost:9000",
             bucket_name="notebooks",
-            # endpoint_url="https://play.minio.io:9000",
-            # bucket_name="s3contents-test",
+    # endpoint_url="https://play.minio.io:9000",
+    # bucket_name="s3contents-test",
             prefix="this/is/the/prefix",
-            signature_version="s3v4"
-        )
+            signature_version="s3v4")
 
     def tearDown(self):
         bucket = self.contents_manager.s3fs.bucket
@@ -27,19 +26,15 @@ class S3ContentsManagerTestCase(TestContentsManager):
         for obj in bucket.objects.filter(Prefix=""):
             objects_to_delete.append({"Key": obj.key})
 
-        bucket.delete_objects(
-            Delete={
-                "Objects": objects_to_delete
-            }
-        )
+        bucket.delete_objects(Delete={"Objects": objects_to_delete})
 
     # Overwrites from TestContentsManager
 
     def make_dir(self, api_path):
         self.contents_manager.new(
             model={"type": "directory"},
-            path=api_path,
-        )
+            path=api_path,)
+
 
 # This needs to be removed or else we'll run the main IPython tests as well.
 del TestContentsManager

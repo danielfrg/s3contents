@@ -24,7 +24,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
     endpoint_url = Unicode(
-        "s3.amazonaws.com", help="S3 endpoint URL").tag(
+        "https://s3.amazonaws.com", help="S3 endpoint URL").tag(
             config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode(
         "us-east-1", help="Region Name").tag(

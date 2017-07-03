@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 mkdir -p ~/go
 mkdir -p ~/bin
 

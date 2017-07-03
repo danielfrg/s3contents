@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 # Install miniconda
 wget http://repo.continuum.io/miniconda/Miniconda3-3.19.0-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p $HOME/miniconda

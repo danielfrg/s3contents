@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 go get -u github.com/minio/minio
 
 export MINIO_ACCESS_KEY=Q3AM3UQ867SPQQA43P2F

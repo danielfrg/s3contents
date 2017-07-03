@@ -5,7 +5,7 @@ Taken from: https://github.com/quantopian/pgcontents/blob/master/pgcontents/util
 """
 import IPython
 
-SUPPORTED_VERSIONS = {3, 4, 5}
+SUPPORTED_VERSIONS = {3, 4, 5, 6}
 IPY_MAJOR = IPython.version_info[0]
 if IPY_MAJOR not in SUPPORTED_VERSIONS:
     raise ImportError("IPython version %d is not supported." % IPY_MAJOR)

@@ -22,7 +22,7 @@ class BaseFS(HasTraits):
         raise NotImplementedError
 
     def isdir(self, path):
-        self.log.debug("S3contents[S3FS] Checking if `%s` is a directory", path)
+        self.log.debug("S3contents[BaseFS] Checking if `%s` is a directory", path)
         key = self.as_key(path)
         if key == "":
             return True
@@ -31,7 +31,7 @@ class BaseFS(HasTraits):
         if key == "":
             return True
         is_dir = len(self.get_keys(prefix=key)) > 0
-        self.log.debug("S3contents[S3FS] `%s` is a directory: %s", path, is_dir)
+        self.log.debug("S3contents[BaseFS] `%s` is a directory: %s", path, is_dir)
         return is_dir
 
     def mv(self, old_path, new_path):
@@ -45,11 +45,11 @@ class BaseFS(HasTraits):
         raise NotImplementedError
 
     def mkdir(self, path):
-        self.log.debug("S3contents[S3FS] Making dir: `%s`", path)
+        self.log.debug("S3contents[BaseFS] Making dir: `%s`", path)
         if self.isfile(path):
-            self.log.debug("S3contents[S3FS] File `%s` already exists, not creating anything", path)
+            self.log.debug("S3contents[BaseFS] File `%s` already exists, not creating anything", path)
         elif self.isdir(path):
-            self.log.debug("S3contents[S3FS] Directory `%s` already exists, not creating anything",
+            self.log.debug("S3contents[BaseFS] Directory `%s` already exists, not creating anything",
                            path)
         else:
             obj_path = self.join(path, self.dir_keep_file)
@@ -62,7 +62,7 @@ class BaseFS(HasTraits):
         raise NotImplementedError
 
     def listdir(self, path="", with_prefix=False):
-        self.log.debug("S3contents[S3FS] Listing directory: `%s`", path)
+        self.log.debug("S3contents[BaseFS] Listing directory: `%s`", path)
         prefix = self.as_key(path)
         fnames = self.get_keys(prefix=prefix)
         fnames_no_prefix = [self.remove_prefix(fname, prefix=prefix) for fname in fnames]
@@ -80,7 +80,7 @@ class BaseFS(HasTraits):
         """Utility: Make a path a S3 key
         """
         path_ = self.abspath(path)
-        self.log.debug("S3contents[S3FS] Understanding `%s` as `%s`", path, path_)
+        self.log.debug("S3contents[BaseFS] Understanding `%s` as `%s`", path, path_)
         if isinstance(path_, six.string_types):
             return path_.strip(self.delimiter)
         if isinstance(path_, list):

@@ -22,7 +22,5 @@ env:
 .PHONY: env
 
 clean:
-	rm -rf ${S3DIR}
-
-#conda env remove -y -n s3-contents-dev
+	rm -rf ${S3DIR} ; source deactivate; conda env remove -y -n s3-contents-dev
 .PHONY: clean

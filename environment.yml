@@ -1,4 +1,6 @@
 name: s3-contents-dev
+channels:
+  - conda-forge
 dependencies:
   - python=3.6
   - jupyter
@@ -7,3 +9,4 @@ dependencies:
   - nose
   - mock
   - pytest
+  - twine

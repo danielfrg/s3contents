@@ -1,0 +1,9 @@
+name: s3-contents-dev
+dependencies:
+  - python=3.6
+  - jupyter
+  - boto3
+  - requests
+  - nose
+  - mock
+  - pytest

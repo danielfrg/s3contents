@@ -163,6 +163,16 @@ class S3FS(HasTraits):
         text = obj.get()["Body"].read().decode("utf-8")
         return text
 
+    def lstat(self, path):
+        key = self.as_key(path)
+        if not self.isfile(path):
+            raise NoSuchFile(self.as_path(key))
+        obj = self.resource.Object(self.bucket_name, key)
+
+        info = {}
+        info["ST_MTIME"] = obj.last_modified
+        return info
+
     def write(self, path, content):
         key = self.as_key(path)
         self.client.put_object(Bucket=self.bucket_name, Key=key, Body=content)

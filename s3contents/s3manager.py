@@ -1,8 +1,9 @@
 import os
 import json
 import mimetypes
-from datetime import datetime
+import datetime
 
+from notebook import _tz as tz
 from tornado.web import HTTPError
 
 from s3contents.s3fs import S3FS, S3FSError, NoSuchFile
@@ -10,7 +11,7 @@ from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
 
-DUMMY_CREATED_DATE = datetime.fromtimestamp(0)
+DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(0)
 NBFORMAT_VERSION = 4
 
 
@@ -133,15 +134,16 @@ class S3ContentsManager(ContentsManager, HasTraits):
             model["content"] = self._convert_file_records(dir_content)
         return model
 
-    def _notebook_model_from_path(self, path, content=False, format=None):
+    def _notebook_model_from_path(self, path, content=False):
         """
         Build a notebook model from database record.
         """
-        # path = to_api_path(record['parent_name'] + record['name'])
         model = base_model(path)
-        model['type'] = 'notebook'
-        # model['last_modified'] = model['created'] = record['created_at']
-        model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+        model["type"] = "notebook"
+        if self.s3fs.isfile(path):
+            model["last_modified"] = model["created"] = self.s3fs.lstat(path)["ST_MTIME"]
+        else:
+            model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
         if content:
             if not self.s3fs.isfile(path):
                 self.no_such_entity(path)
@@ -158,8 +160,11 @@ class S3ContentsManager(ContentsManager, HasTraits):
         Build a file model from database record.
         """
         model = base_model(path)
-        model['type'] = 'file'
-        model['last_modified'] = model['created'] = DUMMY_CREATED_DATE
+        model["type"] = "file"
+        if self.s3fs.isfile(path):
+            model["last_modified"] = model["created"] = self.s3fs.lstat(path)["ST_MTIME"]
+        else:
+            model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
         if content:
             try:
                 content = self.s3fs.read(path)
@@ -183,7 +188,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """
         ret = []
         for path in paths:
-            path = self.s3fs.remove_prefix(path, self.prefix)    # Remove bucket prefix from paths
+            path = self.s3fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
             if os.path.basename(path) == self.s3fs.dir_keep_file:
                 continue
             type_ = self.guess_type(path, allow_directory=True)

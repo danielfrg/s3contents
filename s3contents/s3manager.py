@@ -3,7 +3,6 @@ import json
 import mimetypes
 import datetime
 
-from notebook import _tz as tz
 from tornado.web import HTTPError
 
 from s3contents.s3fs import S3FS, S3FSError, NoSuchFile
@@ -134,7 +133,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             model["content"] = self._convert_file_records(dir_content)
         return model
 
-    def _notebook_model_from_path(self, path, content=False):
+    def _notebook_model_from_path(self, path, content=False, format=None):
         """
         Build a notebook model from database record.
         """

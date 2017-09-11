@@ -14,7 +14,6 @@ env:
 
 before_install:
   - pwd
-  # - source .ci/install_go.sh
   - source .ci/start_minio.sh
   - source .ci/install_python.sh
 

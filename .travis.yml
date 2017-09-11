@@ -16,7 +16,6 @@ before_install:
   - pwd
   # - source .ci/install_go.sh
   # - source .ci/install_python.sh
-  - travis_debug
   - source .ci/start_minio.sh
 
 install:

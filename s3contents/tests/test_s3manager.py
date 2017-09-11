@@ -12,7 +12,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
         self.contents_manager = S3ContentsManager(
             access_key_id="access-key",
             secret_access_key="secret-key",
-            endpoint_url="http://localhost:9000",
+            endpoint_url="http://127.0.0.1:9000",
             bucket_name="notebooks",
             # endpoint_url="https://play.minio.io:9000",
             # bucket_name="s3contents-test2",

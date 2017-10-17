@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import six
+import datetime
 from s3contents.ipycompat import HasTraits, Unicode
+
+DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(0)
 
 
 class BaseFS(HasTraits):
@@ -75,6 +78,15 @@ class BaseFS(HasTraits):
         else:
             files = list(files)
         return map(self.as_path, files)
+
+    def lstat(self, path):
+        key = self.as_key(path)
+        if not self.isfile(path):
+            raise NoSuchFileException(self.as_path(key))
+
+        info = {}
+        info["ST_MTIME"] = DUMMY_CREATED_DATE
+        return info
 
     def as_key(self, path):
         """Utility: Make a path a S3 key

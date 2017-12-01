@@ -5,7 +5,7 @@ import datetime
 
 from tornado.web import HTTPError
 
-from s3contents.s3fs import S3FS
+from s3contents.s3_fs import S3FS
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode

@@ -11,6 +11,7 @@ except:
     # Will fail in notebook 4.X
     pass
 
+from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
 
@@ -84,7 +85,7 @@ class S3FS(GenericFS):
                 # Info will fail if path is a dir
                 self.fs.info(path_, refresh=True)
                 is_file = True
-            except s3fs.core.FileNotFoundError:
+            except FileNotFoundError:
                 pass
 
         self.log.debug("S3contents[S3FS] `%s` is a file: %s", path_, is_file)
@@ -102,7 +103,7 @@ class S3FS(GenericFS):
                 # Info will fail if path is a dir
                 self.fs.info(path_, refresh=True)
                 is_dir = False
-            except s3fs.core.FileNotFoundError:
+            except FileNotFoundError:
                 is_dir = True
 
         self.log.debug("S3contents[S3FS] `%s` is a directory: %s", path_, is_dir)

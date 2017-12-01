@@ -5,7 +5,8 @@ import datetime
 
 from tornado.web import HTTPError
 
-from s3contents.s3fs import S3FS, S3FSError, NoSuchFile
+from s3contents.s3_fs import S3FS
+from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
@@ -27,15 +28,16 @@ class S3ContentsManager(ContentsManager, HasTraits):
         "https://s3.amazonaws.com", help="S3 endpoint URL").tag(
             config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode(
-        "us-east-1", help="Region Name").tag(
+        "us-east-1", help="Region name").tag(
             config=True, env="JPYNB_S3_REGION_NAME")
-    bucket_name = Unicode(
+    bucket = Unicode(
         "notebooks", help="Bucket name to store notebooks").tag(
             config=True, env="JPYNB_S3_BUCKET_NAME")
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
+    # This makes the checkpoints get saved on thi directory
     root_dir = Unicode("./", config=True)
 
     def __init__(self, *args, **kwargs):
@@ -47,7 +49,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             secret_access_key=self.secret_access_key,
             endpoint_url=self.endpoint_url,
             region_name=self.region_name,
-            bucket_name=self.bucket_name,
+            bucket=self.bucket,
             prefix=self.prefix,
             signature_version=self.signature_version,
             delimiter=self.delimiter)
@@ -84,17 +86,17 @@ class S3ContentsManager(ContentsManager, HasTraits):
 
     def file_exists(self, path):
         # Does a file exist at the given path?
-        self.log.debug("S3contents[S3manager]: file_exists '%s'", path)
+        self.log.debug("S3contents[S3manager.file_exists]: ('%s')", path)
         return self.s3fs.isfile(path)
 
     def dir_exists(self, path):
         # Does a directory exist at the given path?
-        self.log.debug("S3contents[S3manager]: dir_exists '%s'", path)
+        self.log.debug("S3contents[S3manager.dir_exists]: path('%s')", path)
         return self.s3fs.isdir(path)
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
-        self.log.debug("S3contents[S3manager]: get '%s' %s %s", path, type, format)
+        self.log.debug("S3contents[S3manager.get] path('%s') type(%s) format(%s)", path, type, format)
         path = path.strip('/')
 
         if type is None:
@@ -111,25 +113,25 @@ class S3ContentsManager(ContentsManager, HasTraits):
         return func(path=path, content=content, format=format)
 
     def _get_directory(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager]: get_directory '%s' %s %s", path, type, format)
+        self.log.debug("S3contents[S3manager.get_directory]: path('%s') content(%s) format(%s)", path, content, format)
         return self._directory_model_from_path(path, content=content)
 
     def _get_notebook(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager]: get_notebook '%s' %s %s", path, content, format)
+        self.log.debug("S3contents[S3manager.get_notebook]: path('%s') type(%s) format(%s)", path, content, format)
         return self._notebook_model_from_path(path, content=content, format=format)
 
     def _get_file(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager]: get_file '%s' %s %s", path, content, format)
+        self.log.debug("S3contents[S3manager.get_file]: path('%s') type(%s) format(%s)", path, content, format)
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
-        self.log.debug("S3contents[S3manager]: _directory_model_from_path '%s' %s", path, content)
+        self.log.debug("S3contents[S3manager._directory_model_from_path]: path('%s') type(%s)", path, content)
         model = base_directory_model(path)
         if content:
             if not self.dir_exists(path):
                 self.no_such_entity(path)
             model["format"] = "json"
-            dir_content = self.s3fs.listdir(path=path, with_prefix=True)
+            dir_content = self.s3fs.ls(path=path)
             model["content"] = self._convert_file_records(dir_content)
         return model
 
@@ -169,7 +171,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
                 content = self.s3fs.read(path)
             except NoSuchFile as e:
                 self.no_such_entity(e.path)
-            except S3FSError as e:
+            except GenericFSError as e:
                 self.do_error(str(e), 500)
             model["format"] = format or "text"
             model["content"] = content
@@ -187,7 +189,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         """
         ret = []
         for path in paths:
-            path = self.s3fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
+            # path = self.s3fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
             if os.path.basename(path) == self.s3fs.dir_keep_file:
                 continue
             type_ = self.guess_type(path, allow_directory=True)

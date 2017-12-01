@@ -23,8 +23,8 @@ c = get_config()
 # Tell Jupyter to use S3ContentsManager for storage
 c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.endpoint_url = "http://localhost:9000"
-c.S3ContentsManager.access_key_id = "key"
-c.S3ContentsManager.secret_access_key = "secret"
+c.S3ContentsManager.access_key_id = "access-key"
+c.S3ContentsManager.secret_access_key = "secret-key"
 c.S3ContentsManager.bucket_name = "notebooks"
 
 c.NotebookApp.open_browser = False

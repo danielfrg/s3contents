@@ -14,8 +14,8 @@ env:
 
 before_install:
   - pwd
-  - source .ci/start_minio.sh
-  - source .ci/install_python.sh
+  - source ci/start_minio.sh
+  - source ci/install_python.sh
 
 install:
   - which python

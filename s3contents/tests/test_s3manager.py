@@ -13,19 +13,17 @@ class S3ContentsManagerTestCase(TestContentsManager):
             access_key_id="access-key",
             secret_access_key="secret-key",
             endpoint_url="http://127.0.0.1:9000",
-            bucket_name="notebooks",
+            bucket="notebooks",
             # endpoint_url="https://play.minio.io:9000",
-            # bucket_name="s3contents-test2",
+            # bucket="s3contents-test2",
             signature_version="s3v4")
 
+        self.tearDown()
+
     def tearDown(self):
-        bucket = self.contents_manager.s3fs.bucket
-
-        objects_to_delete = []
-        for obj in bucket.objects.filter(Prefix=""):
-            objects_to_delete.append({"Key": obj.key})
-
-        bucket.delete_objects(Delete={"Objects": objects_to_delete})
+        for item in self.contents_manager.s3fs.ls(""):
+            self.contents_manager.s3fs.rm(item)
+        self.contents_manager.s3fs.init()
 
     # Overwrites from TestContentsManager
 

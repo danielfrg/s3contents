@@ -28,7 +28,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
         "https://s3.amazonaws.com", help="S3 endpoint URL").tag(
             config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode(
-        "us-east-1", help="Region Name").tag(
+        "us-east-1", help="Region name").tag(
             config=True, env="JPYNB_S3_REGION_NAME")
     bucket = Unicode(
         "notebooks", help="Bucket name to store notebooks").tag(

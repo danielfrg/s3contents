@@ -11,7 +11,6 @@ except:
     # Will fail in notebook 4.X
     pass
 
-from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
 
@@ -28,7 +27,7 @@ class S3FS(GenericFS):
         "s3.amazonaws.com", help="S3 endpoint URL").tag(
             config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode(
-        "us-east-1", help="Region Name").tag(
+        "us-east-1", help="Region name").tag(
             config=True, env="JPYNB_S3_REGION_NAME")
     bucket = Unicode(
         "notebooks", help="Bucket name to store notebooks").tag(
@@ -63,6 +62,7 @@ class S3FS(GenericFS):
     def init(self):
         self.mkdir("")
         self.ls("")
+        self.isdir("")
 
     #  GenericFS methods -----------------------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ class S3FS(GenericFS):
                 # Info will fail if path is a dir
                 self.fs.info(path_, refresh=True)
                 is_file = True
-            except FileNotFoundError:
+            except s3fs.core.FileNotFoundError:
                 pass
 
         self.log.debug("S3contents[S3FS] `%s` is a file: %s", path_, is_file)
@@ -102,7 +102,7 @@ class S3FS(GenericFS):
                 # Info will fail if path is a dir
                 self.fs.info(path_, refresh=True)
                 is_dir = False
-            except FileNotFoundError:
+            except s3fs.core.FileNotFoundError:
                 is_dir = True
 
         self.log.debug("S3contents[S3FS] `%s` is a directory: %s", path_, is_dir)

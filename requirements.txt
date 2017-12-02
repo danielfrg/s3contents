@@ -1,6 +1,5 @@
 jupyter
 boto3
-s3fs
 requests
-nose
-mock
+s3fs
+gcsfs

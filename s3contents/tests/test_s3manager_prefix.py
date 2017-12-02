@@ -22,9 +22,9 @@ class S3ContentsManagerTestCase(TestContentsManager):
         self.tearDown()
 
     def tearDown(self):
-        for item in self.contents_manager.s3fs.ls(""):
-            self.contents_manager.s3fs.rm(item)
-        self.contents_manager.s3fs.init()
+        for item in self.contents_manager.fs.ls(""):
+            self.contents_manager.fs.rm(item)
+        self.contents_manager.fs.init()
 
     # Overwrites from TestContentsManager
 

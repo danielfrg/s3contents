@@ -5,6 +5,13 @@ import datetime
 
 from tornado.web import HTTPError
 
+try:
+    # This is needed for notebook 5.0, 5.1, 5.2(maybe)
+    import notebook.transutils
+except:
+    # Will fail in notebook 4.X
+    pass
+
 from s3contents.s3_fs import S3FS
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import ContentsManager
@@ -32,7 +39,7 @@ class S3ContentsManager(ContentsManager, HasTraits):
             config=True, env="JPYNB_S3_REGION_NAME")
     bucket = Unicode(
         "notebooks", help="Bucket name to store notebooks").tag(
-            config=True, env="JPYNB_S3_BUCKET_NAME")
+            config=True, env="JPYNB_S3_BUCKET")
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)

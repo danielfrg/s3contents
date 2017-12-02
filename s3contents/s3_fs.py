@@ -4,13 +4,6 @@ Utilities to make S3 look like a regular file system
 import six
 import s3fs
 
-try:
-    # This is needed for notebook 5.0, 5.1, 5.2(maybe)
-    import notebook.transutils
-except:
-    # Will fail in notebook 4.X
-    pass
-
 from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
@@ -32,7 +25,7 @@ class S3FS(GenericFS):
             config=True, env="JPYNB_S3_REGION_NAME")
     bucket = Unicode(
         "notebooks", help="Bucket name to store notebooks").tag(
-            config=True, env="JPYNB_S3_BUCKET_NAME")
+            config=True, env="JPYNB_S3_BUCKET")
     signature_version = Unicode(help="").tag(config=True)
 
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)

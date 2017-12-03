@@ -12,4 +12,4 @@ except:
     pass
 
 from .s3manager import S3ContentsManager
-# from .gcsmanager import GCSContentsManager
+from .gcsmanager import GCSContentsManager

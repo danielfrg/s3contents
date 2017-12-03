@@ -11,3 +11,5 @@ dependencies:
   - mock
   - pytest
   - twine
+  - pip:
+    - gcsfs

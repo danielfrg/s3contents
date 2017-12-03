@@ -4,19 +4,19 @@
 
 # S3Contents
 
-A S3 backed ContentsManager implementation for Jupyter.
+A S3 and GCS backed ContentsManager implementation for Jupyter.
 
 It aims to a be a transparent, drop-in replacement for Jupyter standard filesystem-backed storage system.
 With this implementation of a Jupyter Contents Manager you can save all your notebooks, regular files, directories
-structure directly to a S3 bucket, this could be on AWS or a self hosted S3 API compatible like [minio](http://minio.io).
+structure directly to a S3/GCS bucket, this could be on AWS/GCP or a self hosted S3 API compatible like [minio](http://minio.io).
 
 While there is some implementations of this functionality already available online [2] I wasn't able to make
 them work in newer Jupyter Notebook installations. This aims to be a better tested one
-by being highly based on the nice [PGContents](https://github.com/quantopian/pgcontents)[1].
+by being highly based on the awesome [PGContents](https://github.com/quantopian/pgcontents)[1].
 
 ## Prerequisites
 
-Write access (valid credentials) to an S3 bucket, this could be on AWS or a self hosted S3 like [minio](http://minio.io).
+Write access (valid credentials) to an S3/GCS bucket, this could be on AWS/GCP or a self hosted S3 like [minio](http://minio.io).
 
 ## Installation
 
@@ -28,6 +28,8 @@ $ pip install s3contents
 
 Edit `~/.jupyter/jupyter_notebook_config.py` by filling the missing values:
 
+### S3
+
 ```python
 from s3contents import S3ContentsManager
 
@@ -37,7 +39,7 @@ c = get_config()
 c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = <AWS Access Key ID / IAM Access Key ID>
 c.S3ContentsManager.secret_access_key = <AWS Secret Access Key / IAM Secret Access Key>
-c.S3ContentsManager.bucket_name = "<>"
+c.S3ContentsManager.bucket_name = "<bucket-name>>"
 ```
 
 Example for `play.minio.io:9000`:
@@ -52,8 +54,24 @@ c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = "Q3AM3UQ867SPQQA43P2F"
 c.S3ContentsManager.secret_access_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
 c.S3ContentsManager.endpoint_url = "http://play.minio.io:9000"
-c.S3ContentsManager.bucket_name = "s3contents-demo"
+c.S3ContentsManager.bucket = "s3contents-demo"
 c.S3ContentsManager.prefix = "notebooks/test"
+```
+
+### GCP
+
+Note that the file `~/.config/gcloud/application_default_credentials.json` assumes a posix system
+when you did `gcloud init`
+
+```python
+from s3contents import GCSContentsManager
+
+c = get_config(
+
+c.NotebookApp.contents_manager_class = GCSContentsManager
+c.GCSContentsManager.project = "<your-project>"
+c.GCSContentsManager.token = "~/.config/gcloud/application_default_credentials.json"
+c.GCSContentsManager.bucket = "<bucket-name>"
 ```
 
 ## AWS IAM

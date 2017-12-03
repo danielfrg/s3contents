@@ -1,22 +1,22 @@
+import os
+import pytest
+
+from s3contents.tests.utils import GCS_TEST
+from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
 
-from s3contents import S3ContentsManager
 
-
-class S3ContentsManagerTestCase(TestContentsManager):
+@GCS_TEST
+class GCSContentsManagerTestCase(TestContentsManager):
 
     def setUp(self):
         """
-        This setup is a hardcoded to the use a little minio server that run on travis CI or play.minio.io:9000
+        This setup is a hardcoded to run on my laptop and GCP account :)
         """
-        self.contents_manager = S3ContentsManager(
-            access_key_id="access-key",
-            secret_access_key="secret-key",
-            endpoint_url="http://127.0.0.1:9000",
-            bucket="notebooks",
-            # endpoint_url="https://play.minio.io:9000",
-            # bucket="s3contents-test2",
-            signature_version="s3v4")
+        self.contents_manager = GCSContentsManager(
+            project="continuum-compute",
+            token="~/.config/gcloud/application_default_credentials.json",
+            bucket="gcsfs-test")
 
         self.tearDown()
 

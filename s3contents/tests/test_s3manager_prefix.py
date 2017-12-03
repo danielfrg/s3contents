@@ -3,7 +3,7 @@ from s3contents.ipycompat import TestContentsManager
 from s3contents import S3ContentsManager
 
 
-class S3ContentsManagerTestCase(TestContentsManager):
+class S3ContentsManagerTestCase_prefix(TestContentsManager):
 
     def setUp(self):
         """

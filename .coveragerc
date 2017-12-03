@@ -2,5 +2,7 @@
 omit =
     s3contents/tests/*
     s3contents/_version.py
+    s3contents/gcs_fs.py
+    s3contents/gcsmanager.py
 source =
     s3contents

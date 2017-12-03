@@ -62,7 +62,7 @@ class S3FS(GenericFS):
 
     def ls(self, path):
         path_ = self.path(path)
-        self.log.debug("S3contents[S3FS] Listing directory: `%s`", path_)
+        self.log.debug("S3contents.S3FS: Listing directory: `%s`", path_)
         files = self.fs.ls(path_, refresh=True)
         return self.unprefix(files)
 
@@ -81,7 +81,7 @@ class S3FS(GenericFS):
             except FileNotFoundError:
                 pass
 
-        self.log.debug("S3contents[S3FS] `%s` is a file: %s", path_, is_file)
+        self.log.debug("S3contents.S3FS: `%s` is a file: %s", path_, is_file)
         return is_file
 
     def isdir(self, path):
@@ -99,17 +99,17 @@ class S3FS(GenericFS):
             except FileNotFoundError:
                 is_dir = True
 
-        self.log.debug("S3contents[S3FS] `%s` is a directory: %s", path_, is_dir)
+        self.log.debug("S3contents.S3FS: `%s` is a directory: %s", path_, is_dir)
         return is_dir
 
     def mv(self, old_path, new_path):
-        self.log.debug("S3contents[S3FS] Move file `%s` to `%s`", old_path, new_path)
+        self.log.debug("S3contents.S3FS: Move file `%s` to `%s`", old_path, new_path)
         self.cp(old_path, new_path)
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
         old_path_, new_path_ = self.path(old_path), self.path(new_path)
-        self.log.debug("S3contents[S3FS] Coping `%s` to `%s`", old_path_, new_path_)
+        self.log.debug("S3contents.S3FS: Coping `%s` to `%s`", old_path_, new_path_)
 
         if self.isdir(old_path):
             old_dir_path, new_dir_path = old_path, new_path
@@ -122,17 +122,17 @@ class S3FS(GenericFS):
 
     def rm(self, path):
         path_ = self.path(path)
-        self.log.debug("S3contents[S3FS] Removing: `%s`", path_)
+        self.log.debug("S3contents.S3FS: Removing: `%s`", path_)
         if self.isfile(path):
-            self.log.debug("S3contents[S3FS] Removing file: `%s`", path_)
+            self.log.debug("S3contents.S3FS: Removing file: `%s`", path_)
             self.fs.rm(path_)
         elif self.isdir(path):
-            self.log.debug("S3contents[S3FS] Removing directory: `%s`", path_)
+            self.log.debug("S3contents.S3FS: Removing directory: `%s`", path_)
             self.fs.rmdir(path_ + self.delimiter, recursive=True)
 
     def mkdir(self, path):
         path_ = self.path(path, self.dir_keep_file)
-        self.log.debug("S3contents[S3FS] Making dir: `%s`", path_)
+        self.log.debug("S3contents.S3FS: Making dir: `%s`", path_)
         self.fs.touch(path_)
 
     def read(self, path):
@@ -152,7 +152,7 @@ class S3FS(GenericFS):
 
     def write(self, path, content):
         path_ = self.path(self.unprefix(path))
-        self.log.debug("S3contents[S3FS] Writing file: `%s`", path_)
+        self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode='wb') as f:
             f.write(content.encode("utf-8"))
 

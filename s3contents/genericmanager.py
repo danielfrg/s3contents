@@ -59,17 +59,17 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def file_exists(self, path):
         # Does a file exist at the given path?
-        self.log.debug("S3contents[S3manager.file_exists]: ('%s')", path)
+        self.log.debug("S3contents.GenericManager.file_exists: ('%s')", path)
         return self.fs.isfile(path)
 
     def dir_exists(self, path):
         # Does a directory exist at the given path?
-        self.log.debug("S3contents[S3manager.dir_exists]: path('%s')", path)
+        self.log.debug("S3contents.GenericManager.dir_exists: path('%s')", path)
         return self.fs.isdir(path)
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
-        self.log.debug("S3contents[S3manager.get] path('%s') type(%s) format(%s)", path, type, format)
+        self.log.debug("S3contents.GenericManager.get] path('%s') type(%s) format(%s)", path, type, format)
         path = path.strip('/')
 
         if type is None:
@@ -86,19 +86,19 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return func(path=path, content=content, format=format)
 
     def _get_directory(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager.get_directory]: path('%s') content(%s) format(%s)", path, content, format)
+        self.log.debug("S3contents.GenericManager.get_directory: path('%s') content(%s) format(%s)", path, content, format)
         return self._directory_model_from_path(path, content=content)
 
     def _get_notebook(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager.get_notebook]: path('%s') type(%s) format(%s)", path, content, format)
+        self.log.debug("S3contents.GenericManager.get_notebook: path('%s') type(%s) format(%s)", path, content, format)
         return self._notebook_model_from_path(path, content=content, format=format)
 
     def _get_file(self, path, content=True, format=None):
-        self.log.debug("S3contents[S3manager.get_file]: path('%s') type(%s) format(%s)", path, content, format)
+        self.log.debug("S3contents.GenericManager.get_file: path('%s') type(%s) format(%s)", path, content, format)
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
-        self.log.debug("S3contents[S3manager._directory_model_from_path]: path('%s') type(%s)", path, content)
+        self.log.debug("S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)", path, content)
         model = base_directory_model(path)
         if content:
             if not self.dir_exists(path):
@@ -179,7 +179,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def save(self, model, path):
         """Save a file or directory model to path.
         """
-        self.log.debug("S3contents[S3manager]: save %s: '%s'", model, path)
+        self.log.debug("S3contents.GenericManager: save %s: '%s'", model, path)
         if "type" not in model:
             self.do_error("No model type provided", 400)
         if "content" not in model and model["type"] != "directory":
@@ -225,11 +225,11 @@ class GenericContentsManager(ContentsManager, HasTraits):
         NOTE: This method is unfortunately named on the base class.  It
         actually moves a file or a directory.
         """
-        self.log.debug("S3contents[S3manager]: Init rename of '%s' to '%s'", old_path, new_path)
+        self.log.debug("S3contents.GenericManager: Init rename of '%s' to '%s'", old_path, new_path)
         if self.file_exists(new_path) or self.dir_exists(new_path):
             self.already_exists(new_path)
         elif self.file_exists(old_path) or self.dir_exists(old_path):
-            self.log.debug("S3contents[S3manager]: Actually renaming '%s' to '%s'", old_path,
+            self.log.debug("S3contents.GenericManager: Actually renaming '%s' to '%s'", old_path,
                            new_path)
             self.fs.mv(old_path, new_path)
         else:
@@ -238,7 +238,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def delete_file(self, path):
         """Delete the file or directory at path.
         """
-        self.log.debug("S3contents[S3manager]: delete_file '%s'", path)
+        self.log.debug("S3contents.GenericManager: delete_file '%s'", path)
         if self.file_exists(path) or self.dir_exists(path):
             self.fs.rm(path)
         else:
@@ -247,7 +247,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def is_hidden(self, path):
         """Is path a hidden directory or file?
         """
-        self.log.debug("S3contents[S3manager]: is_hidden '%s'", path)
+        self.log.debug("S3contents.GenericManager: is_hidden '%s'", path)
         return False
 
 

@@ -1,14 +1,13 @@
 import os
 import pytest
 
+from s3contents.tests.utils import GCS_TEST
 from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
 
-RUN_GCSFS_TESTS = "RUN_GCSFS_TESTS" not in os.environ
-pytestmark = pytest.mark.skipif(RUN_GCSFS_TESTS, reason="Only run if tell to")
 
-
-class GCSContentsManagerTestCase(TestContentsManager):
+@GCS_TEST
+class GCSContentsManagerTestCase_prefix(TestContentsManager):
 
     def setUp(self):
         """

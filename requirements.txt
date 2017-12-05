@@ -4,3 +4,4 @@ requests
 s3fs
 gcsfs
 mock
+nose

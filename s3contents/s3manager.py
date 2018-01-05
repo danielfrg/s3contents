@@ -25,6 +25,7 @@ class S3ContentsManager(GenericContentsManager):
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
+    sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
 
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
@@ -38,4 +39,5 @@ class S3ContentsManager(GenericContentsManager):
             bucket=self.bucket,
             prefix=self.prefix,
             signature_version=self.signature_version,
-            delimiter=self.delimiter)
+            delimiter=self.delimiter,
+            sse=self.sse)

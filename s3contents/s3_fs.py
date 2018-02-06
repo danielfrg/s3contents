@@ -27,6 +27,7 @@ class S3FS(GenericFS):
         "notebooks", help="Bucket name to store notebooks").tag(
             config=True, env="JPYNB_S3_BUCKET")
     signature_version = Unicode(help="").tag(config=True)
+    sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
 
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
@@ -45,11 +46,15 @@ class S3FS(GenericFS):
         config_kwargs = {}
         if self.signature_version:
             config_kwargs["signature_version"] = self.signature_version
+        s3_additional_kwargs = {}
+        if self.sse:
+            s3_additional_kwargs["ServerSideEncryption"] = self.sse
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,
                                     client_kwargs=client_kwargs,
-                                    config_kwargs=config_kwargs)
+                                    config_kwargs=config_kwargs,
+                                    s3_additional_kwargs=s3_additional_kwargs)
 
         self.init()
 

@@ -65,7 +65,7 @@ class S3FS(GenericFS):
 
     #  GenericFS methods -----------------------------------------------------------------------------------------------
 
-    def ls(self, path):
+    def ls(self, path=""):
         path_ = self.path(path)
         self.log.debug("S3contents.S3FS: Listing directory: `%s`", path_)
         files = self.fs.ls(path_, refresh=True)

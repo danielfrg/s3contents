@@ -3,6 +3,7 @@ Utilities to make S3 look like a regular file system
 """
 import six
 import s3fs
+import base64
 
 from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
@@ -157,7 +158,14 @@ class S3FS(GenericFS):
 
     def write(self, path, content):
         path_ = self.path(self.unprefix(path))
+        content_ = base64.b64decode(content)
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
+        with self.fs.open(path_, mode='wb') as f:
+            f.write(content_)
+
+    def writenotebook(self, path, content):
+        path_ = self.path(self.unprefix(path))
+        self.log.debug("S3contents.S3FS: Writing notebook: `%s`", path_)
         with self.fs.open(path_, mode='wb') as f:
             f.write(content.encode("utf-8"))
 

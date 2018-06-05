@@ -5,3 +5,4 @@ s3fs==0.1.2
 gcsfs
 mock
 nose
+storefact

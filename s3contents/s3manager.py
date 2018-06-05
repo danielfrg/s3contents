@@ -1,7 +1,9 @@
+import json
+
 from s3contents.ipycompat import Unicode
 
 from s3contents.s3_fs import S3FS
-from s3contents.genericmanager import GenericContentsManager
+from s3contents.genericmanager import from_dict, GenericContentsManager
 
 
 class S3ContentsManager(GenericContentsManager):
@@ -41,3 +43,11 @@ class S3ContentsManager(GenericContentsManager):
             signature_version=self.signature_version,
             delimiter=self.delimiter,
             sse=self.sse)
+
+    def _save_notebook(self, model, path):
+        nb_contents = from_dict(model['content'])
+        self.check_and_sign(nb_contents, path)
+        file_contents = json.dumps(model["content"])
+        self._fs.writenotebook(path, file_contents)
+        self.validate_notebook_model(model)
+        return model.get("message")

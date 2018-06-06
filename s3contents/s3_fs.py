@@ -134,7 +134,8 @@ class S3FS(GenericFS):
             self.fs.rm(path_)
         elif self.isdir(path):
             self.log.debug("S3contents.S3FS: Removing directory: `%s`", path_)
-            self.fs.rmdir(path_ + self.delimiter, recursive=True)
+            self.fs.rm(path_ + self.delimiter, recursive=True)
+            # self.fs.rmdir(path_ + self.delimiter, recursive=True)
 
     def mkdir(self, path):
         path_ = self.path(path, self.dir_keep_file)

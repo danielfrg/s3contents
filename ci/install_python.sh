@@ -11,7 +11,8 @@ conda --version
 # Create `test` environment
 conda create -n test python=$TRAVIS_PYTHON_VERSION
 export PATH=$HOME/miniconda/envs/test/bin:$PATH
-pip install nose pytest pytest-cov python-coveralls
+pip install pytest pytest-cov python-coveralls nose mock
+pip install -r requirements.txt
 
 # Install specific Jupyter Notebook version
 pip install -U "notebook==$JUPYTER_VERSION"

@@ -7,9 +7,9 @@ dependencies:
   - boto3
   - s3fs
   - requests
+  - pytest
   - nose
   - mock
-  - pytest
   - twine
   - pip:
     - gcsfs

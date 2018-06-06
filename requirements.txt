@@ -3,5 +3,3 @@ boto3
 requests
 s3fs==0.1.5
 gcsfs
-mock
-nose

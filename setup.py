@@ -4,14 +4,12 @@ from setuptools import find_packages
 
 import versioneer
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def read_file(filename):
-    filepath = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), filename)
-    if os.path.exists(filepath):
-        return open(filepath).read()
-    else:
-        return ''
+    filepath = os.path.join(BASE_DIR, filename)
+    with  open(filepath) as f:
+        return f.read()
 
 REQUIREMENTS = read_file("requirements.txt").splitlines()
 

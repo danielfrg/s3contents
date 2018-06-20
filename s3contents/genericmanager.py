@@ -10,7 +10,7 @@ from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
 
-DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(0)
+DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
 NBFORMAT_VERSION = 4
 
 

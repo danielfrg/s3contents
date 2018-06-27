@@ -10,6 +10,10 @@ python:
 
 env:
   - JUPYTER_VERSION="4.*"
+  - JUPYTER_VERSION="5.1"
+  - JUPYTER_VERSION="5.2"
+  - JUPYTER_VERSION="5.3"
+  - JUPYTER_VERSION="5.4"
   - JUPYTER_VERSION="5.*"
 
 before_install:

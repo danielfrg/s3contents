@@ -159,10 +159,9 @@ class S3FS(GenericFS):
 
     def write(self, path, content):
         path_ = self.path(self.unprefix(path))
-        content_ = base64.b64decode(content)
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode='wb') as f:
-            f.write(content_)
+            f.write(content.encode("utf-8"))
 
     def writenotebook(self, path, content):
         path_ = self.path(self.unprefix(path))

@@ -214,7 +214,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def _save_file(self, model, path):
         file_contents = model["content"]
-        self.fs.write(path, file_contents)
+        file_format = model.get('format')
+        self.fs.write(path, file_contents, file_format)
 
     def _save_directory(self, path):
         self.fs.mkdir(path)

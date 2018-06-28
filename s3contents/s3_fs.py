@@ -9,6 +9,8 @@ from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
 
+from tornado.web import HTTPError
+
 class S3FS(GenericFS):
 
     access_key_id = Unicode(
@@ -157,11 +159,26 @@ class S3FS(GenericFS):
         ret["ST_MTIME"] = info["LastModified"]
         return ret
 
-    def write(self, path, content):
+    def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
+        if format not in {'text', 'base64'}:
+            raise HTTPError(
+                400,
+                "Must specify format of file contents as 'text' or 'base64'",
+            )
+        try:
+            if format == 'text':
+                content_ = content.encode('utf8')
+            else:
+                b64_bytes = content.encode('ascii')
+                content_ = base64.b64decode(b64_bytes)
+        except Exception as e:
+            raise HTTPError(
+                400, u'Encoding error saving %s: %s' % (path_, e)
+            )
         with self.fs.open(path_, mode='wb') as f:
-            f.write(content.encode("utf-8"))
+            f.write(content_)
 
     def writenotebook(self, path, content):
         path_ = self.path(self.unprefix(path))

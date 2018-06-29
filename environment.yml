@@ -10,7 +10,7 @@ dependencies:
   - pytest
   - nose
   - mock
-  - twine
   - pip:
     - gcsfs
+    - twine>=1.11.0
     - wheel

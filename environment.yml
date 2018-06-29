@@ -13,4 +13,4 @@ dependencies:
   - pip:
     - gcsfs
     - twine>=1.11.0
-    - wheel
+    - wheel>=0.31.0

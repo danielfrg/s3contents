@@ -34,7 +34,7 @@ class GenericFS(HasTraits):
     def lstat(self, path):
         raise NotImplemented("Should be implemented by the file system abstraction")
 
-    def write(self, path, content):
+    def write(self, path, content, format):
         raise NotImplemented("Should be implemented by the file system abstraction")
 
 

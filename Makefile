@@ -1,16 +1,18 @@
 PWD := $(shell pwd)
 S3DIR := ${PWD}/s3-data
 
+all: tests
+
 .PHONY: minio
 minio:  ## Run minio server
-	mkdir -p ${S3DIR}/notebooks; docker run -p 9000:9000 -v ${S3DIR}:/export -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio server /export
+	mkdir -p ${S3DIR}/notebooks; docker run -p 9000:9000 -v ${S3DIR}:/export -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /export
 
-.PHONY: test
-test:  ## Run tests
+.PHONY: tests
+tests:  ## Run tests
 	py.test -s -vv s3contents/tests
 
 .PHONY: build
-build:  ## BUild package
+build:  ## Build package
 	python setup.py sdist
 
 .PHONY: upload
@@ -25,6 +27,6 @@ env:  ## Create dev environment
 clean:  ##
 	rm -rf ${S3DIR} ; source deactivate; conda env remove -y -n s3-contents-dev
 
-.PHONY: help
+PHONY: help
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?##"; OFS="\t\t"}; {printf "\033[36m%-30s\033[0m %s\n", $$1, ($$2==""?"":$$2)}'

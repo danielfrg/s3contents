@@ -2,15 +2,14 @@ name: s3-contents-dev
 channels:
   - conda-forge
 dependencies:
-  - python=3.6
-  - jupyter
-  - boto3
-  - s3fs
-  - requests
-  - pytest
-  - nose
-  - mock
+  - python=3.7
   - pip:
+  - pytest
+    - boto3
+    - requests
+    - s3fs
     - gcsfs
+    - nose
+    - mock
     - twine>=1.11.0
     - wheel>=0.31.0

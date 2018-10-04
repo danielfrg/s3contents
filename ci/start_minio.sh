@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # go get -u github.com/minio/minio
-wget https://dl.minio.io/server/minio/release/linux-amd64/minio
+curl https://dl.minio.io/server/minio/release/linux-amd64/archive/minio.RELEASE.2018-06-29T02-11-29Z -o minio
 chmod +x minio
 
 export MINIO_ACCESS_KEY=access-key

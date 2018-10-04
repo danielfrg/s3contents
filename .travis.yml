@@ -33,3 +33,6 @@ script:
 
 after_success:
   - coveralls
+
+after_failure:
+  - cat /tmp/minio.log

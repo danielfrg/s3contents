@@ -2,9 +2,8 @@ Create dev environment
 
 ```
 make env
-
-conda activate s3-contents-dev
-pip install -e .
+conda activate s3contents-dev
+make deps
 ```
 
 Start minio

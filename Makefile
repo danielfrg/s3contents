@@ -16,12 +16,18 @@ build:  ## Build package
 	python setup.py sdist
 
 .PHONY: upload
-upload:  ## Uplaod package to pypi
+upload:  ## Upload package to pypi
 	twine upload dist/*.tar.gz
 
 .PHONY: env
 env:  ## Create dev environment
-	conda env create
+	@conda create -y -n s3contents-dev python=3.7
+	
+.PHONY: deps
+deps:  ## Install dev dependencies
+	@pip install pytest pytest-cov python-coveralls nose mock
+	@pip install -r requirements.txt
+	@pip install -e .
 
 .PHONY: clean
 clean:  ##

@@ -1,10 +1,10 @@
-name: s3-contents-dev
+name: s3contents-dev
 channels:
   - conda-forge
 dependencies:
   - python=3.7
   - pip:
-  - pytest
+    - pytest
     - boto3
     - requests
     - s3fs

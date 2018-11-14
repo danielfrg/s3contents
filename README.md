@@ -39,6 +39,7 @@ c = get_config()
 c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = <AWS Access Key ID / IAM Access Key ID>
 c.S3ContentsManager.secret_access_key = <AWS Secret Access Key / IAM Secret Access Key>
+c.S3ContentsManager.session_token = <AWS Session Token / IAM Session Token>
 c.S3ContentsManager.bucket = "<bucket-name>>"
 ```
 

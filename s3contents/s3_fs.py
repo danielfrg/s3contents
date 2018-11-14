@@ -38,6 +38,12 @@ class S3FS(GenericFS):
     dir_keep_file = Unicode(
         ".s3keep", help="Empty file to create when creating directories").tag(config=True)
 
+    session_token = Unicode(
+        help="S3/AWS session token",
+        allow_none=True,
+        default_value=None
+    ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -55,6 +61,7 @@ class S3FS(GenericFS):
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,
+                                    token=self.session_token,
                                     client_kwargs=client_kwargs,
                                     config_kwargs=config_kwargs,
                                     s3_additional_kwargs=s3_additional_kwargs)

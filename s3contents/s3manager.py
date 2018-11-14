@@ -29,6 +29,12 @@ class S3ContentsManager(GenericContentsManager):
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
     sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
 
+    session_token = Unicode(
+        help="S3/AWS session token",
+        allow_none=True,
+        default_value=None
+    ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
+
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
@@ -40,6 +46,7 @@ class S3ContentsManager(GenericContentsManager):
             region_name=self.region_name,
             bucket=self.bucket,
             prefix=self.prefix,
+            session_token=self.session_token,
             signature_version=self.signature_version,
             delimiter=self.delimiter,
             sse=self.sse)

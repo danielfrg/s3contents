@@ -39,6 +39,7 @@ c = get_config()
 c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = <AWS Access Key ID / IAM Access Key ID>
 c.S3ContentsManager.secret_access_key = <AWS Secret Access Key / IAM Secret Access Key>
+c.S3ContentsManager.session_token = <AWS Session Token / IAM Session Token>
 c.S3ContentsManager.bucket = "<bucket-name>>"
 ```
 
@@ -80,6 +81,49 @@ It is also possible to use IAM Role-based access to the S3 bucket from an Amazon
 just leave ```access_key_id``` and ```secret_access_key``` set to their default values (```None```), and ensure that
 the EC2 instance has an IAM role which provides sufficient permissions for the bucket and the operations necessary.
 
+## Access local files
+
+To access local file as well as remote files in S3 you can use `pgcontents.`.
+
+First: 
+```
+pip install pgcontents
+```
+
+And use a configuration like this:
+
+```python
+from s3contents import S3ContentsManager
+from pgcontents.hybridmanager import HybridContentsManager
+from IPython.html.services.contents.filemanager import FileContentsManager
+
+c = get_config()
+
+c.NotebookApp.contents_manager_class = HybridContentsManager
+
+c.HybridContentsManager.manager_classes = {
+    # Associate the root directory with a PostgresContentsManager.
+    # This manager will receive all requests that don"t fall under any of the
+    # other managers.
+    "": S3ContentsManager,
+    # Associate /directory with a FileContentsManager.
+    "local_directory": FileContentsManager,
+}
+
+c.HybridContentsManager.manager_kwargs = {
+    # Args for root PostgresContentsManager.
+    "": {
+        "access_key_id": "access-key",
+        "secret_access_key": "secret-key",
+        "endpoint_url": "http://localhost:9000",
+        "bucket": "notebooks",
+    },
+    # Args for the FileContentsManager mapped to /directory
+    "local_directory": {
+        "root_dir": "/Users/drodriguez/Downloads",
+    },
+}
+```
 
 ## See also
 

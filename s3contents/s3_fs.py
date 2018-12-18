@@ -3,10 +3,13 @@ Utilities to make S3 look like a regular file system
 """
 import six
 import s3fs
+import base64
 
 from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
+
+from tornado.web import HTTPError
 
 class S3FS(GenericFS):
 
@@ -35,6 +38,12 @@ class S3FS(GenericFS):
     dir_keep_file = Unicode(
         ".s3keep", help="Empty file to create when creating directories").tag(config=True)
 
+    session_token = Unicode(
+        help="S3/AWS session token",
+        allow_none=True,
+        default_value=None
+    ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -52,6 +61,7 @@ class S3FS(GenericFS):
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,
+                                    token=self.session_token,
                                     client_kwargs=client_kwargs,
                                     config_kwargs=config_kwargs,
                                     s3_additional_kwargs=s3_additional_kwargs)
@@ -155,9 +165,30 @@ class S3FS(GenericFS):
         ret["ST_MTIME"] = info["LastModified"]
         return ret
 
-    def write(self, path, content):
+    def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
+        if format not in {'text', 'base64'}:
+            raise HTTPError(
+                400,
+                "Must specify format of file contents as 'text' or 'base64'",
+            )
+        try:
+            if format == 'text':
+                content_ = content.encode('utf8')
+            else:
+                b64_bytes = content.encode('ascii')
+                content_ = base64.b64decode(b64_bytes)
+        except Exception as e:
+            raise HTTPError(
+                400, u'Encoding error saving %s: %s' % (path_, e)
+            )
+        with self.fs.open(path_, mode='wb') as f:
+            f.write(content_)
+
+    def writenotebook(self, path, content):
+        path_ = self.path(self.unprefix(path))
+        self.log.debug("S3contents.S3FS: Writing notebook: `%s`", path_)
         with self.fs.open(path_, mode='wb') as f:
             f.write(content.encode("utf-8"))
 

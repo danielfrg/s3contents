@@ -1,7 +1,7 @@
-jupyter
+notebook
+ipykernel<5.*
 boto3
 requests
-s3fs==0.1.2
-gcsfs
-mock
+s3fs==0.1.5
+gcsfs==0.1.2
 nose

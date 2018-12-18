@@ -10,7 +10,7 @@ from s3contents.ipycompat import ContentsManager
 from s3contents.ipycompat import HasTraits, Unicode
 from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
 
-DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(0)
+DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
 NBFORMAT_VERSION = 4
 
 
@@ -214,7 +214,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def _save_file(self, model, path):
         file_contents = model["content"]
-        self.fs.write(path, file_contents)
+        file_format = model.get('format')
+        self.fs.write(path, file_contents, file_format)
 
     def _save_directory(self, path):
         self.fs.mkdir(path)

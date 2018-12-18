@@ -126,7 +126,7 @@ class GCSFS(GenericFS):
         ret["ST_MTIME"] = info["updated"]
         return ret
 
-    def write(self, path, content):
+    def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.GCSFS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode='wb') as f:

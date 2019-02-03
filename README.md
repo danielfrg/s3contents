@@ -40,7 +40,12 @@ c.NotebookApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = <AWS Access Key ID / IAM Access Key ID>
 c.S3ContentsManager.secret_access_key = <AWS Secret Access Key / IAM Secret Access Key>
 c.S3ContentsManager.session_token = <AWS Session Token / IAM Session Token>
-c.S3ContentsManager.bucket = "<bucket-name>>"
+c.S3ContentsManager.bucket = "<bucket-name>"
+
+# Optional settings:
+c.S3ContentsManager.prefix = "this/is/a/prefix"
+c.S3ContentsManager.sse = "AES256"
+c.S3ContentsManager.signature_version = "s3v4"
 ```
 
 Example for `play.minio.io:9000`:

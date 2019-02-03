@@ -5,6 +5,7 @@ dependencies:
   - python=3.7
   - pip:
     - pytest
+    - pylint
     - boto3
     - requests
     - s3fs

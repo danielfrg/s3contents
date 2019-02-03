@@ -88,7 +88,6 @@ class S3FS(GenericFS):
 
     def init(self):
         try:
-            raise ClientError({}, "AccessDenied")
             self.mkdir("")
             self.ls("")
             self.isdir("")

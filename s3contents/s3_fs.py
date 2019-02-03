@@ -1,15 +1,33 @@
 """
 Utilities to make S3 look like a regular file system
 """
+import os
+import sys
 import six
 import s3fs
 import base64
+
+from tornado.web import HTTPError
+from botocore.exceptions import ClientError
 
 from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
 
-from tornado.web import HTTPError
+
+SAMPLE_ACCESS_POLICY = """
+{{
+    "Sid": "S3contentsKeepFile",
+    "Action": [
+        "s3:*"
+    ],
+    "Effect": "Allow",
+    "Resource": [
+        "arn:aws:s3:::{bucket}/.s3keep"
+    ]
+}}
+"""
+
 
 class S3FS(GenericFS):
 
@@ -69,9 +87,18 @@ class S3FS(GenericFS):
         self.init()
 
     def init(self):
-        self.mkdir("")
-        self.ls("")
-        self.isdir("")
+        try:
+            raise ClientError({}, "AccessDenied")
+            self.mkdir("")
+            self.ls("")
+            self.isdir("")
+        except ClientError as ex:
+            if "AccessDenied" in str(ex):
+                policy = SAMPLE_ACCESS_POLICY.format(bucket=os.path.join(self.bucket, self.prefix))
+                self.log.error("AccessDenied error while creating initial S3 objects. Create an IAM policy like:\n{policy}".format(policy=policy))
+                sys.exit(1)
+            else:
+                raise ex
 
     #  GenericFS methods -----------------------------------------------------------------------------------------------
 

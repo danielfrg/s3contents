@@ -10,9 +10,9 @@ It aims to a be a transparent, drop-in replacement for Jupyter standard filesyst
 With this implementation of a Jupyter Contents Manager you can save all your notebooks, regular files, directories
 structure directly to a S3/GCS bucket, this could be on AWS/GCP or a self hosted S3 API compatible like [minio](http://minio.io).
 
-While there is some implementations of this functionality already available online [2] I wasn't able to make
+While there is some implementations of this functionality already available online ([s3nb](https://github.com/monetate/s3nb) or [s3drive](https://github.com/stitchfix/s3drive)) I wasn't able to make
 them work in newer Jupyter Notebook installations. This aims to be a better tested one
-by being highly based on the awesome [PGContents](https://github.com/quantopian/pgcontents)[1].
+by being highly based on the awesome [PGContents](https://github.com/quantopian/pgcontents).
 
 ## Prerequisites
 
@@ -129,8 +129,3 @@ c.HybridContentsManager.manager_kwargs = {
     },
 }
 ```
-
-## See also
-
-1. [PGContents](https://github.com/quantopian/pgcontents)
-2. [s3nb](https://github.com/monetate/s3nb) or [s3drive](https://github.com/stitchfix/s3drive)

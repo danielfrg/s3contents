@@ -22,10 +22,10 @@ upload:  ## Upload package to pypi
 .PHONY: env
 env:  ## Create dev environment
 	@conda create -y -n s3contents-dev python=3.7
-	
+
 .PHONY: deps
 deps:  ## Install dev dependencies
-	@pip install pytest pytest-cov python-coveralls nose mock
+	@pip install pytest pytest-cov python-coveralls nose mock twine
 	@pip install -r requirements.txt
 	@pip install -e .
 

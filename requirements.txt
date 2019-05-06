@@ -1,5 +1,5 @@
 notebook
-ipykernel<5.*
+ipykernel
 boto3
 requests
 s3fs==0.1.5

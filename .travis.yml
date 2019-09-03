@@ -14,7 +14,15 @@ env:
   - JUPYTER_VERSION="5.2"
   - JUPYTER_VERSION="5.3"
   - JUPYTER_VERSION="5.4"
+  - JUPYTER_VERSION="5.6"
+  - JUPYTER_VERSION="5.7"
   - JUPYTER_VERSION="5.*"
+  - JUPYTER_VERSION="6.*"
+
+matrix:
+  exclude:
+  - python: 2.7
+    env: JUPYTER_VERSION="6.*"
 
 before_install:
   - pwd

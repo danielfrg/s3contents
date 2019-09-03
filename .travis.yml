@@ -6,8 +6,7 @@ notifications:
 
 python:
   - 2.7
-  - 3.6
-  - 3.7
+  - 3.5
 
 env:
   - JUPYTER_VERSION="4.*"

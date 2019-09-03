@@ -129,3 +129,22 @@ c.HybridContentsManager.manager_kwargs = {
     },
 }
 ```
+
+# Dockerfile
+
+A Docker image is provided. The following environment variables are required:
+
+- AWS_ACCESS_KEY_ID="<AWS Access Key ID / IAM Access Key ID>"
+- AWS_SECRET_ACCESS_KEY="<AWS Secret Access Key / IAM Secret Access Key>"
+- S3_BUCKET="<bucket-name>"
+- JUPYTER_PASSWORD="<Jupyter password for accessing the notebooks>"
+
+The following environment variables are optional:
+- S3_PREFIX: "this/is/a/prefix". Default notebooks/
+
+An [environment file](https://docs.docker.com/compose/env-file/) is a good way to store those variables. To start the script, run
+
+```
+docker run --rm --env-file .env -p 8888:8888 danielfrg/s3contents
+```
+

@@ -5,8 +5,8 @@ Taken from: https://github.com/quantopian/pgcontents/blob/master/pgcontents/util
 """
 
 import notebook
-if notebook.version_info[0] >= 6:  # noqa
-    raise ImportError("Jupyter Notebook versions 6 and up are not supported.")
+# if notebook.version_info[0] >= 7:  # noqa
+#     raise ImportError("Jupyter Notebook versions 6 and up are not supported.")
 
 from traitlets.config import Config
 from notebook.services.contents.checkpoints import (
@@ -72,4 +72,3 @@ __all__ = [
     'to_os_path',
     'writes',
 ]
-

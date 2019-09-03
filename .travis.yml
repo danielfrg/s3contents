@@ -15,6 +15,7 @@ env:
   - JUPYTER_VERSION="5.3"
   - JUPYTER_VERSION="5.4"
   - JUPYTER_VERSION="5.*"
+  - JUPYTER_VERSION="6.*"
 
 before_install:
   - pwd

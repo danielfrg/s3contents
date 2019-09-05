@@ -107,7 +107,7 @@ c = get_config()
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {
-    # Associate the root directory with a PostgresContentsManager.
+    # Associate the root directory with an S3ContentsManager.
     # This manager will receive all requests that don"t fall under any of the
     # other managers.
     "": S3ContentsManager,
@@ -116,7 +116,7 @@ c.HybridContentsManager.manager_classes = {
 }
 
 c.HybridContentsManager.manager_kwargs = {
-    # Args for root PostgresContentsManager.
+    # Args for root S3ContentsManager.
     "": {
         "access_key_id": "access-key",
         "secret_access_key": "secret-key",

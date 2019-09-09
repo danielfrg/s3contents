@@ -29,6 +29,8 @@ class S3ContentsManager(GenericContentsManager):
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
     sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
 
+    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
+
     session_token = Unicode(
         help="S3/AWS session token",
         allow_none=True,
@@ -49,7 +51,8 @@ class S3ContentsManager(GenericContentsManager):
             session_token=self.session_token,
             signature_version=self.signature_version,
             delimiter=self.delimiter,
-            sse=self.sse)
+            sse=self.sse,
+            kms_key_id= self.kms_key_id)
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model['content'])

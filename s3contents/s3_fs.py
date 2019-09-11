@@ -49,6 +49,7 @@ class S3FS(GenericFS):
             config=True, env="JPYNB_S3_BUCKET")
     signature_version = Unicode(help="").tag(config=True)
     sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
+    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
 
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
@@ -76,6 +77,8 @@ class S3FS(GenericFS):
         s3_additional_kwargs = {}
         if self.sse:
             s3_additional_kwargs["ServerSideEncryption"] = self.sse
+        if self.kms_key_id:
+            s3_additional_kwargs["SSEKMSKeyId"]= self.kms_key_id
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,

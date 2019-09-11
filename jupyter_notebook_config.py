@@ -14,9 +14,14 @@ c.S3ContentsManager.bucket = os.environ["S3_BUCKET"]
 
 # Optional settings:
 c.S3ContentsManager.prefix = os.environ.get("S3_PREFIX", "notebooks/")
-#c.S3ContentsManager.sse = "AES256"
 #c.S3ContentsManager.signature_version = "s3v4"
 
+# If SSE S3 encryption is needed
+#c.S3ContentsManager.sse = "AES256"
+
+# If SSE KMS encryption is needed using a CMK
+#c.S3ContentsManager.sse = "aws:kms"
+#c.S3ContentsManager.kms_key_id = "arn:aws:kms:us-east-1:123456789012:alias/KMS_KEY"
 
 # Configuration file for jupyter-notebook.
 

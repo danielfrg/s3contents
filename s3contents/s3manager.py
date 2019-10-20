@@ -37,6 +37,8 @@ class S3ContentsManager(GenericContentsManager):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
+    botocore_session = Unicode(help="Instantiated botocore obj used in place of default").tag(config=True)
+
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
@@ -52,7 +54,8 @@ class S3ContentsManager(GenericContentsManager):
             signature_version=self.signature_version,
             delimiter=self.delimiter,
             sse=self.sse,
-            kms_key_id= self.kms_key_id)
+            kms_key_id= self.kms_key_id,
+            botocore_session=self.botocore_session)
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model['content'])

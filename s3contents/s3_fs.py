@@ -63,6 +63,8 @@ class S3FS(GenericFS):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
+    botocore_session = Unicode(help="Instantiated botocore obj used in place of default").tag(config=True)
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -79,6 +81,8 @@ class S3FS(GenericFS):
             s3_additional_kwargs["ServerSideEncryption"] = self.sse
         if self.kms_key_id:
             s3_additional_kwargs["SSEKMSKeyId"]= self.kms_key_id
+        if self.botocore_session:
+            s3_additional_kwargs["session"] = self.botocore_session
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,

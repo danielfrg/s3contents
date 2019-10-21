@@ -84,6 +84,7 @@ class S3FS(GenericFS):
             s3_additional_kwargs["SSEKMSKeyId"]= self.kms_key_id
         if self.botocore_session:
             s3_additional_kwargs["session"] = self.botocore_session
+            self.log.debug("---botocore_session was set so adding to kwargs: " + str(s3_additional_kwargs))
 
         self.fs = s3fs.S3FileSystem(key=self.access_key_id,
                                     secret=self.secret_access_key,

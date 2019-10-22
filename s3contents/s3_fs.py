@@ -88,7 +88,7 @@ class S3FS(GenericFS):
                                     token=self.session_token,
                                     client_kwargs=client_kwargs,
                                     config_kwargs=config_kwargs,
-                                    s3_additional_kwargs=s3_additional_kwargs
+                                    s3_additional_kwargs=s3_additional_kwargs,
                                     session=self.botocore_session)
 
         self.init()

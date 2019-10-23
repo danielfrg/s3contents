@@ -64,7 +64,7 @@ class S3FS(GenericFS):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
-    botocore_session = Any(help="Instantiated botocore obj used in place of default").tag(config=True)
+    boto3_session = Any(help="Place to store customer boto3 session instance - likely passed in")
 
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
@@ -89,7 +89,7 @@ class S3FS(GenericFS):
                                     client_kwargs=client_kwargs,
                                     config_kwargs=config_kwargs,
                                     s3_additional_kwargs=s3_additional_kwargs,
-                                    session=self.botocore_session)
+                                    session=self.boto3_session)
 
         self.init()
 

@@ -37,7 +37,7 @@ class S3ContentsManager(GenericContentsManager):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
-    botocore_session = Any(help="Instantiated botocore obj used in place of default").tag(config=True)
+    boto3_session = Any(help="Place to store custom boto3 session (passed to S3_FS) - could be set by init_s3_hook")
     init_s3_hook = Any(help="optional hook for init'ing s3").tag(config=True)
 
     def __init__(self, *args, **kwargs):
@@ -58,7 +58,7 @@ class S3ContentsManager(GenericContentsManager):
             delimiter=self.delimiter,
             sse=self.sse,
             kms_key_id= self.kms_key_id,
-            botocore_session=self.botocore_session)
+            boto3_session=self.boto3_session)
 
     def run_init_s3_hook(self):
         if self.init_s3_hook is not None:

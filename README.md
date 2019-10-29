@@ -121,7 +121,7 @@ def make_key_refresh_boto3(self):
     my_s3_session =  boto3.Session(botocore_session=refresh_session)
     self.boto3_session = my_s3_session
 
-# Tell Jupyter to use S3ContentsManager for all storage.                                                                                                                            
+# Tell Jupyter to use S3ContentsManager for all storage.
 c.NotebookApp.contents_manager_class = S3ContentsManager
 
 c.S3ContentsManager.init_s3_hook = make_key_refresh_boto3

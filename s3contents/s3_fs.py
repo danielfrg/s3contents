@@ -12,6 +12,7 @@ from botocore.exceptions import ClientError
 
 from s3contents.compat import FileNotFoundError
 from s3contents.ipycompat import Unicode
+from traitlets import Any
 from s3contents.genericfs import GenericFS, NoSuchFile
 
 
@@ -63,6 +64,8 @@ class S3FS(GenericFS):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
+    boto3_session = Any(help="Place to store customer boto3 session instance - likely passed in")
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -85,7 +88,8 @@ class S3FS(GenericFS):
                                     token=self.session_token,
                                     client_kwargs=client_kwargs,
                                     config_kwargs=config_kwargs,
-                                    s3_additional_kwargs=s3_additional_kwargs)
+                                    s3_additional_kwargs=s3_additional_kwargs,
+                                    session=self.boto3_session)
 
         self.init()
 

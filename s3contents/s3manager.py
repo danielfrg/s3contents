@@ -1,7 +1,7 @@
 import json
 
 from s3contents.ipycompat import Unicode
-
+from traitlets import Any
 from s3contents.s3_fs import S3FS
 from s3contents.genericmanager import from_dict, GenericContentsManager
 
@@ -37,8 +37,13 @@ class S3ContentsManager(GenericContentsManager):
         default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
+    boto3_session = Any(help="Place to store custom boto3 session (passed to S3_FS) - could be set by init_s3_hook")
+    init_s3_hook = Any(help="optional hook for init'ing s3").tag(config=True)
+
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
+
+        self.run_init_s3_hook()
 
         self._fs = S3FS(
             log=self.log,
@@ -52,7 +57,12 @@ class S3ContentsManager(GenericContentsManager):
             signature_version=self.signature_version,
             delimiter=self.delimiter,
             sse=self.sse,
-            kms_key_id= self.kms_key_id)
+            kms_key_id= self.kms_key_id,
+            boto3_session=self.boto3_session)
+
+    def run_init_s3_hook(self):
+        if self.init_s3_hook is not None:
+            self.init_s3_hook(self)
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model['content'])

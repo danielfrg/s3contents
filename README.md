@@ -115,11 +115,11 @@ session_credentials = RefreshableCredentials.create_from_metadata(
         method = 'custom-refreshing-key-file-reader'
 )
 
-def make_key_refresh_boto3(self):
+def make_key_refresh_boto3(this_s3contents_instance):
     refresh_session =  get_session() # from botocore.session
     refresh_session._credentials = session_credentials
     my_s3_session =  boto3.Session(botocore_session=refresh_session)
-    self.boto3_session = my_s3_session
+    this_s3contents_instance.boto3_session = my_s3_session
 
 # Tell Jupyter to use S3ContentsManager for all storage.
 c.NotebookApp.contents_manager_class = S3ContentsManager

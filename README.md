@@ -129,18 +129,18 @@ c.S3ContentsManager.init_s3_hook = make_key_refresh_boto3
 
 ## Access local files
 
-To access local file as well as remote files in S3 you can use `pgcontents.`.
+To access local file as well as remote files in S3 you can use [hybridcontents](https://github.com/viaduct-ai/hybridcontents).
 
 First: 
 ```
-pip install pgcontents
+pip install hybridcontents
 ```
 
 And use a configuration like this:
 
 ```python
 from s3contents import S3ContentsManager
-from pgcontents.hybridmanager import HybridContentsManager
+from hybridcontents import HybridContentsManager
 from IPython.html.services.contents.filemanager import FileContentsManager
 
 c = get_config()

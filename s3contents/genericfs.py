@@ -28,7 +28,7 @@ class GenericFS(HasTraits):
     def mkdir(self, path):
         raise NotImplemented("Should be implemented by the file system abstraction")
 
-    def read(self, path):
+    def read(self, path, format):
         raise NotImplemented("Should be implemented by the file system abstraction")
 
     def lstat(self, path):

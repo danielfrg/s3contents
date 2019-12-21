@@ -121,7 +121,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
-            file_content = self.fs.read(path)
+            file_content = self.fs.read(path, format)
             nb_content = reads(file_content, as_version=NBFORMAT_VERSION)
             self.mark_trusted_cells(nb_content, path)
             model["format"] = "json"
@@ -141,7 +141,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
         if content:
             try:
-                content = self.fs.read(path)
+                content = self.fs.read(path, format)
             except NoSuchFile as e:
                 self.no_such_entity(e.path)
             except GenericFSError as e:
@@ -149,10 +149,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["format"] = format or "text"
             model["content"] = content
             model["mimetype"] = mimetypes.guess_type(path)[0] or "text/plain"
-            if format == "base64":
-                model["format"] = format or "base64"
-                from base64 import b64decode
-                model["content"] = b64decode(content)
         return model
 
     def _convert_file_records(self, paths):

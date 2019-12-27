@@ -184,13 +184,23 @@ class S3FS(GenericFS):
         self.log.debug("S3contents.S3FS: Making dir: `%s`", path_)
         self.fs.touch(path_)
 
-    def read(self, path):
+    def read(self, path, format):
         path_ = self.path(path)
         if not self.isfile(path):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode='rb') as f:
-            content = f.read().decode("utf-8")
-        return content
+            content = f.read()
+        if format is None or format == 'text':
+            # Try to interpret as unicode if format is unknown or if unicode
+            # was explicitly requested.
+            try:
+                return content.decode("utf-8")
+            except UnicodeError:
+                if format == 'text':
+                    err = "{} is not UTF-8 encoded".format(path_)
+                    self.log.error(err)
+                    raise HTTPError(400, err, reason='bad format')
+        return base64.b64encode(content).decode("ascii")
 
     def lstat(self, path):
         path_ = self.path(path)

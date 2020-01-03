@@ -15,9 +15,13 @@ tests:  ## Run tests
 build:  ## Build package
 	python setup.py sdist
 
-.PHONY: upload
-upload:  ## Upload package to pypi
+.PHONY: upload-pypi
+upload-pypi:  ## Upload package to pypi
 	twine upload dist/*.tar.gz
+
+.PHONY: upload-test
+upload-test:  ## Upload package to pypi test repository
+	twine upload --repository testpypi dist/*.tar.gz
 
 .PHONY: env
 env:  ## Create dev environment

@@ -1,3 +1,17 @@
-- Tag version: `git tag 1.0.0`
-- Build: `make build`
-- Upload with twine: `make upload`
+## How to releae a new version
+
+```
+export VERSION=1.0.0
+git commit -am "Release ${VERSION}" --allow-empty
+git tag -a ${VERSION} -m "${VERSION}"
+git push origin ${VERSION}
+git push
+```
+
+```
+make build
+make upload-pypi
+
+# Or to upload to test-pypi
+make upload-test
+```

@@ -100,6 +100,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def _directory_model_from_path(self, path, content=False):
         self.log.debug("S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)", path, content)
         model = base_directory_model(path)
+        if self.fs.isdir(path):
+            lstat = self.fs.lstat(path)
+            if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
+                model["last_modified"] = model["created"] = lstat["ST_MTIME"]
         if content:
             if not self.dir_exists(path):
                 self.no_such_entity(path)

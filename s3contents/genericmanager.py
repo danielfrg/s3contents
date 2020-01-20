@@ -121,7 +121,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
-            file_content = self.fs.read(path, format)
+            file_content, _ = self.fs.read(path, format)
             nb_content = reads(file_content, as_version=NBFORMAT_VERSION)
             self.mark_trusted_cells(nb_content, path)
             model["format"] = "json"

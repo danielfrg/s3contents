@@ -117,7 +117,7 @@ class GCSFS(GenericFS):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode='rb') as f:
             content = f.read().decode("utf-8")
-        return content
+        return content, 'text'
 
     def lstat(self, path):
         path_ = self.path(path)

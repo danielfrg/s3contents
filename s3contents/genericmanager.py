@@ -141,12 +141,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
         if content:
             try:
-                content = self.fs.read(path, format)
+                # Get updated format from fs.read()
+                content, format_ = self.fs.read(path, format)
             except NoSuchFile as e:
                 self.no_such_entity(e.path)
             except GenericFSError as e:
                 self.do_error(str(e), 500)
-            model["format"] = format or "text"
+            model["format"] = format_
             model["content"] = content
             model["mimetype"] = mimetypes.guess_type(path)[0] or "text/plain"
         return model

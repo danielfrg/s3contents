@@ -194,13 +194,13 @@ class S3FS(GenericFS):
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:
-                return content.decode("utf-8")
+                return content.decode("utf-8"), 'text'
             except UnicodeError:
                 if format == 'text':
                     err = "{} is not UTF-8 encoded".format(path_)
                     self.log.error(err)
                     raise HTTPError(400, err, reason='bad format')
-        return base64.b64encode(content).decode("ascii")
+        return base64.b64encode(content).decode("ascii"), 'base64'
 
     def lstat(self, path):
         path_ = self.path(path)

@@ -121,7 +121,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
-            file_content = self.fs.read(path, format)
+            file_content, _ = self.fs.read(path, format)
             nb_content = reads(file_content, as_version=NBFORMAT_VERSION)
             self.mark_trusted_cells(nb_content, path)
             model["format"] = "json"
@@ -141,12 +141,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
         if content:
             try:
-                content = self.fs.read(path, format)
+                # Get updated format from fs.read()
+                content, format_ = self.fs.read(path, format)
             except NoSuchFile as e:
                 self.no_such_entity(e.path)
             except GenericFSError as e:
                 self.do_error(str(e), 500)
-            model["format"] = format or "text"
+            model["format"] = format_
             model["content"] = content
             model["mimetype"] = mimetypes.guess_type(path)[0] or "text/plain"
         return model

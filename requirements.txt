@@ -2,6 +2,6 @@ notebook
 ipykernel
 boto3
 requests
-s3fs==0.2.2
+s3fs>=0.3.4
 gcsfs>=0.2.1
 nose

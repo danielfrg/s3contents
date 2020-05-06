@@ -16,6 +16,7 @@ jobs:
         jupyter-version: ["6.*"]
 
     steps:
+    - uses: actions/checkout@v2
 
     - name: Serve Minio
       run: |
@@ -24,8 +25,6 @@ jobs:
     - name: Verify Minio
       run: |
         curl http://localhost:9000/
-
-    - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1

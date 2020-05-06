@@ -12,7 +12,7 @@ def read_file(filename):
         return file.read()
 
 setup(
-    name="s3conents",
+    name="s3contents",
     version=versioneer.get_version(),
     description="",
     long_description=read_file("README.md"),

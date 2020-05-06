@@ -12,7 +12,7 @@ pip install -e .
 
 ## Testing
 
-Start minio
+Start minio in one terminal:
 
 ```
 make minio
@@ -42,4 +42,8 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {"debug": True}
 ```
 
-Run `jupyter notebook` in the `s3-contents` environment
+Start Jupyter Notebook in another terminal:
+
+```
+jupyter notebook
+```

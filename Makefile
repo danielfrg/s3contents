@@ -36,8 +36,8 @@ help:  ## Show this help menu
 # ------------------------------------------------------------------------------
 # Package build, test and docs
 
-.PHONY: env
-	env:  ## Create dev environment
+.PHONY: env  ## Create dev environment
+env:
 	conda env create
 
 
@@ -83,4 +83,5 @@ tests:  ## Run tests
 
 .PHONY: minio
 minio:  ## Run minio server
-	mkdir -p ${S3DIR}/notebooks; docker run -p 9000:9000 -v ${S3DIR}:/export -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /export
+	@mkdir -p ${S3DIR}/notebooks
+	docker run -p 9000:9000 -v ${S3DIR}:/export -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /export

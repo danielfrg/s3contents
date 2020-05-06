@@ -37,7 +37,7 @@ jobs:
 
     - name: Verify Minio
       run: |
-        mkdir -p /tmp/tmp-data/notebooks
+        sudo mkdir -p /tmp/tmp-data/notebooks
         curl http://localhost:9000/
 
     - name: Set up Python ${{ matrix.python-version }}

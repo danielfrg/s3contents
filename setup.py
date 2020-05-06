@@ -21,7 +21,6 @@ setup(
     # cmdclass={},
     # entry_points = {},
     test_suite="word2vec/tests",
-    setup_requires=["setuptools_scm"],
     install_requires=read_file("requirements.package.txt").splitlines(),
     tests_require=["pytest",],
     python_requires=">=3.5",

@@ -73,8 +73,8 @@ upload-test:  ## Upload package to test PyPI
 	twine upload --repository testpypi dist/*.tar.gz
 
 
-.PHONY: tests
-tests:  ## Run tests
+.PHONY: test
+test:  ## Run tests
 	pytest -s -vv s3contents/tests -k $(TEST_FILTER)
 
 

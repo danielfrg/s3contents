@@ -8,7 +8,7 @@ MAKEFLAGS += --no-builtin-rules
 TEST_FILTER ?= ""
 
 PWD := $(shell pwd)
-S3DIR := ${PWD}/s3-data
+S3DIR := ${PWD}/tmp-data
 
 
 first: help

@@ -30,13 +30,14 @@ jobs:
           MINIO_ACCESS_KEY: access-key
           MINIO_SECRET_KEY: secret-key
         volumes:
-          - /tmp:/data
+          - /tmp/tmp-data:/data
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Verify Minio
       run: |
+        mkdir -p /tmp/tmp-data/notebooks
         curl http://localhost:9000/
 
     - name: Set up Python ${{ matrix.python-version }}

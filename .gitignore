@@ -107,4 +107,4 @@ dmypy.json
 .ipynb_checkpoints
 
 ### Project specific ###
-s3-data
+tmp-data

@@ -12,10 +12,10 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.8]
-        jupyter-version: ["6.*"]
-        # python-version: [3.7, 3.8]
-        # jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
+        # python-version: [3.8]
+        # jupyter-version: ["6.*"]
+        python-version: [3.7, 3.8]
+        jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
 
     # We don't use Minio official image because we cant specify the command
     # in Github Actions

@@ -30,7 +30,7 @@ jobs:
           MINIO_ACCESS_KEY: access-key
           MINIO_SECRET_KEY: secret-key
         volumes:
-          /tmp:/data
+          - /tmp:/data
 
     steps:
     - uses: actions/checkout@v2

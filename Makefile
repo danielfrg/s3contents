@@ -59,7 +59,7 @@ check:  ## Check linting
 
 .PHONY: fmt
 fmt:  ## Format source
-	@isort --recursive --project {{ cookiecutter.project_name }} --section-default THIRDPARTY s3contents .
+	@isort --recursive --project s3contents --section-default THIRDPARTY s3contents .
 	@black s3contents .
 
 

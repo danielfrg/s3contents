@@ -1,10 +1,8 @@
-from s3contents.ipycompat import TestContentsManager
-
 from s3contents import S3ContentsManager
+from s3contents.ipycompat import TestContentsManager
 
 
 class S3ContentsManagerTestCase_prefix(TestContentsManager):
-
     def setUp(self):
         """
         This setup is a hardcoded to the use a little minio server that run on travis CI or play.minio.io:9000
@@ -17,7 +15,8 @@ class S3ContentsManagerTestCase_prefix(TestContentsManager):
             # endpoint_url="https://play.minio.io:9000",
             # bucket="s3contents-test",
             prefix="this/is/the/prefix",
-            signature_version="s3v4")
+            signature_version="s3v4",
+        )
 
         self.tearDown()
 
@@ -30,8 +29,8 @@ class S3ContentsManagerTestCase_prefix(TestContentsManager):
 
     def make_dir(self, api_path):
         self.contents_manager.new(
-            model={"type": "directory"},
-            path=api_path,)
+            model={"type": "directory"}, path=api_path,
+        )
 
 
 # This needs to be removed or else we'll run the main IPython tests as well.

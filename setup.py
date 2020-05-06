@@ -11,6 +11,7 @@ def read_file(filename):
     with open(filepath) as file:
         return file.read()
 
+
 setup(
     name="s3contents",
     version=versioneer.get_version(),
@@ -28,5 +29,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     cmdclass=versioneer.get_cmdclass(),
-    entry_points = {},
+    entry_points={},
 )

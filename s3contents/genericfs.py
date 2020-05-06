@@ -6,7 +6,6 @@ from s3contents.ipycompat import HasTraits
 
 
 class GenericFS(HasTraits):
-
     def ls(self, path=""):
         raise NotImplemented("Should be implemented by the file system abstraction")
 
@@ -43,7 +42,6 @@ class GenericFSError(Exception):
 
 
 class NoSuchFile(GenericFSError):
-
     def __init__(self, path, *args, **kwargs):
         self.path = path
         self.message = "No such file or directory: {}".format(path)

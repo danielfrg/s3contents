@@ -1,32 +1,34 @@
-import os
+import datetime
 import json
 import mimetypes
-import datetime
+import os
 
 from tornado.web import HTTPError
 
 from s3contents.gcs_fs import GCSFS
-from s3contents.ipycompat import Unicode
 from s3contents.genericmanager import GenericContentsManager
+from s3contents.ipycompat import Unicode
 
 
 class GCSContentsManager(GenericContentsManager):
 
-    project = Unicode(
-        help="GCP Project", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_GCS_PROJECT")
+    project = Unicode(help="GCP Project", allow_none=True, default_value=None).tag(
+        config=True, env="JPYNB_GCS_PROJECT"
+    )
     token = Unicode(
-        help="Path to the GCP token", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_GCS_TOKEN_PATH")
+        help="Path to the GCP token", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_GCS_TOKEN_PATH")
 
-    region_name = Unicode(
-        "us-east-1", help="Region name").tag(
-            config=True, env="JPYNB_GCS_REGION_NAME")
-    bucket = Unicode(
-        "notebooks", help="Bucket name to store notebooks").tag(
-            config=True, env="JPYNB_GCS_BUCKET")
+    region_name = Unicode("us-east-1", help="Region name").tag(
+        config=True, env="JPYNB_GCS_REGION_NAME"
+    )
+    bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
+        config=True, env="JPYNB_GCS_BUCKET"
+    )
 
-    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
+        config=True
+    )
     separator = Unicode("/", help="Path separator").tag(config=True)
 
     def __init__(self, *args, **kwargs):
@@ -38,4 +40,5 @@ class GCSContentsManager(GenericContentsManager):
             token=self.token,
             bucket=self.bucket,
             prefix=self.prefix,
-            separator=self.separator)
+            separator=self.separator,
+        )

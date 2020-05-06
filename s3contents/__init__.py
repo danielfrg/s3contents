@@ -1,4 +1,7 @@
 from ._version import get_versions
+from .gcsmanager import GCSContentsManager
+from .s3manager import S3ContentsManager
+
 __version__ = get_versions()["version"]
 del get_versions
 
@@ -10,6 +13,3 @@ try:
 except:
     # Will fail in notebook 4.X - its ok
     pass
-
-from .s3manager import S3ContentsManager
-from .gcsmanager import GCSContentsManager

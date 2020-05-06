@@ -1,14 +1,19 @@
-import os
+import datetime
 import json
 import mimetypes
-import datetime
+import os
 
 from tornado.web import HTTPError
 
 from s3contents.genericfs import GenericFSError, NoSuchFile
-from s3contents.ipycompat import ContentsManager
-from s3contents.ipycompat import HasTraits, Unicode
-from s3contents.ipycompat import reads, from_dict, GenericFileCheckpoints
+from s3contents.ipycompat import (
+    ContentsManager,
+    GenericFileCheckpoints,
+    HasTraits,
+    Unicode,
+    from_dict,
+    reads,
+)
 
 DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
 NBFORMAT_VERSION = 4
@@ -25,6 +30,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def get_fs(self):
         return self._fs
+
     fs = property(get_fs)
 
     def _checkpoints_class_default(self):
@@ -38,7 +44,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def already_exists(self, path):
         thing = "File" if self.file_exists(path) else "Directory"
-        self.do_error(u"{thing} already exists: [{path}]".format(thing=thing, path=path), 409)
+        self.do_error(
+            "{thing} already exists: [{path}]".format(thing=thing, path=path), 409
+        )
 
     def guess_type(self, path, allow_directory=True):
         """
@@ -69,8 +77,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
-        self.log.debug("S3contents.GenericManager.get] path('%s') type(%s) format(%s)", path, type, format)
-        path = path.strip('/')
+        self.log.debug(
+            "S3contents.GenericManager.get] path('%s') type(%s) format(%s)",
+            path,
+            type,
+            format,
+        )
+        path = path.strip("/")
 
         if type is None:
             type = self.guess_type(path)
@@ -86,19 +99,38 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return func(path=path, content=content, format=format)
 
     def _get_directory(self, path, content=True, format=None):
-        self.log.debug("S3contents.GenericManager.get_directory: path('%s') content(%s) format(%s)", path, content, format)
+        self.log.debug(
+            "S3contents.GenericManager.get_directory: path('%s') content(%s) format(%s)",
+            path,
+            content,
+            format,
+        )
         return self._directory_model_from_path(path, content=content)
 
     def _get_notebook(self, path, content=True, format=None):
-        self.log.debug("S3contents.GenericManager.get_notebook: path('%s') type(%s) format(%s)", path, content, format)
+        self.log.debug(
+            "S3contents.GenericManager.get_notebook: path('%s') type(%s) format(%s)",
+            path,
+            content,
+            format,
+        )
         return self._notebook_model_from_path(path, content=content, format=format)
 
     def _get_file(self, path, content=True, format=None):
-        self.log.debug("S3contents.GenericManager.get_file: path('%s') type(%s) format(%s)", path, content, format)
+        self.log.debug(
+            "S3contents.GenericManager.get_file: path('%s') type(%s) format(%s)",
+            path,
+            content,
+            format,
+        )
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
-        self.log.debug("S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)", path, content)
+        self.log.debug(
+            "S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)",
+            path,
+            content,
+        )
         model = base_directory_model(path)
         if self.fs.isdir(path):
             lstat = self.fs.lstat(path)
@@ -206,7 +238,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return model
 
     def _save_notebook(self, model, path):
-        nb_contents = from_dict(model['content'])
+        nb_contents = from_dict(model["content"])
         self.check_and_sign(nb_contents, path)
         file_contents = json.dumps(model["content"])
         self.fs.write(path, file_contents)
@@ -215,7 +247,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def _save_file(self, model, path):
         file_contents = model["content"]
-        file_format = model.get('format')
+        file_format = model.get("format")
         self.fs.write(path, file_contents, file_format)
 
     def _save_directory(self, path):
@@ -227,12 +259,17 @@ class GenericContentsManager(ContentsManager, HasTraits):
         NOTE: This method is unfortunately named on the base class.  It
         actually moves a file or a directory.
         """
-        self.log.debug("S3contents.GenericManager: Init rename of '%s' to '%s'", old_path, new_path)
+        self.log.debug(
+            "S3contents.GenericManager: Init rename of '%s' to '%s'", old_path, new_path
+        )
         if self.file_exists(new_path) or self.dir_exists(new_path):
             self.already_exists(new_path)
         elif self.file_exists(old_path) or self.dir_exists(old_path):
-            self.log.debug("S3contents.GenericManager: Actually renaming '%s' to '%s'", old_path,
-                           new_path)
+            self.log.debug(
+                "S3contents.GenericManager: Actually renaming '%s' to '%s'",
+                old_path,
+                new_path,
+            )
             self.fs.mv(old_path, new_path)
         else:
             self.no_such_entity(old_path)
@@ -255,7 +292,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
 def base_model(path):
     return {
-        "name": path.rsplit('/', 1)[-1],
+        "name": path.rsplit("/", 1)[-1],
         "path": path,
         "writable": True,
         "last_modified": None,
@@ -269,7 +306,6 @@ def base_model(path):
 def base_directory_model(path):
     model = base_model(path)
     model.update(
-        type="directory",
-        last_modified=DUMMY_CREATED_DATE,
-        created=DUMMY_CREATED_DATE,)
+        type="directory", last_modified=DUMMY_CREATED_DATE, created=DUMMY_CREATED_DATE,
+    )
     return model

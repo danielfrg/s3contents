@@ -1,20 +1,19 @@
 """
 Utilities to make S3 look like a regular file system
 """
+import base64
 import os
 import sys
-import six
-import s3fs
-import base64
 
-from tornado.web import HTTPError
+import s3fs
+import six
 from botocore.exceptions import ClientError
+from tornado.web import HTTPError
+from traitlets import Any
 
 from s3contents.compat import FileNotFoundError
-from s3contents.ipycompat import Unicode
-from traitlets import Any
 from s3contents.genericfs import GenericFS, NoSuchFile
-
+from s3contents.ipycompat import Unicode
 
 SAMPLE_ACCESS_POLICY = """
 {{
@@ -33,38 +32,41 @@ SAMPLE_ACCESS_POLICY = """
 class S3FS(GenericFS):
 
     access_key_id = Unicode(
-        help="S3/AWS access key ID", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_S3_ACCESS_KEY_ID")
+        help="S3/AWS access key ID", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
     secret_access_key = Unicode(
-        help="S3/AWS secret access key", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+        help="S3/AWS secret access key", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    endpoint_url = Unicode(
-        "s3.amazonaws.com", help="S3 endpoint URL").tag(
-            config=True, env="JPYNB_S3_ENDPOINT_URL")
-    region_name = Unicode(
-        "us-east-1", help="Region name").tag(
-            config=True, env="JPYNB_S3_REGION_NAME")
-    bucket = Unicode(
-        "notebooks", help="Bucket name to store notebooks").tag(
-            config=True, env="JPYNB_S3_BUCKET")
+    endpoint_url = Unicode("s3.amazonaws.com", help="S3 endpoint URL").tag(
+        config=True, env="JPYNB_S3_ENDPOINT_URL"
+    )
+    region_name = Unicode("us-east-1", help="Region name").tag(
+        config=True, env="JPYNB_S3_REGION_NAME"
+    )
+    bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
+        config=True, env="JPYNB_S3_BUCKET"
+    )
     signature_version = Unicode(help="").tag(config=True)
     sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
     kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
 
-    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
+        config=True
+    )
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
     dir_keep_file = Unicode(
-        ".s3keep", help="Empty file to create when creating directories").tag(config=True)
+        ".s3keep", help="Empty file to create when creating directories"
+    ).tag(config=True)
 
     session_token = Unicode(
-        help="S3/AWS session token",
-        allow_none=True,
-        default_value=None
+        help="S3/AWS session token", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
-    boto3_session = Any(help="Place to store customer boto3 session instance - likely passed in")
+    boto3_session = Any(
+        help="Place to store customer boto3 session instance - likely passed in"
+    )
 
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
@@ -81,15 +83,17 @@ class S3FS(GenericFS):
         if self.sse:
             s3_additional_kwargs["ServerSideEncryption"] = self.sse
         if self.kms_key_id:
-            s3_additional_kwargs["SSEKMSKeyId"]= self.kms_key_id
+            s3_additional_kwargs["SSEKMSKeyId"] = self.kms_key_id
 
-        self.fs = s3fs.S3FileSystem(key=self.access_key_id,
-                                    secret=self.secret_access_key,
-                                    token=self.session_token,
-                                    client_kwargs=client_kwargs,
-                                    config_kwargs=config_kwargs,
-                                    s3_additional_kwargs=s3_additional_kwargs,
-                                    session=self.boto3_session)
+        self.fs = s3fs.S3FileSystem(
+            key=self.access_key_id,
+            secret=self.secret_access_key,
+            token=self.session_token,
+            client_kwargs=client_kwargs,
+            config_kwargs=config_kwargs,
+            s3_additional_kwargs=s3_additional_kwargs,
+            session=self.boto3_session,
+        )
 
         self.init()
 
@@ -100,8 +104,14 @@ class S3FS(GenericFS):
             self.isdir("")
         except ClientError as ex:
             if "AccessDenied" in str(ex):
-                policy = SAMPLE_ACCESS_POLICY.format(bucket=os.path.join(self.bucket, self.prefix))
-                self.log.error("AccessDenied error while creating initial S3 objects. Create an IAM policy like:\n{policy}".format(policy=policy))
+                policy = SAMPLE_ACCESS_POLICY.format(
+                    bucket=os.path.join(self.bucket, self.prefix)
+                )
+                self.log.error(
+                    "AccessDenied error while creating initial S3 objects. Create an IAM policy like:\n{policy}".format(
+                        policy=policy
+                    )
+                )
                 sys.exit(1)
             else:
                 raise ex
@@ -169,19 +179,19 @@ class S3FS(GenericFS):
         path_ = self.path(path)
         if not self.isfile(path):
             raise NoSuchFile(path_)
-        with self.fs.open(path_, mode='rb') as f:
+        with self.fs.open(path_, mode="rb") as f:
             content = f.read()
-        if format is None or format == 'text':
+        if format is None or format == "text":
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:
-                return content.decode("utf-8"), 'text'
+                return content.decode("utf-8"), "text"
             except UnicodeError:
-                if format == 'text':
+                if format == "text":
                     err = "{} is not UTF-8 encoded".format(path_)
                     self.log.error(err)
-                    raise HTTPError(400, err, reason='bad format')
-        return base64.b64encode(content).decode("ascii"), 'base64'
+                    raise HTTPError(400, err, reason="bad format")
+        return base64.b64encode(content).decode("ascii"), "base64"
 
     def lstat(self, path):
         path_ = self.path(path)
@@ -199,28 +209,25 @@ class S3FS(GenericFS):
     def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
-        if format not in {'text', 'base64'}:
+        if format not in {"text", "base64"}:
             raise HTTPError(
-                400,
-                "Must specify format of file contents as 'text' or 'base64'",
+                400, "Must specify format of file contents as 'text' or 'base64'",
             )
         try:
-            if format == 'text':
-                content_ = content.encode('utf8')
+            if format == "text":
+                content_ = content.encode("utf8")
             else:
-                b64_bytes = content.encode('ascii')
+                b64_bytes = content.encode("ascii")
                 content_ = base64.b64decode(b64_bytes)
         except Exception as e:
-            raise HTTPError(
-                400, u'Encoding error saving %s: %s' % (path_, e)
-            )
-        with self.fs.open(path_, mode='wb') as f:
+            raise HTTPError(400, "Encoding error saving %s: %s" % (path_, e))
+        with self.fs.open(path_, mode="wb") as f:
             f.write(content_)
 
     def writenotebook(self, path, content):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.S3FS: Writing notebook: `%s`", path_)
-        with self.fs.open(path_, mode='wb') as f:
+        with self.fs.open(path_, mode="wb") as f:
             f.write(content.encode("utf-8"))
 
     #  Utilities -------------------------------------------------------------------------------------------------------
@@ -231,16 +238,20 @@ class S3FS(GenericFS):
         if self.prefix:
             prefix += self.delimiter + self.prefix
         return prefix
+
     prefix_ = property(get_prefix)
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         if isinstance(path, six.string_types):
-            path = path[len(self.prefix_):] if path.startswith(self.prefix_) else path
+            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path
             return path
         if isinstance(path, (list, tuple)):
-            path = [p[len(self.prefix_):] if p.startswith(self.prefix_) else p for p in path]
+            path = [
+                p[len(self.prefix_) :] if p.startswith(self.prefix_) else p
+                for p in path
+            ]
             path = [p[1:] if p.startswith(self.delimiter) else p for p in path]
             return path
 

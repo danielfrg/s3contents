@@ -1,10 +1,16 @@
+# Development
+
 Create dev environment
 
 ```
+# Create conda env
 make env
-conda activate s3contents-dev
-make deps
+conda activate jupyter-flex
+
+pip install -e .
 ```
+
+## Testing
 
 Start minio
 
@@ -12,7 +18,7 @@ Start minio
 make minio
 ```
 
-Edit `~/.jupyter/jupyter_notebook_config.py`:
+Edit local `~/.jupyter/jupyter_notebook_config.py`:
 
 ```python
 c = get_config()
@@ -36,4 +42,4 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {"debug": True}
 ```
 
-Run `jupyter notebook` in the `s3-contents-dev`
+Run `jupyter notebook` in the `s3-contents` environment

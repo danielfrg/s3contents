@@ -1,6 +1,6 @@
 # s3contents Change Log
 
-## Unreleased
+## [Unreleased]
 
 ## 0.4
 - Drop support for Python 2, only Python >=3.5 is supported now

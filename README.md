@@ -1,8 +1,8 @@
-
-[![Build Status](https://travis-ci.org/danielfrg/s3contents.svg?branch=master)](https://travis-ci.org/danielfrg/s3contents)
-[![Coverage Status](https://coveralls.io/repos/github/danielfrg/s3contents/badge.svg?branch=master)](https://coveralls.io/github/danielfrg/s3contents?branch=master)
-
 # S3Contents
+
+![Testing](http://github.com/s3contents/workflows/testing/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/danielfrg/s3contents/badge.svg?branch=master)](https://coveralls.io/github/danielfrg/s3contents?branch=master)
+[![License](http://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/s3contents/blob/master/LICENSE.txt)
 
 A S3 and GCS backed ContentsManager implementation for Jupyter.
 
@@ -111,7 +111,7 @@ def refresh_external_credentials():
 
 session_credentials = RefreshableCredentials.create_from_metadata(
         metadata = refresh_external_credentials(),
-        refresh_using = refresh_external_credentials, 
+        refresh_using = refresh_external_credentials,
         method = 'custom-refreshing-key-file-reader'
 )
 
@@ -131,12 +131,13 @@ c.S3ContentsManager.init_s3_hook = make_key_refresh_boto3
 
 To access local file as well as remote files in S3 you can use [hybridcontents](https://github.com/viaduct-ai/hybridcontents).
 
-First: 
+First install it:
+
 ```
 pip install hybridcontents
 ```
 
-And use a configuration like this:
+Use a configuration similar to this:
 
 ```python
 from s3contents import S3ContentsManager
@@ -171,21 +172,21 @@ c.HybridContentsManager.manager_kwargs = {
 }
 ```
 
-# Dockerfile
+## Dockerfile
 
 A Docker image is provided. The following environment variables are required:
 
-- AWS_ACCESS_KEY_ID="<AWS Access Key ID / IAM Access Key ID>"
-- AWS_SECRET_ACCESS_KEY="<AWS Secret Access Key / IAM Secret Access Key>"
-- S3_BUCKET="<bucket-name>"
-- JUPYTER_PASSWORD="<Jupyter password for accessing the notebooks>"
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `S3_BUCKET`
+- `JUPYTER_PASSWORD`
 
 The following environment variables are optional:
-- S3_PREFIX: "this/is/a/prefix". Default notebooks/
+- `S3_PREFIX`. Default: `notebooks/`
 
-An [environment file](https://docs.docker.com/compose/env-file/) is a good way to store those variables. To start the script, run
+An [environment file](https://docs.docker.com/compose/env-file/) is a good way to store those variables.
+To start the script, run
 
 ```
 docker run --rm --env-file .env -p 8888:8888 danielfrg/s3contents
 ```
-

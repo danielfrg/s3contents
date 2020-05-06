@@ -1,7 +1,17 @@
-notebook
-ipykernel
-boto3
+# Base conda deps
+pylint
+flake8
+black
+isort
+twine
+pytest
+pytest-cov
+
+# This project conda deps
+
+# This project pip deps
 requests
-s3fs>=0.3.4
-gcsfs>=0.2.1
-nose
+boto3
+s3fs
+gcsfs
+mock

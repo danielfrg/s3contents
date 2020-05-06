@@ -1,4 +1,7 @@
-## How to releae a new version
+## How to release a new version
+
+- Update `CHANGELOG.md`
+- Update `README.md` and docs
 
 ```
 export VERSION=1.0.0
@@ -9,9 +12,10 @@ git push
 ```
 
 ```
+make clean
 make build
 make upload-pypi
 
-# Or to upload to test-pypi
+# Upload to test PyPI
 make upload-test
 ```

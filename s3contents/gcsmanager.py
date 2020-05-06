@@ -3,8 +3,6 @@ import json
 import mimetypes
 import os
 
-from tornado.web import HTTPError
-
 from s3contents.gcs_fs import GCSFS
 from s3contents.genericmanager import GenericContentsManager
 from s3contents.ipycompat import Unicode

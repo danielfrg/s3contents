@@ -18,6 +18,7 @@ dependencies:
 
   - pip:
     # This project pip deps
+    - notebook
     - requests
     - boto3
     - s3fs

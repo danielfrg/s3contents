@@ -24,7 +24,7 @@ clean:  ## Clean build files
 
 
 .PHONY: cleanall
-cleanall:  ## Clean everything
+cleanall: clean  ## Clean everything
 	@rm -rf *.egg-info
 
 
@@ -52,7 +52,7 @@ package:  ## Build Python package (sdist)
 
 .PHONY: check
 check:  ## Check linting
-	@flake8 s3contents
+	# @flake8 s3contents
 	@isort --check-only --diff --recursive --project s3contents --section-default THIRDPARTY s3contents .
 	@black --check s3contents .
 
@@ -75,7 +75,7 @@ upload-test:  ## Upload package to test PyPI
 
 .PHONY: tests
 tests:  ## Run tests
-	pytest -vv s3contents/tests -k $(TEST_FILTER)
+	pytest -s -vv s3contents/tests -k $(TEST_FILTER)
 
 
 # ------------------------------------------------------------------------------

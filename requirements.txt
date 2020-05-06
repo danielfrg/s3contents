@@ -10,6 +10,7 @@ pytest-cov
 # This project conda deps
 
 # This project pip deps
+notebook
 requests
 boto3
 s3fs

@@ -1,7 +1,6 @@
 from .gcsmanager import GCSContentsManager
 from .s3manager import S3ContentsManager
 
-
 try:
     from ._generated_version import version as __version__
 except ImportError:

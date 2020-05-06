@@ -1,11 +1,10 @@
 import os
 
 import pytest
+from utils import GCS_TEST
 
 from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
-
-from utils import GCS_TEST
 
 
 @GCS_TEST

@@ -40,7 +40,7 @@ setup(
     # test_suite="s3contents/tests",
     setup_requires=["setuptools_scm"],
     install_requires=read_file("requirements.package.txt").splitlines(),
-    tests_require=["pytest"],
+    tests_requires=["pytest"],
     python_requires=">=3.6",
     description="S3 Contents Manager for Jupyter",
     long_description=read_file("README.md"),

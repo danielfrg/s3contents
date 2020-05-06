@@ -15,8 +15,7 @@ def read_file(filename):
 
 def parse_git(root, **kwargs):
     """
-    Parse function for setuptools_scm that ignores tags for non-C++
-    subprojects, e.g. apache-arrow-js-XXX tags.
+    Parse function for setuptools_scm
     """
     from setuptools_scm.git import parse
 

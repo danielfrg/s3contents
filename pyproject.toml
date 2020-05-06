@@ -2,6 +2,7 @@
 # Minimum requirements for the build system to execute.
 requires = [
     "setuptools",
+    "setuptools_scm",
     "wheel"
 ]
 
@@ -9,7 +10,7 @@ requires = [
 write_to = "s3contents/_generated_version.py"
 
 [tool.black]
-target-version = ['py36', 'py37', 'py38']
+target-version = ["py36", "py37", "py38"]
 exclude = '''
 (
     asv_bench/env

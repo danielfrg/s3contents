@@ -7,13 +7,15 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
-        jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
+        python-version: [3.8]
+        jupyter-version: ["6.*"]
+        # python-version: [3.7, 3.8]
+        # jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
 
     # We don't use Minio official image because we cant specify the command
     # in Github Actions
@@ -66,3 +68,21 @@ jobs:
       if: always()
       run: |
         make test
+
+    - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: run-${{ matrix.test_number }}
+          parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true

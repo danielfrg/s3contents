@@ -84,4 +84,4 @@ tests:  ## Run tests
 .PHONY: minio
 minio:  ## Run minio server
 	@mkdir -p ${S3DIR}/notebooks
-	docker run -p 9000:9000 -v ${S3DIR}:/export -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /export
+	docker run -p 9000:9000 -v ${S3DIR}:/data -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /data

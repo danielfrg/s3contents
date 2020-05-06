@@ -80,7 +80,7 @@ upload-test:  ## Upload package to test PyPI
 
 .PHONY: test
 test:  ## Run tests
-	pytest -s -vv --pyargs s3contents -k $(TEST_FILTER)
+	pytest -s -vv s3contents/tests -k $(TEST_FILTER)
 
 
 # ------------------------------------------------------------------------------

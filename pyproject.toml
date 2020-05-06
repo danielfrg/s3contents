@@ -5,6 +5,9 @@ requires = [
     "wheel"
 ]
 
+[tool.setuptools_scm]
+write_to = "s3contents/_generated_version.py"
+
 [tool.black]
 target-version = ['py36', 'py37', 'py38']
 exclude = '''
@@ -21,7 +24,5 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | versioneer.py
-  | _version.py
 )
 '''

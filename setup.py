@@ -1,7 +1,6 @@
 import os
 import sys
 
-import versioneer
 from setuptools import find_packages, setup
 
 
@@ -14,20 +13,30 @@ def read_file(filename):
 
 setup(
     name="s3contents",
-    version=versioneer.get_version(),
-    description="",
+    packages=find_packages() + ["s3contents.tests"],
+    zip_safe=False,
+    include_package_data=True,
+    # package_data={"word2vec": ["includes/**/*.c"]},
+    # data_files=data_files,
+    # cmdclass={},
+    # entry_points = {},
+    test_suite="word2vec/tests",
+    setup_requires=["setuptools_scm"],
+    install_requires=read_file("requirements.package.txt").splitlines(),
+    tests_require=["pytest",],
+    python_requires=">=3.5",
+    description="S3 Contents Manager for Jupyter",
     long_description=read_file("README.md"),
     long_description_content_type="text/markdown",
-    author="Daniel Rodriguez",
-    author_email="daniel@danielfrg.com",
+    license="Apache License, Version 2.0",
+    maintainer="Daniel Rodriguez",
+    maintainer_email="daniel@danielfrg.com",
     url="https://github.com/danielfrg/s3contents",
-    license="Apache License Version 2.0",
-    python_requires=">=3.0,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*",
-    install_requires=read_file("requirements.package.txt").splitlines(),
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+    ],
     keywords=["jupyter", "s3", "contents-manager"],
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-    cmdclass=versioneer.get_cmdclass(),
-    entry_points={},
 )

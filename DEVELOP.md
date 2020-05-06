@@ -6,8 +6,7 @@ Create dev environment
 # Create conda env
 make env
 conda activate s3contents
-
-pip install -e .
+make develop
 ```
 
 ## Testing

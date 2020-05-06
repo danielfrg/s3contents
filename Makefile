@@ -5,9 +5,9 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
+PWD := $(shell pwd)
 TEST_FILTER ?= ""
 
-PWD := $(shell pwd)
 S3DIR := ${PWD}/tmp-data
 
 
@@ -16,7 +16,7 @@ first: help
 .PHONY: clean
 clean:  ## Clean build files
 	@rm -rf build dist site htmlcov .pytest_cache
-	@rm -f .coverage coverage.xml
+	@rm -f .coverage coverage.xml s3contents/_generated_version.py
 	@find . -type f -name '*.py[co]' -delete
 	@find . -type d -name __pycache__ -exec rm -rf {} +
 	@find . -type d -name .ipynb_checkpoints -exec rm -rf {} +
@@ -39,6 +39,10 @@ help:  ## Show this help menu
 .PHONY: env  ## Create dev environment
 env:
 	conda env create
+
+
+develop:  ## Install package for development
+	python -m pip install --no-build-isolation -e .
 
 
 .PHONY: build

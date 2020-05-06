@@ -1,5 +1,0 @@
-include versioneer.py
-include README.md
-include LICENSE.txt
-include CHANGELOG.md
-include requirements.package.txt

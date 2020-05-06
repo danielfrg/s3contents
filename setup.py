@@ -25,7 +25,7 @@ def parse_git(root, **kwargs):
 
 setup(
     name="s3contents",
-    packages=find_packages() + ["s3contents.tests"],
+    packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
     # package_data={"s3contents": ["includes/*"]},
@@ -37,7 +37,7 @@ setup(
         "parse": parse_git,
         "write_to": os.path.join("s3contents/_generated_version.py"),
     },
-    test_suite="s3contents/tests",
+    # test_suite="s3contents/tests",
     setup_requires=["setuptools_scm"],
     install_requires=read_file("requirements.package.txt").splitlines(),
     tests_require=["pytest"],

@@ -1,3 +1,5 @@
+# This is used by Netlify and CI - It should match environment.yml
+
 # Base conda deps
 pylint
 flake8

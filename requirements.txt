@@ -4,6 +4,7 @@ flake8
 black
 isort
 twine
+wheel
 pytest
 pytest-cov
 

@@ -3,7 +3,6 @@ import sys
 
 from setuptools import find_packages, setup
 
-
 setup_dir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -20,8 +19,8 @@ def parse_git(root, **kwargs):
     subprojects, e.g. apache-arrow-js-XXX tags.
     """
     from setuptools_scm.git import parse
-    kwargs['describe_command'] =\
-        'git describe --dirty --tags --long'
+
+    kwargs["describe_command"] = "git describe --dirty --tags --long"
     return parse(root, **kwargs)
 
 
@@ -35,9 +34,9 @@ setup(
     # cmdclass={},
     # entry_points = {},
     use_scm_version={
-        'root': setup_dir,
-        'parse': parse_git,
-        'write_to': os.path.join('s3contents/_generated_version.py')
+        "root": setup_dir,
+        "parse": parse_git,
+        "write_to": os.path.join("s3contents/_generated_version.py"),
     },
     test_suite="s3contents/tests",
     setup_requires=["setuptools_scm"],

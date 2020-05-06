@@ -17,8 +17,7 @@ jobs:
         python-version: [3.7, 3.8]
         jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
 
-    # We don't use Minio official image because we cant specify the command
-    # in Github Actions
+    # We don't use Minio official image because we cant specify the docker command in Github Actions
     # https://github.community/t5/GitHub-Actions/Job-service-command/m-p/33901
     # https://github.community/t5/GitHub-Actions/Specify-command-in-job-service-container/m-p/40616
     services:
@@ -53,6 +52,7 @@ jobs:
         pip install -r requirements.txt
         # Install specific Jupyter Notebook version
         pip install -U notebook==${{ matrix.jupyter-version }}
+        pip freeze
 
     - name: Install package
       run: |
@@ -72,4 +72,3 @@ jobs:
     - uses: codecov/codecov-action@v1
       with:
         file: ./coverage.xml
-        fail_ci_if_error: false

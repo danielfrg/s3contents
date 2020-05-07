@@ -1,16 +1,29 @@
-name: s3contents-dev
+name: s3contents
 channels:
   - conda-forge
 dependencies:
   - python=3.7
+  - pip
+
+  # Base conda deps
+  - setuptools
+  - setuptools-scm
+  - pylint
+  - flake8
+  - black
+  - isort
+  - twine
+  - wheel
+  - pytest
+  - pytest-cov
+
+  # This project conda deps
+
   - pip:
-    - pytest
-    - pylint
-    - boto3
+    # This project pip deps
+    - notebook
     - requests
+    - boto3
     - s3fs
     - gcsfs
-    - nose
     - mock
-    - twine>=1.11.0
-    - wheel>=0.31.0

@@ -1,32 +1,35 @@
 import os
-import six
+
 import gcsfs
 
-from s3contents.compat import FileNotFoundError
-from s3contents.ipycompat import Unicode
 from s3contents.genericfs import GenericFS, NoSuchFile
+from s3contents.ipycompat import Unicode
+
 
 class GCSFS(GenericFS):
 
-    project = Unicode(
-        help="GCP Project", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_GCS_PROJECT")
+    project = Unicode(help="GCP Project", allow_none=True, default_value=None).tag(
+        config=True, env="JPYNB_GCS_PROJECT"
+    )
     token = Unicode(
-        help="Path to the GCP token", allow_none=True, default_value=None).tag(
-            config=True, env="JPYNB_GCS_TOKEN_PATH")
+        help="Path to the GCP token", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_GCS_TOKEN_PATH")
 
-    region_name = Unicode(
-        "us-east-1", help="Region name").tag(
-            config=True, env="JPYNB_GCS_REGION_NAME")
-    bucket = Unicode(
-        "notebooks", help="Bucket name to store notebooks").tag(
-            config=True, env="JPYNB_GCS_BUCKET")
+    region_name = Unicode("us-east-1", help="Region name").tag(
+        config=True, env="JPYNB_GCS_REGION_NAME"
+    )
+    bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
+        config=True, env="JPYNB_GCS_BUCKET"
+    )
 
-    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(config=True)
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
+        config=True
+    )
     separator = Unicode("/", help="Path separator").tag(config=True)
 
     dir_keep_file = Unicode(
-        ".gcskeep", help="Empty file to create when creating directories").tag(config=True)
+        ".gcskeep", help="Empty file to create when creating directories"
+    ).tag(config=True)
 
     def __init__(self, log, **kwargs):
         super(GCSFS, self).__init__(**kwargs)
@@ -115,9 +118,9 @@ class GCSFS(GenericFS):
         path_ = self.path(path)
         if not self.isfile(path):
             raise NoSuchFile(path_)
-        with self.fs.open(path_, mode='rb') as f:
+        with self.fs.open(path_, mode="rb") as f:
             content = f.read().decode("utf-8")
-        return content, 'text'
+        return content, "text"
 
     def lstat(self, path):
         path_ = self.path(path)
@@ -129,13 +132,13 @@ class GCSFS(GenericFS):
     def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.GCSFS: Writing file: `%s`", path_)
-        with self.fs.open(path_, mode='wb') as f:
+        with self.fs.open(path_, mode="wb") as f:
             f.write(content.encode("utf-8"))
 
     #  Utilities -------------------------------------------------------------------------------------------------------
 
     def strip(self, path):
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             return path.strip(self.separator)
         if isinstance(path, (list, tuple)):
             return list(map(self.strip, path))
@@ -150,17 +153,21 @@ class GCSFS(GenericFS):
         if self.prefix:
             prefix += self.separator + self.prefix
         return prefix
+
     prefix_ = property(get_prefix)
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         path = self.strip(path)
-        if isinstance(path, six.string_types):
-            path = path[len(self.prefix_):] if path.startswith(self.prefix_) else path
+        if isinstance(path, str):
+            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.separator) else path
             return path
         if isinstance(path, (list, tuple)):
-            path = [p[len(self.prefix_):] if p.startswith(self.prefix_) else p for p in path]
+            path = [
+                p[len(self.prefix_) :] if p.startswith(self.prefix_) else p
+                for p in path
+            ]
             path = [p[1:] if p.startswith(self.separator) else p for p in path]
             return path
 

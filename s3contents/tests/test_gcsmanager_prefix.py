@@ -1,14 +1,11 @@
-import os
-import pytest
-
-from s3contents.tests.utils import GCS_TEST
 from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
+
+from .utils import GCS_TEST
 
 
 @GCS_TEST
 class GCSContentsManagerTestCase_prefix(TestContentsManager):
-
     def setUp(self):
         """
         This setup is a hardcoded to run on my laptop and GCP account :)
@@ -17,7 +14,8 @@ class GCSContentsManagerTestCase_prefix(TestContentsManager):
             project="continuum-compute",
             token="~/.config/gcloud/application_default_credentials.json",
             bucket="gcsfs-test",
-            prefix="this/is/the/prefix")
+            prefix="this/is/the/prefix",
+        )
 
         self.tearDown()
 
@@ -30,8 +28,8 @@ class GCSContentsManagerTestCase_prefix(TestContentsManager):
 
     def make_dir(self, api_path):
         self.contents_manager.new(
-            model={"type": "directory"},
-            path=api_path,)
+            model={"type": "directory"}, path=api_path,
+        )
 
 
 # This needs to be removed or else we'll run the main IPython tests as well.

@@ -1,18 +1,23 @@
+# Development
+
 Create dev environment
 
 ```
+# Create conda env
 make env
-conda activate s3contents-dev
-make deps
+conda activate s3contents
+make develop
 ```
 
-Start minio
+## Testing
+
+Start minio in one terminal:
 
 ```
 make minio
 ```
 
-Edit `~/.jupyter/jupyter_notebook_config.py`:
+Edit local `~/.jupyter/jupyter_notebook_config.py`:
 
 ```python
 c = get_config()
@@ -36,4 +41,8 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {"debug": True}
 ```
 
-Run `jupyter notebook` in the `s3-contents-dev`
+Start Jupyter Notebook in another terminal:
+
+```
+jupyter notebook
+```

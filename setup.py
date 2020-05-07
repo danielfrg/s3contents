@@ -1,32 +1,55 @@
 import os
-from setuptools import setup
-from setuptools import find_packages
 
-import versioneer
+from setuptools import find_packages, setup
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+setup_dir = os.path.abspath(os.path.dirname(__file__))
+
 
 def read_file(filename):
-    filepath = os.path.join(BASE_DIR, filename)
-    with  open(filepath) as f:
-        return f.read()
+    filepath = os.path.join(setup_dir, filename)
+    with open(filepath) as file:
+        return file.read()
+
+
+def parse_git(root, **kwargs):
+    """
+    Parse function for setuptools_scm
+    """
+    from setuptools_scm.git import parse
+
+    kwargs["describe_command"] = "git describe --dirty --tags --long"
+    return parse(root, **kwargs)
 
 
 setup(
     name="s3contents",
-    version=versioneer.get_version(),
-    description="A S3-backed ContentsManager implementation for Jupyter",
+    packages=find_packages(),
+    zip_safe=False,
+    include_package_data=True,
+    # package_data={"s3contents": ["includes/*"]},
+    # data_files=[],
+    # cmdclass={},
+    # entry_points = {},
+    use_scm_version={
+        "root": setup_dir,
+        "parse": parse_git,
+        "write_to": os.path.join("s3contents/_generated_version.py"),
+    },
+    python_requires=">=3.6",
+    setup_requires=["setuptools_scm"],
+    install_requires=read_file("requirements.package.txt").splitlines(),
+    description="S3 Contents Manager for Jupyter",
     long_description=read_file("README.md"),
     long_description_content_type="text/markdown",
-    url="https://github.com/danielfrg/s3contents",
+    license="Apache License, Version 2.0",
     maintainer="Daniel Rodriguez",
-    maintainer_email="df.rodriguez143@gmail.com",
-    license="Apache 2.0",
-    python_requires=">=3.0,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*",
-    install_requires=read_file("requirements.txt").splitlines(),
+    maintainer_email="daniel@danielfrg.com",
+    url="https://github.com/danielfrg/s3contents",
     keywords=["jupyter", "s3", "contents-manager"],
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-    cmdclass=versioneer.get_cmdclass()
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+    ],
 )

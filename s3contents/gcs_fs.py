@@ -1,7 +1,6 @@
 import os
 
 import gcsfs
-import six
 
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
@@ -139,7 +138,7 @@ class GCSFS(GenericFS):
     #  Utilities -------------------------------------------------------------------------------------------------------
 
     def strip(self, path):
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             return path.strip(self.separator)
         if isinstance(path, (list, tuple)):
             return list(map(self.strip, path))
@@ -160,7 +159,7 @@ class GCSFS(GenericFS):
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         path = self.strip(path)
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.separator) else path
             return path

@@ -6,12 +6,10 @@ import os
 import sys
 
 import s3fs
-import six
 from botocore.exceptions import ClientError
 from tornado.web import HTTPError
 from traitlets import Any
 
-from s3contents.compat import FileNotFoundError
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
 
@@ -243,7 +241,7 @@ class S3FS(GenericFS):
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path
             return path

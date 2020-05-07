@@ -57,7 +57,7 @@ package:  ## Build Python package (sdist)
 
 .PHONY: check
 check:  ## Check linting
-	# @flake8 s3contents
+	@flake8
 	@isort --check-only --diff --recursive --project s3contents --section-default THIRDPARTY s3contents .
 	@black --check s3contents .
 

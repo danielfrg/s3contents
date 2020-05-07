@@ -7,34 +7,54 @@ from s3contents.ipycompat import HasTraits
 
 class GenericFS(HasTraits):
     def ls(self, path=""):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def isfile(self, path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def isdir(self, path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def mv(self, old_path, new_path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def cp(self, old_path, new_path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def rm(self, path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def mkdir(self, path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def read(self, path, format):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def lstat(self, path):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
     def write(self, path, content, format):
-        raise NotImplemented("Should be implemented by the file system abstraction")
+        raise NotImplementedError(
+            "Should be implemented by the file system abstraction"
+        )
 
 
 class GenericFSError(Exception):

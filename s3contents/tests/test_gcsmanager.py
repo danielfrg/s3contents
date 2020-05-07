@@ -1,7 +1,3 @@
-import os
-
-import pytest
-
 from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
 

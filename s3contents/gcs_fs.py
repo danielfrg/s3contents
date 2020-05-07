@@ -3,7 +3,6 @@ import os
 import gcsfs
 import six
 
-from s3contents.compat import FileNotFoundError
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
 

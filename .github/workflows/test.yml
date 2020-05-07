@@ -45,7 +45,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies - Jupyter version: ${{ matrix.jupyter-version }}
+    - name: Set up Python ${{ matrix.jupyter-version }}
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt

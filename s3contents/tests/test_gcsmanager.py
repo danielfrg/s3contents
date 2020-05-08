@@ -1,10 +1,10 @@
 from s3contents import GCSContentsManager
 from s3contents.ipycompat import TestContentsManager
 
-from .utils import GCS_TEST
+from .utils import gcs
 
 
-@GCS_TEST
+@gcs
 class GCSContentsManagerTestCase(TestContentsManager):
     def setUp(self):
         """

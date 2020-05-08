@@ -46,7 +46,7 @@ develop:  ## Install package for development
 	python -m pip install --no-build-isolation -e .
 
 
-.PHONY: build
+.PHONY: cleanall build
 build: package  ## Build everything
 
 
@@ -58,14 +58,14 @@ package:  ## Build Python package (sdist)
 .PHONY: check
 check:  ## Check linting
 	@flake8
-	@isort --check-only --diff --recursive --project s3contents --section-default THIRDPARTY s3contents .
-	@black --check s3contents .
+	@isort --check-only --diff --recursive --project s3contents --section-default THIRDPARTY .
+	@black --check .
 
 
 .PHONY: fmt
 fmt:  ## Format source
-	@isort --recursive --project s3contents --section-default THIRDPARTY s3contents .
-	@black s3contents .
+	@isort --recursive --project s3contents --section-default THIRDPARTY .
+	@black .
 
 
 .PHONY: upload-pypi
@@ -75,13 +75,18 @@ upload-pypi:  ## Upload package to PyPI
 
 .PHONY: upload-test
 upload-test:  ## Upload package to test PyPI
-	twine upload --repository testpypi dist/*.tar.gz
+	twine upload --repository test dist/*.tar.gz
 
 
 .PHONY: test
 test:  ## Run tests
-	pytest -s -vv s3contents/tests -k $(TEST_FILTER)
+	pytest -k $(TEST_FILTER)
 
+
+.PHONY: report
+report:  ## Generate coverage reports
+	@coverage xml
+	@coverage html
 
 # ------------------------------------------------------------------------------
 # Project specific

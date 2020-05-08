@@ -23,6 +23,7 @@ from notebook.utils import to_os_path
 from traitlets import Any, Bool, Dict, HasTraits, Instance, Integer, Unicode
 from traitlets.config import Config
 
+
 # if notebook.version_info[0] >= 7:  # noqa
 #     raise ImportError("Jupyter Notebook versions 6 and up are not supported.")
 

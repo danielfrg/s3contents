@@ -1,7 +1,7 @@
 # S3Contents
 
 [![PyPI](https://badge.fury.io/py/s3contents.svg)](https://pypi.org/project/s3contents/)
-[![Testing](http://github.com/danielfrg/s3contents/workflows/test/badge.svg)](http://github.com/danielfrg/s3contents/actions)
+[![Testing](http://github.com/danielfrg/s3contents/workflows/main/badge.svg)](http://github.com/danielfrg/s3contents/actions)
 [![Coverage Status](https://codecov.io/gh/danielfrg/s3contents/branch/master/graph/badge.svg)](https://codecov.io/gh/danielfrg/s3contents?branch=master)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/danielfrg/s3contents/blob/master/LICENSE.txt)
 

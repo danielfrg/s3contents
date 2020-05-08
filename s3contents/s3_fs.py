@@ -13,6 +13,7 @@ from traitlets import Any
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
 
+
 SAMPLE_ACCESS_POLICY = """
 {{
     "Sid": "S3contentsKeepFile",

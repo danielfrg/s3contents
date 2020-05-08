@@ -15,6 +15,7 @@ from s3contents.ipycompat import (
     reads,
 )
 
+
 DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
 NBFORMAT_VERSION = 4
 

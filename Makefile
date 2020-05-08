@@ -7,6 +7,7 @@ MAKEFLAGS += --no-builtin-rules
 
 PWD := $(shell pwd)
 TEST_FILTER ?= ""
+TEST_MARKERS ?= "not minio and not gcs"
 
 S3DIR := ${PWD}/tmp-data
 
@@ -80,7 +81,12 @@ upload-test:  ## Upload package to test PyPI
 
 .PHONY: test
 test:  ## Run tests
-	pytest -k $(TEST_FILTER)
+	pytest -k $(TEST_FILTER) -m $(TEST_MARKERS)
+
+
+.PHONY: test-all
+test-all:  ## Run all tests
+	pytest -k $(TEST_FILTER) -k "not gcs"
 
 
 .PHONY: report

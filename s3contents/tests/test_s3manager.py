@@ -1,11 +1,14 @@
+import pytest
+
 from s3contents import S3ContentsManager
 from s3contents.ipycompat import TestContentsManager
 
 
+@pytest.mark.minio
 class S3ContentsManagerTestCase(TestContentsManager):
     def setUp(self):
         """
-        This setup is a hardcoded to the use a little minio server that run on travis CI or play.minio.io:9000
+        This setup is a hardcoded to the use a minio server running in localhost
         """
         self.contents_manager = S3ContentsManager(
             access_key_id="access-key",

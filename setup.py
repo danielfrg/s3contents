@@ -12,18 +12,9 @@ def read_file(filename):
         return file.read()
 
 
-def parse_git(root, **kwargs):
-    """
-    Parse function for setuptools_scm
-    """
-    from setuptools_scm.git import parse
-
-    kwargs["describe_command"] = "git describe --dirty --tags --long"
-    return parse(root, **kwargs)
-
-
 setup(
     name="s3contents",
+    use_scm_version=True,
     packages=find_packages(),
     # package_dir={"": "src"},
     zip_safe=False,
@@ -32,16 +23,14 @@ setup(
     # data_files=[],
     # cmdclass={},
     # entry_points = {},
-    use_scm_version={
-        "root": setup_dir,
-        "parse": parse_git,
-        "write_to": os.path.join("s3contents/_generated_version.py"),
-    },
     options={"bdist_wheel": {"universal": "1"}},
     python_requires=">=3.6",
     setup_requires=["setuptools_scm"],
-    install_requires=read_file("requirements.package.txt").splitlines(),
-    extras_require={"dev": read_file("requirements.txt").splitlines()},
+    install_requires=read_file("requirements-package.txt").splitlines(),
+    extras_require={
+        "test": ["pytest"],
+        "dev": read_file("requirements.txt").splitlines(),
+    },
     description="S3 Contents Manager for Jupyter",
     long_description=read_file("README.md"),
     long_description_content_type="text/markdown",

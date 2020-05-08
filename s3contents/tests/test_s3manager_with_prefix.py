@@ -1,4 +1,4 @@
-import pytest 
+import pytest
 
 from s3contents import S3ContentsManager
 from s3contents.ipycompat import TestContentsManager

@@ -7,7 +7,7 @@ MAKEFLAGS += --no-builtin-rules
 
 PWD := $(shell pwd)
 TEST_FILTER ?= ""
-TEST_MARKERS ?= "not minio"
+TEST_MARKERS ?= "not minio and not gcs"
 
 S3DIR := ${PWD}/tmp-data
 
@@ -86,7 +86,7 @@ test:  ## Run tests
 
 .PHONY: test-all
 test-all:  ## Run all tests
-	pytest -k $(TEST_FILTER)
+	pytest -k $(TEST_FILTER) -k "not gcs"
 
 
 .PHONY: report

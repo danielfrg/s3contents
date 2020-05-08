@@ -1,11 +1,11 @@
-import pytest
+import pytest 
 
 from s3contents import S3ContentsManager
 from s3contents.ipycompat import TestContentsManager
 
 
 @pytest.mark.minio
-class S3ContentsManagerTestCase(TestContentsManager):
+class S3ContentsManagerTestCase_prefix(TestContentsManager):
     def setUp(self):
         """
         This setup is a hardcoded to the use a minio server running in localhost
@@ -16,7 +16,8 @@ class S3ContentsManagerTestCase(TestContentsManager):
             endpoint_url="http://127.0.0.1:9000",
             bucket="notebooks",
             # endpoint_url="https://play.minio.io:9000",
-            # bucket="s3contents-test2",
+            # bucket="s3contents-test",
+            prefix="this/is/the/prefix",
             signature_version="s3v4",
         )
 

@@ -5,7 +5,7 @@ from s3contents.ipycompat import TestContentsManager
 
 
 @pytest.mark.gcs
-class GCSContentsManagerTestCase(TestContentsManager):
+class GCSContentsManagerTestCase_prefix(TestContentsManager):
     def setUp(self):
         """
         This setup is a hardcoded to run on my laptop and GCP account :)
@@ -14,6 +14,7 @@ class GCSContentsManagerTestCase(TestContentsManager):
             project="continuum-compute",
             token="~/.config/gcloud/application_default_credentials.json",
             bucket="gcsfs-test",
+            prefix="this/is/the/prefix",
         )
 
         self.tearDown()

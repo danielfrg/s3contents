@@ -1,11 +1,11 @@
 import json
+from urllib.parse import urlparse
 
 from traitlets import Any
 
 from s3contents.genericmanager import GenericContentsManager, from_dict
 from s3contents.ipycompat import Unicode
 from s3contents.s3_fs import S3FS
-
 
 class S3ContentsManager(GenericContentsManager):
 
@@ -75,3 +75,32 @@ class S3ContentsManager(GenericContentsManager):
         self._fs.writenotebook(path, file_contents)
         self.validate_notebook_model(model)
         return model.get("message")
+
+
+def _validate_bucket(user_bucket, log):
+    log.debug(f"s3manager._validate_bucket: User provided bucket: {user_bucket}")
+    res = urlparse(user_bucket)
+    scheme, netloc, path, params, query, fragment = res
+    if netloc:
+        bucket = netloc
+        log.warn("s3manager._validate_bucket: "
+                f"Assuming you meant {bucket} for your bucket. "
+                f"Using that. Please set bucket={bucket} "
+                 "in your jupyter_notebook_config.py file")
+        return bucket
+    if scheme or netloc or params or query or fragment:
+        log.error("s3manager._validate_bucket: "
+                 f"Invalid bucket specification: {res}")
+        raise ValueError(f"Invalid bucket specification: {res}")
+    
+    bucket = path
+    if '/' not in bucket:
+        return bucket
+    
+    bucket, key = bucket.split('/', maxsplit=1)
+    log.warn("s3manager._validate_bucket: "
+            f"Assuming you meant {bucket} for your bucket name. Don't "
+            f"include '/' in your bucket name. Removing /{key} "
+            f"from your bucket name. Please set bucket={bucket} "
+             "in your jupyter_notebook_config.py file")
+    return bucket

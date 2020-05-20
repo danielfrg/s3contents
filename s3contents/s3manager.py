@@ -7,6 +7,7 @@ from s3contents.genericmanager import GenericContentsManager, from_dict
 from s3contents.ipycompat import Unicode
 from s3contents.s3_fs import S3FS
 
+
 class S3ContentsManager(GenericContentsManager):
 
     access_key_id = Unicode(
@@ -83,24 +84,27 @@ def _validate_bucket(user_bucket, log):
     scheme, netloc, path, params, query, fragment = res
     if netloc:
         bucket = netloc
-        log.warn("s3manager._validate_bucket: "
-                f"Assuming you meant {bucket} for your bucket. "
-                f"Using that. Please set bucket={bucket} "
-                 "in your jupyter_notebook_config.py file")
+        log.warn(
+            "s3manager._validate_bucket: "
+            f"Assuming you meant {bucket} for your bucket. "
+            f"Using that. Please set bucket={bucket} "
+            "in your jupyter_notebook_config.py file"
+        )
         return bucket
     if scheme or netloc or params or query or fragment:
-        log.error("s3manager._validate_bucket: "
-                 f"Invalid bucket specification: {res}")
+        log.error("s3manager._validate_bucket: " f"Invalid bucket specification: {res}")
         raise ValueError(f"Invalid bucket specification: {res}")
-    
+
     bucket = path
-    if '/' not in bucket:
+    if "/" not in bucket:
         return bucket
-    
-    bucket, key = bucket.split('/', maxsplit=1)
-    log.warn("s3manager._validate_bucket: "
-            f"Assuming you meant {bucket} for your bucket name. Don't "
-            f"include '/' in your bucket name. Removing /{key} "
-            f"from your bucket name. Please set bucket={bucket} "
-             "in your jupyter_notebook_config.py file")
+
+    bucket, key = bucket.split("/", maxsplit=1)
+    log.warn(
+        "s3manager._validate_bucket: "
+        f"Assuming you meant {bucket} for your bucket name. Don't "
+        f"include '/' in your bucket name. Removing /{key} "
+        f"from your bucket name. Please set bucket={bucket} "
+        "in your jupyter_notebook_config.py file"
+    )
     return bucket

@@ -1,8 +1,8 @@
 import pytest
 
 from s3contents import S3ContentsManager
-from s3contents.s3manager import _validate_bucket
 from s3contents.ipycompat import TestContentsManager
+from s3contents.s3manager import _validate_bucket
 
 
 @pytest.mark.minio
@@ -39,14 +39,15 @@ class S3ContentsManagerTestCase(TestContentsManager):
 # This needs to be removed or else we'll run the main IPython tests as well.
 del TestContentsManager
 
+
 @pytest.mark.parametrize(
-    'user_bucket',
-    ("s3://BUCKET/some/key/",
-     "BUCKET/some/",
-     "BUCKET", 
-     "//BUCKET"))
+    "user_bucket", ("s3://BUCKET/some/key/", "BUCKET/some/", "BUCKET", "//BUCKET")
+)
 def test_bucket_validation(user_bucket, caplog):
     import logging
+
     logger = logging.getLogger()
     validated_bucket = _validate_bucket(user_bucket, logger)
-    assert validated_bucket == 'BUCKET', "ContentsManager's bucket should be parsed properly"
+    assert (
+        validated_bucket == "BUCKET"
+    ), "ContentsManager's bucket should be parsed properly"

@@ -242,7 +242,7 @@ class S3FS(GenericFS):
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
-        self.log.debug(f'S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}')
+        self.log.debug(f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}")
         if isinstance(path, str):
             path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path

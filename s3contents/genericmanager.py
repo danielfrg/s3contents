@@ -261,7 +261,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         actually moves a file or a directory.
         """
         self.log.debug(
-            "S3contents.GenericManager.rename_file: Init rename of '%s' to '%s'", old_path, new_path
+            "S3contents.GenericManager.rename_file: Init rename of '%s' to '%s'",
+            old_path,
+            new_path,
         )
         if self.file_exists(new_path) or self.dir_exists(new_path):
             self.already_exists(new_path)

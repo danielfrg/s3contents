@@ -48,7 +48,7 @@ class S3ContentsManager(GenericContentsManager):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
         self.run_init_s3_hook()
-
+        self.bucket = _validate_bucket(self.bucket, self.log)
         self._fs = S3FS(
             log=self.log,
             access_key_id=self.access_key_id,

@@ -79,6 +79,28 @@ class S3ContentsManager(GenericContentsManager):
 
 
 def _validate_bucket(user_bucket, log):
+    """Helper function to strip off schemas and keys from your bucket.
+
+    Another approach may be to use regexes, but then you have to 
+    think about regexes...
+
+    Parameters
+    ----------
+    user_bucket : str
+        The bucket that the user provided in their jupyter_notebook_config.py
+    log : 
+        The logger hanging off of GenericContentsManager
+    
+    Returns
+    -------
+    str
+        The properly parsed bucket out of `user_bucket`
+    
+    Raises
+    ------
+    ValueError
+        When I'm not sure how to parse out a bucket from the provided input
+    """
     log.debug(f"s3manager._validate_bucket: User provided bucket: {user_bucket}")
     res = urlparse(user_bucket)
     scheme, netloc, path, params, query, fragment = res

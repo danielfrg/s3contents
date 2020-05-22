@@ -119,7 +119,7 @@ class S3FS(GenericFS):
 
     def ls(self, path=""):
         path_ = self.path(path)
-        self.log.debug("S3contents.S3FS: Listing directory: `%s`", path_)
+        self.log.debug("S3contents.S3FS.ls: Listing directory: `%s`", path_)
         files = self.fs.ls(path_, refresh=True)
         return self.unprefix(files)
 
@@ -234,6 +234,8 @@ class S3FS(GenericFS):
     def get_prefix(self):
         """Full prefix: bucket + optional prefix"""
         prefix = self.bucket
+        if prefix.startswith("s3://"):
+            prefix = prefix[5:]
         if self.prefix:
             prefix += self.delimiter + self.prefix
         return prefix
@@ -242,6 +244,7 @@ class S3FS(GenericFS):
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
+        self.log.debug(f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}")
         if isinstance(path, str):
             path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path

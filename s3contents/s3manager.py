@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 from traitlets import Any
 
@@ -47,7 +48,7 @@ class S3ContentsManager(GenericContentsManager):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
         self.run_init_s3_hook()
-
+        self.bucket = _validate_bucket(self.bucket, self.log)
         self._fs = S3FS(
             log=self.log,
             access_key_id=self.access_key_id,
@@ -75,3 +76,57 @@ class S3ContentsManager(GenericContentsManager):
         self._fs.writenotebook(path, file_contents)
         self.validate_notebook_model(model)
         return model.get("message")
+
+
+def _validate_bucket(user_bucket, log):
+    """Helper function to strip off schemas and keys from your bucket.
+
+    Another approach may be to use regexes, but then you have to
+    think about regexes...
+
+    Parameters
+    ----------
+    user_bucket : str
+        The bucket that the user provided in their jupyter_notebook_config.py
+    log :
+        The logger hanging off of GenericContentsManager
+
+    Returns
+    -------
+    str
+        The properly parsed bucket out of `user_bucket`
+
+    Raises
+    ------
+    ValueError
+        When I'm not sure how to parse out a bucket from the provided input
+    """
+    log.debug(f"s3manager._validate_bucket: User provided bucket: {user_bucket}")
+    res = urlparse(user_bucket)
+    scheme, netloc, path, params, query, fragment = res
+    if netloc:
+        bucket = netloc
+        log.warn(
+            "s3manager._validate_bucket: "
+            f"Assuming you meant {bucket} for your bucket. "
+            f"Using that. Please set bucket={bucket} "
+            "in your jupyter_notebook_config.py file"
+        )
+        return bucket
+    if scheme or netloc or params or query or fragment:
+        log.error("s3manager._validate_bucket: " f"Invalid bucket specification: {res}")
+        raise ValueError(f"Invalid bucket specification: {res}")
+
+    bucket = path
+    if "/" not in bucket:
+        return bucket
+
+    bucket, key = bucket.split("/", maxsplit=1)
+    log.warn(
+        "s3manager._validate_bucket: "
+        f"Assuming you meant {bucket} for your bucket name. Don't "
+        f"include '/' in your bucket name. Removing /{key} "
+        f"from your bucket name. Please set bucket={bucket} "
+        "in your jupyter_notebook_config.py file"
+    )
+    return bucket

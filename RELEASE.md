@@ -15,6 +15,12 @@ make upload-test
 
 # Create venv and install rc version
 pip install --extra-index-url=https://test.pypi.org/simple 's3contents[test]'==${VERSION}rc0
+
+# Start minio in a different terminal from within the source directory:
+make minio
+
+# In a different terminal, make sure you're not in the source directory when
+# you run this command:
 pytest --pyargs s3contents -m "not minio and not gcs"
 
 # Delete rc tag

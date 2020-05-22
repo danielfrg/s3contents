@@ -28,7 +28,7 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=read_file("requirements-package.txt").splitlines(),
     extras_require={
-        "test": ["pytest", "pytest-cov"],
+        "test": ["pytest", "pytest-cov", "toml"],
         "dev": read_file("requirements.txt").splitlines(),
     },
     description="S3 Contents Manager for Jupyter",

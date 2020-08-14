@@ -20,7 +20,10 @@ from notebook.services.contents.tests.test_contents_api import APITest
 from notebook.services.contents.tests.test_manager import TestContentsManager
 from notebook.tests.launchnotebook import assert_http_error
 from notebook.utils import to_os_path
-from traitlets import Any, Bool, Dict, HasTraits, Instance, Integer, Unicode
+from ipython_genutils.py3compat import string_types
+from ipython_genutils.importstring import import_item
+
+from traitlets import Any, Bool, Dict, HasTraits, Instance, Integer, Unicode, TraitError, validate
 from traitlets.config import Config
 
 
@@ -44,13 +47,16 @@ __all__ = [
     "Instance",
     "Integer",
     "TestContentsManager",
+    "TraitError",
     "Unicode",
     "from_dict",
+    "import_item",
     "new_code_cell",
     "new_markdown_cell",
     "new_notebook",
     "new_raw_cell",
     "reads",
+    "string_types",
     "strip_transient",
     "to_os_path",
     "writes",

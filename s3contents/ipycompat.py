@@ -59,5 +59,6 @@ __all__ = [
     "string_types",
     "strip_transient",
     "to_os_path",
+    "validate",
     "writes",
 ]

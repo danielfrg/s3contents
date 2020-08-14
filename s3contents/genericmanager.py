@@ -7,17 +7,17 @@ from tornado.web import HTTPError
 
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import (
+    Any,
     ContentsManager,
     GenericFileCheckpoints,
     HasTraits,
     TraitError,
-    import_item,
     Unicode,
-    Any,
     from_dict,
+    import_item,
     reads,
+    string_types,
     validate,
-    string_types
 )
 
 

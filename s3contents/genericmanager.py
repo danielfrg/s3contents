@@ -241,10 +241,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.do_error("Unexpected error while saving file: %s %s" % (path, e), 500)
 
         model = self.get(path, type=model["type"], content=False)
-        
+
         # os_path in this case is s3 API path
         self.run_post_save_hook(model=model, os_path=model['path'])
-        
+
         if validation_message is not None:
             model["message"] = validation_message
         return model
@@ -303,8 +303,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
 
-    
-    post_save_hook = Any(None, config=True, allow_none=True,
+    post_save_hook = Any(
+        None,
+        config=True,
+        allow_none=True,
         help="""Python callable or importstring thereof
         to be called on the path of a file just saved.
         This can be used to process the file on disk,
@@ -331,11 +333,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.post_save_hook:
             try:
                 self.log.debug("Running post-save hook on %s", os_path)
-                self.post_save_hook(os_path=os_path, model=model, contents_manager=self)
+                self.post_save_hook(
+                    os_path=os_path, model=model, contents_manager=self)
             except Exception as e:
-                self.log.error("Post-save hook failed o-n %s", os_path, exc_info=True)
+                self.log.error("Post-save hook failed o-n %s",
+                               os_path, exc_info=True)
                 raise HTTPError(500, u'Unexpected error while running post hook save: %s'
-                                    % e) from e
+                                % e) from e
 
 
 def base_model(path):

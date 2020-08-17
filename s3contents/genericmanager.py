@@ -30,6 +30,22 @@ class GenericContentsManager(ContentsManager, HasTraits):
     # This makes the checkpoints get saved on this directory
     root_dir = Unicode("./", config=True)
 
+    post_save_hook = Any(
+        None,
+        config=True,
+        allow_none=True,
+        help="""Python callable or importstring thereof
+        to be called on the path of a file just saved.
+        This can be used to process the file on disk,
+        such as converting the notebook to a script or HTML via nbconvert.
+        It will be called as (all arguments passed by keyword)::
+            hook(s3_path=s3_path, model=model, contents_manager=instance)
+        - s3_path: the S3 path to the file just written (sans bucket/prefix)
+        - model: the model representing the file
+        - contents_manager: this ContentsManager instance
+        """
+    )
+
     def __init__(self, *args, **kwargs):
         super(GenericContentsManager, self).__init__(*args, **kwargs)
         self._fs = None
@@ -242,8 +258,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
         model = self.get(path, type=model["type"], content=False)
 
-        # os_path in this case is s3 API path
-        self.run_post_save_hook(model=model, os_path=model['path'])
+        self.run_post_save_hook(model=model, s3_path=model['path'])
 
         if validation_message is not None:
             model["message"] = validation_message
@@ -303,22 +318,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
 
-    post_save_hook = Any(
-        None,
-        config=True,
-        allow_none=True,
-        help="""Python callable or importstring thereof
-        to be called on the path of a file just saved.
-        This can be used to process the file on disk,
-        such as converting the notebook to a script or HTML via nbconvert.
-        It will be called as (all arguments passed by keyword)::
-            hook(os_path=os_path, model=model, contents_manager=instance)
-        - path: the filesystem path to the file just written
-        - model: the model representing the file
-        - contents_manager: this ContentsManager instance
-        """
-    )
-
     @validate('post_save_hook')
     def _validate_post_save_hook(self, proposal):
         value = proposal['value']
@@ -328,16 +327,16 @@ class GenericContentsManager(ContentsManager, HasTraits):
             raise TraitError("post_save_hook must be callable")
         return value
 
-    def run_post_save_hook(self, model, os_path):
+    def run_post_save_hook(self, model, s3_path):
         """Run the post-save hook if defined, and log errors"""
         if self.post_save_hook:
             try:
-                self.log.debug("Running post-save hook on %s", os_path)
+                self.log.debug("Running post-save hook on %s", s3_path)
                 self.post_save_hook(
-                    os_path=os_path, model=model, contents_manager=self)
+                    s3_path=s3_path, model=model, contents_manager=self)
             except Exception as e:
                 self.log.error("Post-save hook failed o-n %s",
-                               os_path, exc_info=True)
+                               s3_path, exc_info=True)
                 raise HTTPError(500, u'Unexpected error while running post hook save: %s'
                                 % e) from e
 

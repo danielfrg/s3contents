@@ -39,14 +39,13 @@ class S3ContentsManagerTestCase(TestContentsManager):
             model={"type": "directory"}, path=api_path,
         )
 
-
     def test_save_hooks(self):
         """
         Extends TestContentsManager.save
         """
 
         self.contents_manager.pre_save_hook = scrub_output_pre_save
-        self.contents_manager.post_save_hook = make_html_post_save 
+        self.contents_manager.post_save_hook = make_html_post_save
 
         cm = self.contents_manager
         model = cm.new_untitled(type='notebook')
@@ -59,7 +58,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
 
         cm.save(full_model, path)
 
-        # test pre_save_hook 
+        # test pre_save_hook
         loaded_model = cm.get(path)
         for cell in loaded_model['content']['cells']:
             assert cell['outputs'] == []
@@ -67,13 +66,12 @@ class S3ContentsManagerTestCase(TestContentsManager):
         # test post_save_hook
         html_file = os.path.splitext(path)[0] + '.html'
         html, _type = cm.fs.read(html_file, 'text')
-        
+
         assert cm.fs.isfile(html_file)
         assert '<!DOCTYPE html>' in html
 
         self.contents_manager.pre_save_hook = None
         self.contents_manager.post_save_hook = None
-
 
 # This needs to be removed or else we'll run the main IPython tests as well.
 del TestContentsManager

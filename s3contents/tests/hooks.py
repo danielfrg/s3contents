@@ -19,7 +19,7 @@ def scrub_output_pre_save(model, **kwargs):
 
 def make_html_post_save(model, s3_path, contents_manager, **kwargs):
     """
-    convert notebooks to HTML after save with nbconvert
+    convert notebooks to HTML after saving via nbconvert
     """
     from nbconvert import HTMLExporter
 

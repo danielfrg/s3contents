@@ -43,7 +43,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         - s3_path: the S3 path to the file just written (sans bucket/prefix)
         - model: the model representing the file
         - contents_manager: this ContentsManager instance
-        """
+        """,
     )
 
     def __init__(self, *args, **kwargs):
@@ -258,7 +258,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
         model = self.get(path, type=model["type"], content=False)
 
-        self.run_post_save_hook(model=model, s3_path=model['path'])
+        self.run_post_save_hook(model=model, s3_path=model["path"])
 
         if validation_message is not None:
             model["message"] = validation_message
@@ -318,9 +318,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
 
-    @validate('post_save_hook')
+    @validate("post_save_hook")
     def _validate_post_save_hook(self, proposal):
-        value = proposal['value']
+        value = proposal["value"]
         if isinstance(value, string_types):
             value = import_item(value)
         if not callable(value):
@@ -332,13 +332,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.post_save_hook:
             try:
                 self.log.debug("Running post-save hook on %s", s3_path)
-                self.post_save_hook(
-                    s3_path=s3_path, model=model, contents_manager=self)
+                self.post_save_hook(s3_path=s3_path, model=model, contents_manager=self)
             except Exception as e:
-                self.log.error("Post-save hook failed o-n %s",
-                               s3_path, exc_info=True)
-                raise HTTPError(500, u'Unexpected error while running post hook save: %s'
-                                % e) from e
+                self.log.error("Post-save hook failed o-n %s", s3_path, exc_info=True)
+                raise HTTPError(
+                    500, "Unexpected error while running post hook save: %s" % e
+                ) from e
 
 
 def base_model(path):

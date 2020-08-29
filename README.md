@@ -170,6 +170,57 @@ c.HybridContentsManager.manager_kwargs = {
 }
 ```
 
+## File Save Hooks
+
+If you want to use pre/post file save hooks here are some examples. 
+
+A `pre_save_hook` is written in the exact same way as normal, operating on the file in local storage before commiting it to the object store.
+
+```python
+def scrub_output_pre_save(model, **kwargs):
+    """scrub output before saving notebooks"""
+    # only run on notebooks
+    if model["type"] != "notebook":
+        return
+    # only run on nbformat v4
+    if model["content"]["nbformat"] != 4:
+        return
+
+    for cell in model["content"]["cells"]:
+        if cell["cell_type"] != "code":
+            continue
+        cell["outputs"] = []
+        cell["execution_count"] = None
+
+c.S3ContentsManager.pre_save_hook = scrub_output_pre_save
+```
+
+A `post_save_hook` instead operates on the file in object storage, because of this it is useful to use the file methods on the `contents_manager` for data manipulation. In addition, one must use the following function signature (unique to `s3contents`):
+
+```python 
+def make_html_post_save(model, s3_path, contents_manager, **kwargs):
+    """
+    convert notebooks to HTML after saving via nbconvert
+    """
+    from nbconvert import HTMLExporter
+
+    if model["type"] != "notebook":
+        return
+
+    content, _format = contents_manager.fs.read(s3_path, format="text")
+    my_notebook = nbformat.reads(content, as_version=4)
+
+    html_exporter = HTMLExporter()
+    html_exporter.template_name = "classic"
+
+    (body, resources) = html_exporter.from_notebook_node(my_notebook)
+
+    base, ext = os.path.splitext(s3_path)
+    contents_manager.fs.write(path=(base + ".html"), content=body, format=_format)
+
+c.S3ContentsManager.post_save_hook = make_html_post_save
+```
+
 ## Notes
 
 While there are some implementations of this already:

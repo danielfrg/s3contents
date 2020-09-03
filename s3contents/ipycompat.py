@@ -19,6 +19,7 @@ from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
 from notebook.services.contents.filemanager import FileContentsManager
 from notebook.services.contents.manager import ContentsManager
 from notebook.services.contents.tests.test_contents_api import APITest
+from notebook.services.contents.tests.test_largefilemanager import TestLargeFileManager
 from notebook.services.contents.tests.test_manager import TestContentsManager
 from notebook.tests.launchnotebook import assert_http_error
 from notebook.utils import to_os_path
@@ -56,6 +57,7 @@ __all__ = [
     "Instance",
     "Integer",
     "TestContentsManager",
+    "TestLargeFileManager",
     "TraitError",
     "Unicode",
     "from_dict",

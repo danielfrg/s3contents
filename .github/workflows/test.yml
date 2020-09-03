@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
-        jupyter-version: ["4.*", "5.6", "5.7", "5.*", "6.0", "6.*"]
+        python-version: [3.7, 3.8]
+        jupyter-version: ["5.6", "5.7", "5.*", "6.0", "6.*"]
 
     # We don't use Minio official image because we cant specify the docker command in Github Actions
     # https://github.community/t5/GitHub-Actions/Job-service-command/m-p/33901
@@ -59,9 +59,10 @@ jobs:
         pip install dist/*.tar.gz
         pip freeze
 
-    - name: Check linting
-      run: |
-        make check
+    # Disabled until https://github.com/danielfrg/s3contents/issues/102 is fixed
+    # - name: Check linting
+    #   run: |
+    #     make check
 
     - name: Run tests
       if: always()

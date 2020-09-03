@@ -141,7 +141,7 @@ Use a configuration similar to this:
 ```python
 from s3contents import S3ContentsManager
 from hybridcontents import HybridContentsManager
-from IPython.html.services.contents.filemanager import FileContentsManager
+from notebook.services.contents.largefilemanager import LargeFileManager
 
 c = get_config()
 
@@ -152,8 +152,8 @@ c.HybridContentsManager.manager_classes = {
     # This manager will receive all requests that don"t fall under any of the
     # other managers.
     "": S3ContentsManager,
-    # Associate /directory with a FileContentsManager.
-    "local_directory": FileContentsManager,
+    # Associate /directory with a LargeFileManager.
+    "local_directory": LargeFileManager,
 }
 
 c.HybridContentsManager.manager_kwargs = {
@@ -163,7 +163,7 @@ c.HybridContentsManager.manager_kwargs = {
         "secret_access_key": "{{ AWS Secret Access Key / IAM Secret Access Key }}",
         "bucket": "{{ S3 bucket name }}",
     },
-    # Args for the FileContentsManager mapped to /directory
+    # Args for the LargeFileManager mapped to /directory
     "local_directory": {
         "root_dir": "/Users/danielfrg/Downloads",
     },

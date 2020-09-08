@@ -99,14 +99,17 @@ def _validate_bucket(user_bucket, log):
     Raises
     ------
     ValueError
-        When I'm not sure how to parse out a bucket from the provided input
+        * When I'm not sure how to parse out a bucket from the provided input
+        * When the user provides an empty bucket
     """
+    if not user_bucket:
+        raise ValueError(f"user_bucket function argument is empty: {user_bucket}")
     log.debug(f"s3manager._validate_bucket: User provided bucket: {user_bucket}")
     res = urlparse(user_bucket)
     scheme, netloc, path, params, query, fragment = res
     if netloc:
         bucket = netloc
-        log.warn(
+        log.warning(
             "s3manager._validate_bucket: "
             f"Assuming you meant {bucket} for your bucket. "
             f"Using that. Please set bucket={bucket} "
@@ -122,7 +125,7 @@ def _validate_bucket(user_bucket, log):
         return bucket
 
     bucket, key = bucket.split("/", maxsplit=1)
-    log.warn(
+    log.warning(
         "s3manager._validate_bucket: "
         f"Assuming you meant {bucket} for your bucket name. Don't "
         f"include '/' in your bucket name. Removing /{key} "

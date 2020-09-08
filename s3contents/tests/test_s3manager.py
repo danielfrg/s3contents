@@ -89,3 +89,11 @@ def test_bucket_validation(user_bucket, caplog):
     assert (
         validated_bucket == "BUCKET"
     ), "ContentsManager's bucket should be parsed properly"
+
+
+def test_bucket_validation_empty_bucket_name(caplog):
+    import logging
+
+    logger = logging.getLogger()
+    with pytest.raises(ValueError):
+        _validate_bucket("", logger)

@@ -1,6 +1,8 @@
+import base64
 import os
 
 import gcsfs
+from tornado.web import HTTPError
 
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
@@ -118,8 +120,19 @@ class GCSFS(GenericFS):
         if not self.isfile(path):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode="rb") as f:
-            content = f.read().decode("utf-8")
-        return content, "text"
+            content = f.read()
+        if format == "base64":
+            return base64.b64encode(content).decode("ascii"), "base64"
+        else:
+            # Try to interpret as unicode if format is unknown or if unicode
+            # was explicitly requested.
+            try:
+                return content.decode("utf-8"), "text"
+            except UnicodeError:
+                if format == "text":
+                    err = "{} is not UTF-8 encoded".format(path_)
+                    self.log.error(err)
+                    raise HTTPError(400, err, reason="bad format")
 
     def lstat(self, path):
         path_ = self.path(path)
@@ -133,7 +146,12 @@ class GCSFS(GenericFS):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.GCSFS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode="wb") as f:
-            f.write(content.encode("utf-8"))
+            if format == "base64":
+                b64_bytes = content.encode("ascii")
+                content_ = base64.b64decode(b64_bytes)
+            else:
+                content_ = content.encode("utf8")
+            f.write(content_)
 
     #  Utilities -------------------------------------------------------------------------------------------------------
 

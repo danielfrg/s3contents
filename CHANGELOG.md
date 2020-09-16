@@ -1,6 +1,13 @@
 # s3contents Change Log
 
 ## [Unreleased]
+## 0.6.0
+- [#97](https://github.com/danielfrg/s3contents/pull/97/) Add `pre_save_hook` and `post_save_hook`
+- [#80](https://github.com/danielfrg/s3contents/pull/80) Uploading large files (>1mb) now works
+    - Implemention required updating dependencies to notebook >=5.6 and python >=3.7
+
+## 0.4-0.5.1
+- changelog not tracked
 
 ## 0.4
 - Drop support for Python 2, only Python >=3.5 is supported now

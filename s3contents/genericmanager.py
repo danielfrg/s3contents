@@ -327,7 +327,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
         nb_contents = from_dict(model["content"])
         self.check_and_sign(nb_contents, path)
         file_contents = json.dumps(model["content"])
-        self.fs.write(path, file_contents)
+        file_format = model.get("format")
+        self.fs.write(path, file_contents, file_format)
         self.validate_notebook_model(model)
         return model.get("message")
 

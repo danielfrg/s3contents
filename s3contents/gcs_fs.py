@@ -62,9 +62,7 @@ class GCSFS(GenericFS):
             is_file = False
         else:
             try:
-                # Info will fail if path is a dir
-                self.fs.info(path_)
-                is_file = True
+                is_file = self.fs.info(path_)['type'] == 'file'
             except FileNotFoundError:
                 pass
 
@@ -105,9 +103,10 @@ class GCSFS(GenericFS):
             self.fs.rm(path_)
         elif self.isdir(path):
             self.log.debug("S3contents.GCSFS: Removing directory: `%s`", path_)
-            files = self.fs.walk(path_)
-            for f in files:
-                self.fs.rm(f)
+            dirs = self.fs.walk(path_)
+            for dir in dirs:
+                for file in dir[2]:
+                    self.fs.rm(dir[0] + self.separator + file)
 
     def mkdir(self, path):
         path_ = self.path(path, self.dir_keep_file)
@@ -126,7 +125,8 @@ class GCSFS(GenericFS):
         path_ = self.path(path)
         info = self.fs.info(path_)
         ret = {}
-        ret["ST_MTIME"] = info["updated"]
+        if "updated" in info:
+            ret["ST_MTIME"] = info["updated"]
         return ret
 
     def write(self, path, content, format):

@@ -5,14 +5,25 @@ import os
 
 from tornado.web import HTTPError
 
+from s3contents.chunks import (
+    assemble_chunks,
+    delete_chunks,
+    prune_stale_chunks,
+    store_content_chunk,
+)
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import (
+    Any,
     ContentsManager,
     GenericFileCheckpoints,
     HasTraits,
+    TraitError,
     Unicode,
     from_dict,
+    import_item,
     reads,
+    string_types,
+    validate,
 )
 
 
@@ -24,6 +35,22 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     # This makes the checkpoints get saved on this directory
     root_dir = Unicode("./", config=True)
+
+    post_save_hook = Any(
+        None,
+        config=True,
+        allow_none=True,
+        help="""Python callable or importstring thereof
+        to be called on the path of a file just saved.
+        This can be used to process the file on disk,
+        such as converting the notebook to a script or HTML via nbconvert.
+        It will be called as (all arguments passed by keyword)::
+            hook(s3_path=s3_path, model=model, contents_manager=instance)
+        - s3_path: the S3 path to the file just written (sans bucket/prefix)
+        - model: the model representing the file
+        - contents_manager: this ContentsManager instance
+        """,
+    )
 
     def __init__(self, *args, **kwargs):
         super(GenericContentsManager, self).__init__(*args, **kwargs)
@@ -213,6 +240,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def save(self, model, path):
         """Save a file or directory model to path.
         """
+
+        # Chunked uploads
+        # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
+        chunk = model.get("chunk", None)
+        if chunk is not None:
+            return self._save_large_file(chunk, model, path, model.get("format"))
+
         self.log.debug("S3contents.GenericManager.save %s: '%s'", model, path)
         if "type" not in model:
             self.do_error("No model type provided", 400)
@@ -221,6 +255,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
         if model["type"] not in ("file", "directory", "notebook"):
             self.do_error("Unhandled contents type: %s" % model["type"], 400)
+
+        self.run_pre_save_hook(model=model, path=path)
 
         try:
             if model["type"] == "notebook":
@@ -234,9 +270,58 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.do_error("Unexpected error while saving file: %s %s" % (path, e), 500)
 
         model = self.get(path, type=model["type"], content=False)
+
+        self.run_post_save_hook(model=model, s3_path=model["path"])
+
         if validation_message is not None:
             model["message"] = validation_message
         return model
+
+    def _save_large_file(self, chunk, model, path, format):
+        if "type" not in model:
+            self.do_error("No file type provided", 400)
+        if model["type"] != "file":
+            self.do_error(
+                'File type "{}" is not supported for large file transfer'.format(
+                    model["type"]
+                ),
+                400,
+            )
+        if "content" not in model and model["type"] != "directory":
+            self.do_error("No file content provided", 400)
+
+        if format not in {"text", "base64"}:
+            self.do_error(
+                "Must specify format of file contents as 'text' or 'base64'", 400
+            )
+
+        prune_stale_chunks()
+
+        self.log.debug(
+            "S3contents.GenericManager.save (chunk %s) %s: '%s'", chunk, model, path
+        )
+
+        try:
+            if chunk == 1:
+                self.run_pre_save_hook(model=model, path=path)
+            # Store the chunk in our registry
+            store_content_chunk(path, model["content"])
+        except Exception as e:
+            self.log.error(
+                "S3contents.GenericManager._save_large_file: error while saving file: %s %s",
+                path,
+                e,
+                exc_info=True,
+            )
+            self.do_error(f"Unexpected error while saving file: {path} {e}")
+
+        if chunk == -1:
+            # Last chunk: we want to combine the chunks in the registry to compose the full file content
+            model["content"] = assemble_chunks(path)
+            delete_chunks(path)
+            self._save_file(model, path)
+
+        return self.get(path, content=False)
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model["content"])
@@ -291,6 +376,27 @@ class GenericContentsManager(ContentsManager, HasTraits):
         """
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
+
+    @validate("post_save_hook")
+    def _validate_post_save_hook(self, proposal):
+        value = proposal["value"]
+        if isinstance(value, string_types):
+            value = import_item(value)
+        if not callable(value):
+            raise TraitError("post_save_hook must be callable")
+        return value
+
+    def run_post_save_hook(self, model, s3_path):
+        """Run the post-save hook if defined, and log errors"""
+        if self.post_save_hook:
+            try:
+                self.log.debug("Running post-save hook on %s", s3_path)
+                self.post_save_hook(s3_path=s3_path, model=model, contents_manager=self)
+            except Exception as e:
+                self.log.error("Post-save hook failed o-n %s", s3_path, exc_info=True)
+                raise HTTPError(
+                    500, "Unexpected error while running post hook save: %s" % e
+                ) from e
 
 
 def base_model(path):

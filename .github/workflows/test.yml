@@ -61,10 +61,10 @@ jobs:
         pip install dist/*.tar.gz
         pip freeze
 
-    # Disabled until https://github.com/danielfrg/s3contents/issues/102 is fixed
-    # - name: Check linting
-    #   run: |
-    #     make check
+    - name: Check linting
+      run: |
+        # Disabled until https://github.com/danielfrg/s3contents/issues/102 is fixed
+        # make check
 
     - name: Run tests
       if: always()

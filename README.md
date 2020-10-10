@@ -1,9 +1,9 @@
 # S3Contents
 
 [![PyPI](https://badge.fury.io/py/s3contents.svg)](https://pypi.org/project/s3contents/)
-[![Testing](http://github.com/danielfrg/s3contents/workflows/test/badge.svg)](http://github.com/danielfrg/s3contents/actions)
+[![Testing](https://github.com/danielfrg/s3contents/workflows/test/badge.svg)](http://github.com/danielfrg/s3contents/actions)
 [![Coverage Status](https://codecov.io/gh/danielfrg/s3contents/branch/master/graph/badge.svg)](https://codecov.io/gh/danielfrg/s3contents?branch=master)
-[![License](http://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/danielfrg/s3contents/blob/master/LICENSE.txt)
+[![License](https://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/danielfrg/s3contents/blob/master/LICENSE.txt)
 
 An S3 and GCS backed ContentsManager implementation for Jupyter.
 
@@ -172,7 +172,7 @@ c.HybridContentsManager.manager_kwargs = {
 
 ## File Save Hooks
 
-If you want to use pre/post file save hooks here are some examples. 
+If you want to use pre/post file save hooks here are some examples.
 
 A `pre_save_hook` is written in the exact same way as normal, operating on the file in local storage before commiting it to the object store.
 
@@ -197,7 +197,7 @@ c.S3ContentsManager.pre_save_hook = scrub_output_pre_save
 
 A `post_save_hook` instead operates on the file in object storage, because of this it is useful to use the file methods on the `contents_manager` for data manipulation. In addition, one must use the following function signature (unique to `s3contents`):
 
-```python 
+```python
 def make_html_post_save(model, s3_path, contents_manager, **kwargs):
     """
     convert notebooks to HTML after saving via nbconvert

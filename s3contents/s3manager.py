@@ -9,7 +9,6 @@ from s3contents.s3_fs import S3FS
 
 
 class S3ContentsManager(GenericContentsManager):
-
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
@@ -44,6 +43,8 @@ class S3ContentsManager(GenericContentsManager):
     )
     init_s3_hook = Any(help="optional hook for init'ing s3").tag(config=True)
 
+    s3fs_additional_kwargs = Any(help="optional dictionary to be appended to s3fs additional kwargs").tag(config=True)
+
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
@@ -63,6 +64,7 @@ class S3ContentsManager(GenericContentsManager):
             sse=self.sse,
             kms_key_id=self.kms_key_id,
             boto3_session=self.boto3_session,
+            s3fs_additional_kwargs=self.s3fs_additional_kwargs
         )
 
     def run_init_s3_hook(self):

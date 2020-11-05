@@ -13,7 +13,6 @@ from traitlets import Any
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
 
-
 SAMPLE_ACCESS_POLICY = """
 {{
     "Sid": "S3contentsKeepFile",
@@ -29,7 +28,6 @@ SAMPLE_ACCESS_POLICY = """
 
 
 class S3FS(GenericFS):
-
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
@@ -67,6 +65,8 @@ class S3FS(GenericFS):
         help="Place to store customer boto3 session instance - likely passed in"
     )
 
+    s3fs_additional_kwargs = Any(help="optional dictionary to be appended to s3fs additional kwargs").tag(config=True)
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -78,7 +78,11 @@ class S3FS(GenericFS):
         config_kwargs = {}
         if self.signature_version:
             config_kwargs["signature_version"] = self.signature_version
-        s3_additional_kwargs = {}
+        if self.s3fs_additional_kwargs:
+            self.must_be_dictionary(self.s3fs_additional_kwargs)
+            s3_additional_kwargs = self.s3fs_additional_kwargs
+        else:
+            s3_additional_kwargs = {}
         if self.sse:
             s3_additional_kwargs["ServerSideEncryption"] = self.sse
         if self.kms_key_id:
@@ -246,12 +250,12 @@ class S3FS(GenericFS):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         self.log.debug(f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}")
         if isinstance(path, str):
-            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
+            path = path[len(self.prefix_):] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path
             return path
         if isinstance(path, (list, tuple)):
             path = [
-                p[len(self.prefix_) :] if p.startswith(self.prefix_) else p
+                p[len(self.prefix_):] if p.startswith(self.prefix_) else p
                 for p in path
             ]
             path = [p[1:] if p.startswith(self.delimiter) else p for p in path]
@@ -263,3 +267,10 @@ class S3FS(GenericFS):
         path = self.unprefix(path)
         items = [self.prefix_] + path
         return self.delimiter.join(items)
+
+    @staticmethod
+    def must_be_dictionary(dictionary):
+        if type(dictionary) is dict:
+            pass
+        else:
+            raise ValueError('s3fs_additional_kwargs must be a dictionary or None, its default value.')

@@ -13,6 +13,7 @@ from traitlets import Any
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
 
+
 SAMPLE_ACCESS_POLICY = """
 {{
     "Sid": "S3contentsKeepFile",
@@ -28,6 +29,7 @@ SAMPLE_ACCESS_POLICY = """
 
 
 class S3FS(GenericFS):
+
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
@@ -250,12 +252,12 @@ class S3FS(GenericFS):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         self.log.debug(f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}")
         if isinstance(path, str):
-            path = path[len(self.prefix_):] if path.startswith(self.prefix_) else path
+            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path
             return path
         if isinstance(path, (list, tuple)):
             path = [
-                p[len(self.prefix_):] if p.startswith(self.prefix_) else p
+                p[len(self.prefix_) :] if p.startswith(self.prefix_) else p
                 for p in path
             ]
             path = [p[1:] if p.startswith(self.delimiter) else p for p in path]

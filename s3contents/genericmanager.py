@@ -181,7 +181,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.fs.isfile(path):
             model["last_modified"] = model["created"] = self.fs.lstat(path)["ST_MTIME"]
         else:
-            model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
+            self.do_error("Not Found", 404)
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
@@ -327,7 +327,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
         nb_contents = from_dict(model["content"])
         self.check_and_sign(nb_contents, path)
         file_contents = json.dumps(model["content"])
-        self.fs.write(path, file_contents)
+        file_format = model.get("format")
+        self.fs.write(path, file_contents, file_format)
         self.validate_notebook_model(model)
         return model.get("message")
 

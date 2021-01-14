@@ -4,6 +4,7 @@ Utilities to make S3 look like a regular file system
 import base64
 import os
 import sys
+import re
 
 import s3fs
 from botocore.exceptions import ClientError
@@ -74,7 +75,7 @@ class S3FS(GenericFS):
         self.log = log
 
         client_kwargs = {
-            "endpoint_url": self.endpoint_url,
+            "endpoint_url": None if re.match(r"^s3://arn:(aws).*:s3:[a-z\-0-9]+:[0-9]{12}:accesspoint[:/]\S+$", self.bucket) else self.endpoint_url,
             "region_name": self.region_name,
         }
         config_kwargs = {}

@@ -76,7 +76,6 @@ jobs:
         pip freeze
 
     - name: Run tests
-      if: always()
       run: |
         make test-all
         make report

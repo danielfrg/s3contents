@@ -64,7 +64,7 @@ class GCSFS(GenericFS):
             is_file = False
         else:
             try:
-                is_file = self.fs.info(path_)['type'] == 'file'
+                is_file = self.fs.info(path_)["type"] == "file"
             except FileNotFoundError:
                 pass
 

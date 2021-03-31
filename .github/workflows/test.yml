@@ -2,22 +2,23 @@ name: test
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   schedule:
     - cron: "0 5 * * *"
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
-        jupyter-version: ["5.6", "5.7", "5.*", "6.0", "6.*"]
+        python-version: [3.7, 3.8, 3.9]
+        jupyter-version: ["5.6", "5.7", "5.*", "6.0", "6.1", "6.*"]
 
-    # We don't use Minio official image because we cant specify the docker command in Github Actions
+    # Can't use Minio official image because we can't specify the docker command in Github Actions
     # https://github.community/t5/GitHub-Actions/Job-service-command/m-p/33901
     # https://github.community/t5/GitHub-Actions/Specify-command-in-job-service-container/m-p/40616
     services:
@@ -43,22 +44,24 @@ jobs:
         curl http://localhost:9000/
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies - Jupyter ${{ matrix.jupyter-version }}
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        # Install specific Jupyter Notebook version
-        pip install -U notebook==${{ matrix.jupyter-version }}
-        pip freeze
+        pip install -U -r requirements-dev.txt
 
     - name: Install package
       run: |
         make build
         pip install dist/*.tar.gz
+        pip freeze
+
+    - name: Install Jupyter Notebook ${{ matrix.jupyter-version }}
+      run: |
+        pip install -U notebook==${{ matrix.jupyter-version }}
         pip freeze
 
     - name: Check linting

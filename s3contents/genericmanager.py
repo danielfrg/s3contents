@@ -238,8 +238,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return ret
 
     def save(self, model, path):
-        """Save a file or directory model to path.
-        """
+        """Save a file or directory model to path."""
 
         # Chunked uploads
         # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
@@ -364,8 +363,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(old_path)
 
     def delete_file(self, path):
-        """Delete the file or directory at path.
-        """
+        """Delete the file or directory at path."""
         self.log.debug("S3contents.GenericManager.delete_file '%s'", path)
         if self.file_exists(path) or self.dir_exists(path):
             self.fs.rm(path)
@@ -373,8 +371,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(path)
 
     def is_hidden(self, path):
-        """Is path a hidden directory or file?
-        """
+        """Is path a hidden directory or file?"""
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
 
@@ -416,6 +413,8 @@ def base_model(path):
 def base_directory_model(path):
     model = base_model(path)
     model.update(
-        type="directory", last_modified=DUMMY_CREATED_DATE, created=DUMMY_CREATED_DATE,
+        type="directory",
+        last_modified=DUMMY_CREATED_DATE,
+        created=DUMMY_CREATED_DATE,
     )
     return model

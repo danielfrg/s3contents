@@ -1,6 +1,7 @@
 # s3contents Change Log
 
 ## [Unreleased]
+
 ## 0.6.0
 - [#97](https://github.com/danielfrg/s3contents/pull/97/) Add `pre_save_hook` and `post_save_hook`
 - [#80](https://github.com/danielfrg/s3contents/pull/80) Uploading large files (>1mb) now works

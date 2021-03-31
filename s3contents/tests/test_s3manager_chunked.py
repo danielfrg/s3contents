@@ -34,7 +34,8 @@ class S3ContentsManagerLargeFileTestCase(TestLargeFileManager):
 
     def make_dir(self, api_path):
         self.contents_manager.new(
-            model={"type": "directory"}, path=api_path,
+            model={"type": "directory"},
+            path=api_path,
         )
 
     def test_save(self):

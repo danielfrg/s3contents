@@ -26,10 +26,10 @@ setup(
     options={"bdist_wheel": {"universal": "1"}},
     python_requires=">=3.7",
     setup_requires=["setuptools_scm"],
-    install_requires=read_file("requirements-package.txt").splitlines(),
+    install_requires=read_file("requirements.txt").splitlines(),
     extras_require={
         "test": ["pytest", "pytest-cov", "toml"],
-        "dev": read_file("requirements.txt").splitlines(),
+        "dev": read_file("requirements-dev.txt").splitlines(),
     },
     description="S3 Contents Manager for Jupyter",
     long_description=read_file("README.md"),
@@ -43,5 +43,6 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )

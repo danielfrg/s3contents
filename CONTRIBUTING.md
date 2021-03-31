@@ -1,26 +1,29 @@
-# Development
+# Contributing
 
-Create dev environment
+## Development environment
+
+Create Python env
 
 ```
-# Create conda env
 make env
 conda activate s3contents
+```
+
+Install package for developmentt
+
+```
 make develop
 ```
 
-## Testing
+## Iteration
 
-Start minio in one terminal:
+Start minio (using docker) in one terminal:
 
 ```
 make minio
 ```
 
-Note: If you are using `podman` instead of `docker`, you may have to fiddle with SELinux permissions on the volume mount for minio, or use `:z`.
-
-
-Edit local `~/.jupyter/jupyter_notebook_config.py`:
+Edit `~/.jupyter/jupyter_notebook_config.py`:
 
 ```python
 c = get_config()
@@ -33,13 +36,6 @@ c.S3ContentsManager.access_key_id = "access-key"
 c.S3ContentsManager.secret_access_key = "secret-key"
 c.S3ContentsManager.bucket = "notebooks"
 
-# from s3contents import GCSContentsManager
-# c.NotebookApp.contents_manager_class = GCSContentsManager
-# c.GCSContentsManager.project = "continuum-compute"
-# c.GCSContentsManager.token = "~/.config/gcloud/application_default_credentials.json"
-# c.GCSContentsManager.bucket = "gcsfs-test"
-# c.GCSContentsManager.prefix = "this/is/the/prefix"
-
 c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {"debug": True}
 ```
@@ -48,4 +44,10 @@ Start Jupyter Notebook in another terminal:
 
 ```
 jupyter notebook
+```
+
+## Testing
+
+```
+make test
 ```

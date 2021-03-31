@@ -32,7 +32,8 @@ class S3ContentsManagerTestCase_prefix(TestContentsManager):
 
     def make_dir(self, api_path):
         self.contents_manager.new(
-            model={"type": "directory"}, path=api_path,
+            model={"type": "directory"},
+            path=api_path,
         )
 
 

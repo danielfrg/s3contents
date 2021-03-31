@@ -1,6 +1,6 @@
-# How to release a new version
+# Releasing
 
-## Upload to test PyPI
+## Upload to Test PyPI
 
 ```
 export VERSION=1.0.0
@@ -32,7 +32,7 @@ Merge branch when CI passes
 ## Upload to PyPI
 
 - Update `CHANGELOG.md`
-- Update `README.md` and docs as needed
+- Update `README.md` and docs
 
 ```
 export VERSION=1.0.0

@@ -1,6 +1,6 @@
-# Used for CI - It should match environment.yml
+# Used for CI: It should match environment.yml
 
-# Base conda deps
+# Dev tools
 setuptools
 setuptools-scm
 pylint
@@ -9,15 +9,16 @@ black
 isort
 twine
 wheel
+
+# Testing
 pytest
 pytest-cov
+mock
 
-# This project conda deps
-
-# This project pip deps
-notebook
+# Package deps
+notebook>=5.6,<6.0
+s3fs>=0.3.4,<0.5.1
+gcsfs>=0.2.1
 requests
 boto3
-s3fs
-gcsfs
-mock
+nose

@@ -1,4 +1,4 @@
-# How to contribute
+# Contributing
 
 ## Development environment
 
@@ -9,7 +9,7 @@ make env
 conda activate s3contents
 ```
 
-Install package as editable
+Install package for developmentt
 
 ```
 make develop
@@ -44,4 +44,10 @@ Start Jupyter Notebook in another terminal:
 
 ```
 jupyter notebook
+```
+
+## Testing
+
+```
+make test
 ```

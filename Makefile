@@ -5,21 +5,18 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-PWD := $(shell pwd)
 TEST_FILTER ?= ""
 TEST_MARKERS ?= "not minio and not gcs"
-
-S3DIR := ${PWD}/tmp-data
-
+S3DIR := $(CURDIR)/tmp-data
 
 first: help
 
 
 # ------------------------------------------------------------------------------
-# Package build, test and docs
+# Build
 
 
-env:  ## Create dev environment
+env:  ## Create Python env
 	mamba env create
 
 
@@ -27,19 +24,8 @@ develop:  ## Install package for development
 	python -m pip install --no-build-isolation -e .
 
 
-build: clean  ## Build package
+build:  ## Build package
 	python setup.py sdist
-
-
-check:  ## Check linting
-	flake8
-	isort . --check-only --diff --project s3contents
-	black . --check --diff
-
-
-fmt:  ## Format source
-	isort . --recursive --project s3contents
-	black .
 
 
 upload-pypi:  ## Upload package to PyPI
@@ -48,6 +34,20 @@ upload-pypi:  ## Upload package to PyPI
 
 upload-test:  ## Upload package to test PyPI
 	twine upload --repository test dist/*.tar.gz
+
+
+# ------------------------------------------------------------------------------
+# Testing
+
+check:  ## Check linting
+	flake8
+	isort . --check-only --diff --project s3contents
+	black . --check --diff
+
+
+fmt:  ## Format source
+	isort . --project s3contents
+	black .
 
 
 test:  ## Run tests
@@ -61,10 +61,6 @@ test-all:  ## Run all tests
 report:  ## Generate coverage reports
 	coverage xml
 	coverage html
-
-
-# ------------------------------------------------------------------------------
-# Project specific
 
 
 minio:  ## Run minio server

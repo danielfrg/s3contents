@@ -38,7 +38,7 @@ setup(
     maintainer="Daniel Rodriguez",
     maintainer_email="daniel@danielfrg.com",
     url="https://github.com/danielfrg/s3contents",
-    keywords=["jupyter", "s3", "contents-manager"],
+    keywords=["jupyter", "s3", "contents-manager", "gcs", "aws", "gcp"],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.7",

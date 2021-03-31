@@ -4,3 +4,4 @@ gcsfs>=0.2.1
 requests
 boto3
 nose
+requests_unixsocket

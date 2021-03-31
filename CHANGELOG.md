@@ -1,6 +1,6 @@
 # s3contents Change Log
 
-## [Unreleased]
+## Unreleased
 
 - Support Python 3.9
 

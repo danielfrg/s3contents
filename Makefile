@@ -9,6 +9,7 @@ TEST_FILTER ?= ""
 TEST_MARKERS ?= "not minio and not gcs"
 S3DIR := $(CURDIR)/tmp-data
 
+
 first: help
 
 
@@ -50,11 +51,11 @@ fmt:  ## Format source
 
 
 test:  ## Run tests
-	pytest -k $(TEST_FILTER) -m $(TEST_MARKERS)
+	pytest -k $(TEST_FILTER) -m "$(TEST_MARKERS)"
 
 
 test-all:  ## Run all tests
-	pytest -k $(TEST_FILTER) -k "not gcs"
+	pytest -k $(TEST_FILTER) -m "not gcs"
 
 
 report:  ## Generate coverage reports

@@ -42,7 +42,7 @@ jobs:
         sudo mkdir -p /tmp/tmp-data/notebooks
         curl http://localhost:9000/
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
@@ -74,10 +74,6 @@ jobs:
       run: |
         pip install -U notebook==${{ matrix.jupyter-version }}
         pip freeze
-
-    - name: Check linting
-      run: |
-        make check
 
     - name: Run tests
       if: always()

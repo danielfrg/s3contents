@@ -6,7 +6,7 @@ Create Python env
 
 ```
 make env
-conda activate s3contents
+conda activate word2vec
 ```
 
 Install package for developmentt
@@ -46,8 +46,15 @@ Start Jupyter Notebook in another terminal:
 jupyter notebook
 ```
 
-## Testing
+## Tests
 
 ```
 make test
+```
+
+Check linting and format
+
+```
+make check
+make fmt
 ```

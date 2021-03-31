@@ -18,7 +18,7 @@ Write access (valid credentials) to an S3/GCS bucket, this could be on AWS/GCP o
 ## Installation
 
 ```
-$ pip install s3contents
+pip install s3contents
 ```
 
 ## Jupyter config

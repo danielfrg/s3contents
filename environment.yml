@@ -26,6 +26,7 @@ dependencies:
     - s3fs>=0.3.4,<0.5.1
     - gcsfs>=0.2.1
     - requests
+    - requests_unixsocket
     - boto3
     - nose
 

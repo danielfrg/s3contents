@@ -1,6 +1,7 @@
 notebook>=5.6,<7.0
+fsspec<=0.8.7
 s3fs>=0.3.4,<0.5.1
-gcsfs>=0.2.1
+gcsfs>=0.2.1,<0.8.0
 requests
 requests_unixsocket
 boto3

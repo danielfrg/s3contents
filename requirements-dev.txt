@@ -1,0 +1,25 @@
+# Used for CI: It should match environment.yml
+
+# Dev tools
+setuptools
+setuptools-scm
+pylint
+flake8
+black
+isort
+twine
+wheel
+
+# Testing
+pytest
+pytest-cov
+mock
+
+# Package deps
+notebook>=5.6,<7.0
+s3fs>=0.3.4,<0.5.1
+gcsfs>=0.2.1
+requests
+requests_unixsocket
+boto3
+nose

@@ -1,6 +1,8 @@
+import base64
 import os
 
 import gcsfs
+from tornado.web import HTTPError
 
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
@@ -62,9 +64,7 @@ class GCSFS(GenericFS):
             is_file = False
         else:
             try:
-                # Info will fail if path is a dir
-                self.fs.info(path_)
-                is_file = True
+                is_file = self.fs.info(path_)["type"] == "file"
             except FileNotFoundError:
                 pass
 
@@ -105,9 +105,10 @@ class GCSFS(GenericFS):
             self.fs.rm(path_)
         elif self.isdir(path):
             self.log.debug("S3contents.GCSFS: Removing directory: `%s`", path_)
-            files = self.fs.walk(path_)
-            for f in files:
-                self.fs.rm(f)
+            dirs = self.fs.walk(path_)
+            for dir in dirs:
+                for file in dir[2]:
+                    self.fs.rm(dir[0] + self.separator + file)
 
     def mkdir(self, path):
         path_ = self.path(path, self.dir_keep_file)
@@ -119,21 +120,38 @@ class GCSFS(GenericFS):
         if not self.isfile(path):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode="rb") as f:
-            content = f.read().decode("utf-8")
-        return content, "text"
+            content = f.read()
+        if format == "base64":
+            return base64.b64encode(content).decode("ascii"), "base64"
+        else:
+            # Try to interpret as unicode if format is unknown or if unicode
+            # was explicitly requested.
+            try:
+                return content.decode("utf-8"), "text"
+            except UnicodeError:
+                if format == "text":
+                    err = "{} is not UTF-8 encoded".format(path_)
+                    self.log.error(err)
+                    raise HTTPError(400, err, reason="bad format")
 
     def lstat(self, path):
         path_ = self.path(path)
         info = self.fs.info(path_)
         ret = {}
-        ret["ST_MTIME"] = info["updated"]
+        if "updated" in info:
+            ret["ST_MTIME"] = info["updated"]
         return ret
 
     def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))
         self.log.debug("S3contents.GCSFS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode="wb") as f:
-            f.write(content.encode("utf-8"))
+            if format == "base64":
+                b64_bytes = content.encode("ascii")
+                content_ = base64.b64decode(b64_bytes)
+            else:
+                content_ = content.encode("utf8")
+            f.write(content_)
 
     #  Utilities -------------------------------------------------------------------------------------------------------
 

@@ -203,7 +203,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.fs.isfile(path):
             model["last_modified"] = model["created"] = self.fs.lstat(path)["ST_MTIME"]
         else:
-            model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
+            self.do_error("Not Found", 404)
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
@@ -239,8 +239,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return model
 
     def save(self, model, path):
-        """Save a file or directory model to path.
-        """
+        """Save a file or directory model to path."""
 
         # Chunked uploads
         # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
@@ -328,7 +327,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
         nb_contents = from_dict(model["content"])
         self.check_and_sign(nb_contents, path)
         file_contents = json.dumps(model["content"])
-        self.fs.write(path, file_contents)
+        file_format = model.get("format")
+        self.fs.write(path, file_contents, file_format)
         self.validate_notebook_model(model)
         return model.get("message")
 
@@ -364,8 +364,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(old_path)
 
     def delete_file(self, path):
-        """Delete the file or directory at path.
-        """
+        """Delete the file or directory at path."""
         self.log.debug("S3contents.GenericManager.delete_file '%s'", path)
         if self.file_exists(path) or self.dir_exists(path):
             self.fs.rm(path)
@@ -373,8 +372,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             self.no_such_entity(path)
 
     def is_hidden(self, path):
-        """Is path a hidden directory or file?
-        """
+        """Is path a hidden directory or file?"""
         self.log.debug("S3contents.GenericManager.is_hidden '%s'", path)
         return False
 
@@ -416,6 +414,8 @@ def base_model(path):
 def base_directory_model(path):
     model = base_model(path)
     model.update(
-        type="directory", last_modified=DUMMY_CREATED_DATE, created=DUMMY_CREATED_DATE,
+        type="directory",
+        last_modified=DUMMY_CREATED_DATE,
+        created=DUMMY_CREATED_DATE,
     )
     return model

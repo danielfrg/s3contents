@@ -3,6 +3,7 @@ Utilities to make S3 look like a regular file system
 """
 import base64
 import os
+import re
 import sys
 
 import s3fs
@@ -67,18 +68,31 @@ class S3FS(GenericFS):
         help="Place to store customer boto3 session instance - likely passed in"
     )
 
+    s3fs_additional_kwargs = Any(
+        help="optional dictionary to be appended to s3fs additional kwargs"
+    ).tag(config=True)
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
 
         client_kwargs = {
-            "endpoint_url": self.endpoint_url,
+            "endpoint_url": None
+            if re.match(
+                r"^s3://arn:(aws).*:s3:[a-z\-0-9]+:[0-9]{12}:accesspoint[:/]\S+$",
+                self.bucket,
+            )
+            else self.endpoint_url,
             "region_name": self.region_name,
         }
         config_kwargs = {}
         if self.signature_version:
             config_kwargs["signature_version"] = self.signature_version
-        s3_additional_kwargs = {}
+        if self.s3fs_additional_kwargs:
+            self.must_be_dictionary(self.s3fs_additional_kwargs)
+            s3_additional_kwargs = self.s3fs_additional_kwargs
+        else:
+            s3_additional_kwargs = {}
         if self.sse:
             s3_additional_kwargs["ServerSideEncryption"] = self.sse
         if self.kms_key_id:
@@ -210,7 +224,8 @@ class S3FS(GenericFS):
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
         if format not in {"text", "base64"}:
             raise HTTPError(
-                400, "Must specify format of file contents as 'text' or 'base64'",
+                400,
+                "Must specify format of file contents as 'text' or 'base64'",
             )
         try:
             if format == "text":
@@ -263,3 +278,12 @@ class S3FS(GenericFS):
         path = self.unprefix(path)
         items = [self.prefix_] + path
         return self.delimiter.join(items)
+
+    @staticmethod
+    def must_be_dictionary(dictionary):
+        if type(dictionary) is dict:
+            pass
+        else:
+            raise ValueError(
+                "s3fs_additional_kwargs must be a dictionary or None, its default value."
+            )

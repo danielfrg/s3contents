@@ -36,7 +36,8 @@ class S3ContentsManagerTestCase(TestContentsManager):
 
     def make_dir(self, api_path):
         self.contents_manager.new(
-            model={"type": "directory"}, path=api_path,
+            model={"type": "directory"},
+            path=api_path,
         )
 
     def test_save_hooks(self):

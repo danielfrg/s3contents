@@ -3,6 +3,8 @@ import json
 import mimetypes
 import os
 
+from dateutil.tz import tzutc
+from fsspec.asyn import sync
 from tornado.web import HTTPError
 
 from s3contents.chunks import (
@@ -154,6 +156,21 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
+        def s3_detail_to_model(s3_detail):
+            model_path = s3_detail["Key"]
+            model = base_model(self.fs.unprefix(model_path))
+            if s3_detail["StorageClass"] == 'DIRECTORY':
+                model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
+                model["type"] = "directory"
+                lstat = self.fs.lstat(model_path)
+                if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
+                    model["last_modified"] = model["created"] = lstat["ST_MTIME"]
+            else:
+                model["last_modified"] = s3_detail.get("LastModified").replace(microsecond=0, tzinfo=tzutc())
+                model["created"] = model["last_modified"]
+                # model["size"] = s3_detail.get("Size")
+                model["type"] = "notebook" if model_path.endswith(".ipynb") else "file"
+            return model
         self.log.debug(
             "S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)",
             path,
@@ -168,8 +185,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
             if not self.dir_exists(path):
                 self.no_such_entity(path)
             model["format"] = "json"
-            dir_content = self.fs.ls(path=path)
-            model["content"] = self._convert_file_records(dir_content)
+            prefixed_path = self.fs.path(path)
+            files_s3_detail = sync(self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path)
+            filtered_files_s3_detail = list(filter(
+                lambda detail: os.path.basename(detail['Key']) != self.fs.dir_keep_file,
+                files_s3_detail
+            ))
+            model["content"] = list(map(s3_detail_to_model, filtered_files_s3_detail))
         return model
 
     def _notebook_model_from_path(self, path, content=False, format=None):
@@ -215,27 +237,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["content"] = content
             model["mimetype"] = mimetypes.guess_type(path)[0] or "text/plain"
         return model
-
-    def _convert_file_records(self, paths):
-        """
-        Applies _notebook_model_from_s3_path or _file_model_from_s3_path to each entry of `paths`,
-        depending on the result of `guess_type`.
-        """
-        ret = []
-        for path in paths:
-            # path = self.fs.remove_prefix(path, self.prefix)  # Remove bucket prefix from paths
-            if os.path.basename(path) == self.fs.dir_keep_file:
-                continue
-            type_ = self.guess_type(path, allow_directory=True)
-            if type_ == "notebook":
-                ret.append(self._notebook_model_from_path(path, False))
-            elif type_ == "file":
-                ret.append(self._file_model_from_path(path, False, None))
-            elif type_ == "directory":
-                ret.append(self._directory_model_from_path(path, False))
-            else:
-                self.do_error("Unknown file type %s for file '%s'" % (type_, path), 500)
-        return ret
 
     def save(self, model, path):
         """Save a file or directory model to path."""

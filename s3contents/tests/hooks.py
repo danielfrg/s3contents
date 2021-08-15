@@ -1,3 +1,7 @@
+"""
+Template pre and post file save hooks
+"""
+
 import os
 
 import nbformat

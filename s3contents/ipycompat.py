@@ -13,16 +13,13 @@ from nbformat.v4.nbbase import (
     new_notebook,
     new_raw_cell,
 )
-from nbformat.v4.rwbase import strip_transient
-from notebook.services.contents.checkpoints import Checkpoints, GenericCheckpointsMixin
-from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
-from notebook.services.contents.filemanager import FileContentsManager
-from notebook.services.contents.manager import ContentsManager
-from notebook.services.contents.tests.test_contents_api import APITest
-from notebook.services.contents.tests.test_largefilemanager import TestLargeFileManager
-from notebook.services.contents.tests.test_manager import TestContentsManager
-from notebook.tests.launchnotebook import assert_http_error
 from notebook.utils import to_os_path
+from nbformat.v4.rwbase import strip_transient
+from notebook.services.contents.manager import ContentsManager
+from notebook.services.contents.filemanager import FileContentsManager
+from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
+from notebook.services.contents.checkpoints import Checkpoints, GenericCheckpointsMixin
+
 from traitlets import (
     Any,
     Bool,
@@ -43,9 +40,7 @@ if notebook.version_info[0] >= 7:  # noqa
 
 
 __all__ = [
-    "APITest",
     "Any",
-    "assert_http_error",
     "Bool",
     "Checkpoints",
     "Config",
@@ -57,8 +52,6 @@ __all__ = [
     "HasTraits",
     "Instance",
     "Integer",
-    "TestContentsManager",
-    "TestLargeFileManager",
     "TraitError",
     "Unicode",
     "from_dict",

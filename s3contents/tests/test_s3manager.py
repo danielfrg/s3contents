@@ -4,8 +4,8 @@ import time
 import pytest
 
 from s3contents import S3ContentsManager
-from s3contents.ipycompat import TestContentsManager
 from s3contents.s3manager import _validate_bucket
+from notebook.services.contents.tests.test_manager import TestContentsManager
 from s3contents.tests.hooks import make_html_post_save, scrub_output_pre_save
 
 

@@ -1,7 +1,7 @@
 import pytest
 
 from s3contents import S3ContentsManager
-from s3contents.ipycompat import TestContentsManager
+from notebook.services.contents.tests.test_manager import TestContentsManager
 
 
 @pytest.mark.minio

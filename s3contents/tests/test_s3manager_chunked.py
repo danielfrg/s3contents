@@ -50,5 +50,5 @@ class S3ContentsManagerLargeFileTestCase(TestLargeFileManager):
         self.assertNotIn("stale_file.txt", current_value)
 
 
-# This needs to be removed or else we'll run the main IPython tests as well.
+# Needs to be removed or else we'll run the main IPython tests as well
 del TestLargeFileManager

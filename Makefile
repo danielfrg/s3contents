@@ -51,7 +51,7 @@ fmt:  ## Format source
 
 
 test:  ## Run tests
-	pytest -k $(TEST_FILTER) -m "$(TEST_MARKERS)"
+	pytest -k $(TEST_FILTER) -m $(TEST_MARKERS)
 
 
 test-all:  ## Run all tests
@@ -65,7 +65,7 @@ report:  ## Generate coverage reports
 
 minio:  ## Run minio server
 	mkdir -p ${S3DIR}/notebooks
-	docker run -p 9000:9000 -v ${S3DIR}:/data -e MINIO_ACCESS_KEY=access-key -e MINIO_SECRET_KEY=secret-key minio/minio:RELEASE.2018-06-29T02-11-29Z server /data
+	docker run -p 9000:9000 -p 9001:9001 -v ${S3DIR}:/data -e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key minio/minio:RELEASE.2021-08-05T22-01-19Z server /data --console-address ":9001"
 
 
 # ------------------------------------------------------------------------------

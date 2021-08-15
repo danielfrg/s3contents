@@ -37,5 +37,5 @@ class S3ContentsManagerTestCase_prefix(TestContentsManager):
         )
 
 
-# This needs to be removed or else we'll run the main IPython tests as well.
+# Needs to be removed or else we'll run the main IPython tests as well
 del TestContentsManager

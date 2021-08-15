@@ -6,7 +6,7 @@ Create Python env
 
 ```
 make env
-conda activate word2vec
+conda activate s3contents
 ```
 
 Install package for developmentt

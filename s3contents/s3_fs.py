@@ -1,15 +1,16 @@
 """
 Utilities to make S3 look like a regular file system
 """
-import base64
 import os
 import re
 import sys
+import base64
+import datetime
 
 import s3fs
-from botocore.exceptions import ClientError
-from tornado.web import HTTPError
 from traitlets import Any
+from tornado.web import HTTPError
+from botocore.exceptions import ClientError
 
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
@@ -208,16 +209,30 @@ class S3FS(GenericFS):
 
     def lstat(self, path):
         path_ = self.path(path)
-        if self.fs.isdir(path_):  # Try to get status of the dir_keep_file
+
+        if self.fs.isdir(path_):
+            # Try to get status of the dir_keep_file
             path_ = self.path(path, self.dir_keep_file)
+
+        st_time = None
         try:
             self.fs.invalidate_cache(path_)
             info = self.fs.info(path_)
+            st_time = info["LastModified"]
         except FileNotFoundError:
             return {"ST_MTIME": None}
-        ret = {}
-        ret["ST_MTIME"] = info["LastModified"]
-        return ret
+
+        # Remove the microsend information to match Jupyter base tests
+        st_time = datetime.datetime(
+            st_time.year,
+            st_time.month,
+            st_time.day,
+            st_time.hour,
+            st_time.minute,
+            st_time.second,
+            tzinfo=st_time.tzinfo,
+        )
+        return {"ST_MTIME": st_time}
 
     def write(self, path, content, format):
         path_ = self.path(self.unprefix(path))

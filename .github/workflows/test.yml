@@ -27,6 +27,7 @@ jobs:
         # command: server /export
         ports:
           - 9000:9000
+          - 9001:9001
         env:
           MINIO_ACCESS_KEY: access-key
           MINIO_SECRET_KEY: secret-key

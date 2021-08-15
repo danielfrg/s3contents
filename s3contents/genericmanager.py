@@ -159,18 +159,21 @@ class GenericContentsManager(ContentsManager, HasTraits):
         def s3_detail_to_model(s3_detail):
             model_path = s3_detail["Key"]
             model = base_model(self.fs.unprefix(model_path))
-            if s3_detail["StorageClass"] == 'DIRECTORY':
+            if s3_detail["StorageClass"] == "DIRECTORY":
                 model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
                 model["type"] = "directory"
                 lstat = self.fs.lstat(model_path)
                 if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
-                    model["last_modified"] = model["created"] = lstat["ST_MTIME"]
+                    model["created"] = model["last_modified"] = lstat["ST_MTIME"]
             else:
-                model["last_modified"] = s3_detail.get("LastModified").replace(microsecond=0, tzinfo=tzutc())
+                model["last_modified"] = s3_detail.get("LastModified").replace(
+                    microsecond=0, tzinfo=tzutc()
+                )
                 model["created"] = model["last_modified"]
                 # model["size"] = s3_detail.get("Size")
                 model["type"] = "notebook" if model_path.endswith(".ipynb") else "file"
             return model
+
         self.log.debug(
             "S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)",
             path,
@@ -180,17 +183,20 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.fs.isdir(path):
             lstat = self.fs.lstat(path)
             if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
-                model["last_modified"] = model["created"] = lstat["ST_MTIME"]
+                model["created"] = model["last_modified"] = lstat["ST_MTIME"]
         if content:
             if not self.dir_exists(path):
                 self.no_such_entity(path)
             model["format"] = "json"
             prefixed_path = self.fs.path(path)
             files_s3_detail = sync(self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path)
-            filtered_files_s3_detail = list(filter(
-                lambda detail: os.path.basename(detail['Key']) != self.fs.dir_keep_file,
-                files_s3_detail
-            ))
+            filtered_files_s3_detail = list(
+                filter(
+                    lambda detail: os.path.basename(detail["Key"])
+                    != self.fs.dir_keep_file,
+                    files_s3_detail,
+                )
+            )
             model["content"] = list(map(s3_detail_to_model, filtered_files_s3_detail))
         return model
 
@@ -201,7 +207,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_model(path)
         model["type"] = "notebook"
         if self.fs.isfile(path):
-            model["last_modified"] = model["created"] = self.fs.lstat(path)["ST_MTIME"]
+            model["created"] = model["last_modified"] = self.fs.lstat(path)["ST_MTIME"]
         else:
             self.do_error("Not Found", 404)
         if content:
@@ -222,9 +228,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_model(path)
         model["type"] = "file"
         if self.fs.isfile(path):
-            model["last_modified"] = model["created"] = self.fs.lstat(path)["ST_MTIME"]
+            model["created"] = model["last_modified"] = self.fs.lstat(path)["ST_MTIME"]
         else:
-            model["last_modified"] = model["created"] = DUMMY_CREATED_DATE
+            model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
         if content:
             try:
                 # Get updated format from fs.read()

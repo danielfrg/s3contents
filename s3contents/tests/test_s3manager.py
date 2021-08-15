@@ -75,7 +75,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
         self.contents_manager.post_save_hook = None
 
 
-# This needs to be removed or else we'll run the main IPython tests as well.
+# Needs to be removed or else we'll run the main IPython tests as well
 del TestContentsManager
 
 

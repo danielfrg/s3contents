@@ -36,9 +36,10 @@ from traitlets import (
 )
 from traitlets.config import Config
 
+import notebook
 
-# if notebook.version_info[0] >= 7:  # noqa
-#     raise ImportError("Jupyter Notebook versions 6 and up are not supported.")
+if notebook.version_info[0] >= 7:  # noqa
+    raise ImportError("Jupyter Notebook versions 6 and up are not supported.")
 
 
 __all__ = [

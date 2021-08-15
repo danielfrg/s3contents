@@ -1,8 +1,9 @@
 # s3contents Change Log
 
-## Unreleased
+## 0.7.0
 
 - Support Python 3.9
+- Update FS dependencies to 2021.7.0 and unpinned
 
 ## 0.6.0
 

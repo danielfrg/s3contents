@@ -17,9 +17,9 @@ class S3ContentsManager(GenericContentsManager):
         help="S3/AWS secret access key", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
 
-    endpoint_url = Unicode("https://s3.amazonaws.com", help="S3 endpoint URL").tag(
-        config=True, env="JPYNB_S3_ENDPOINT_URL"
-    )
+    endpoint_url = Unicode(
+        "https://s3.amazonaws.com", help="S3 endpoint URL"
+    ).tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
     region_name = Unicode("us-east-1", help="Region name").tag(
         config=True, env="JPYNB_S3_REGION_NAME"
     )
@@ -31,9 +31,13 @@ class S3ContentsManager(GenericContentsManager):
     )
     signature_version = Unicode(help="").tag(config=True)
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
-    sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
+    sse = Unicode(help="Type of server-side encryption to use").tag(
+        config=True
+    )
 
-    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
+    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(
+        config=True
+    )
 
     session_token = Unicode(
         help="S3/AWS session token", allow_none=True, default_value=None
@@ -108,8 +112,12 @@ def _validate_bucket(user_bucket, log):
         * When the user provides an empty bucket
     """
     if not user_bucket:
-        raise ValueError(f"user_bucket function argument is empty: {user_bucket}")
-    log.debug(f"s3manager._validate_bucket: User provided bucket: {user_bucket}")
+        raise ValueError(
+            f"user_bucket function argument is empty: {user_bucket}"
+        )
+    log.debug(
+        f"s3manager._validate_bucket: User provided bucket: {user_bucket}"
+    )
     res = urlparse(user_bucket)
     scheme, netloc, path, params, query, fragment = res
     if netloc:
@@ -122,7 +130,10 @@ def _validate_bucket(user_bucket, log):
         )
         return bucket
     if scheme or netloc or params or query or fragment:
-        log.error("s3manager._validate_bucket: " f"Invalid bucket specification: {res}")
+        log.error(
+            "s3manager._validate_bucket: "
+            f"Invalid bucket specification: {res}"
+        )
         raise ValueError(f"Invalid bucket specification: {res}")
 
     bucket = path

@@ -1,20 +1,19 @@
 """
 Utilities to make S3 look like a regular file system
 """
+import base64
+import datetime
 import os
 import re
 import sys
-import base64
-import datetime
 
 import s3fs
-from traitlets import Any
-from tornado.web import HTTPError
 from botocore.exceptions import ClientError
+from tornado.web import HTTPError
+from traitlets import Any
 
 from s3contents.genericfs import GenericFS, NoSuchFile
 from s3contents.ipycompat import Unicode
-
 
 SAMPLE_ACCESS_POLICY = """
 {{
@@ -49,8 +48,12 @@ class S3FS(GenericFS):
         config=True, env="JPYNB_S3_BUCKET"
     )
     signature_version = Unicode(help="").tag(config=True)
-    sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
-    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
+    sse = Unicode(help="Type of server-side encryption to use").tag(
+        config=True
+    )
+    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(
+        config=True
+    )
 
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
         config=True
@@ -151,23 +154,31 @@ class S3FS(GenericFS):
         # FileNotFoundError handled by s3fs
         is_dir = self.fs.isdir(path_)
 
-        self.log.debug("S3contents.S3FS: `%s` is a directory: %s", path_, is_dir)
+        self.log.debug(
+            "S3contents.S3FS: `%s` is a directory: %s", path_, is_dir
+        )
         return is_dir
 
     def mv(self, old_path, new_path):
-        self.log.debug("S3contents.S3FS: Move file `%s` to `%s`", old_path, new_path)
+        self.log.debug(
+            "S3contents.S3FS: Move file `%s` to `%s`", old_path, new_path
+        )
         self.cp(old_path, new_path)
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
         old_path_, new_path_ = self.path(old_path), self.path(new_path)
-        self.log.debug("S3contents.S3FS: Coping `%s` to `%s`", old_path_, new_path_)
+        self.log.debug(
+            "S3contents.S3FS: Coping `%s` to `%s`", old_path_, new_path_
+        )
 
         if self.isdir(old_path):
             old_dir_path, new_dir_path = old_path, new_path
             for obj in self.ls(old_dir_path):
                 old_item_path = obj
-                new_item_path = old_item_path.replace(old_dir_path, new_dir_path, 1)
+                new_item_path = old_item_path.replace(
+                    old_dir_path, new_dir_path, 1
+                )
                 self.cp(old_item_path, new_item_path)
             self.mkdir(new_path)  # Touch with dir_keep_file
         elif self.isfile(old_path):
@@ -274,9 +285,15 @@ class S3FS(GenericFS):
 
     def unprefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
-        self.log.debug(f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}")
+        self.log.debug(
+            f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}"
+        )
         if isinstance(path, str):
-            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
+            path = (
+                path[len(self.prefix_) :]
+                if path.startswith(self.prefix_)
+                else path
+            )
             path = path[1:] if path.startswith(self.delimiter) else path
             return path
         if isinstance(path, (list, tuple)):

@@ -24,7 +24,6 @@ except ImportError:
 from .gcsmanager import GCSContentsManager  # noqa
 from .s3manager import S3ContentsManager  # noqa
 
-
 # We need this try/except here for tests to work
 try:
     # This is needed for notebook 5.0, 5.1, 5.2(maybe)

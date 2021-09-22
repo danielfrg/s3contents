@@ -17,7 +17,7 @@ first: help
 # Build
 
 env:  ## Create Python env
-	mamba env create
+	poetry install
 
 
 build:  ## Build package
@@ -36,9 +36,9 @@ upload-test:  ## Upload package to test PyPI
 # Testing
 
 check:  ## Check linting
+	isort --check-only --diff .
+	black --check --diff .
 	flake8
-	isort . --check-only --diff --project s3contents
-	black . --check --diff
 
 
 fmt:  ## Format source

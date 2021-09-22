@@ -57,7 +57,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: python/.venv
-          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.jupyter-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install Python dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -72,17 +72,26 @@ jobs:
           sudo mkdir -p /tmp/tmp-data/notebooks
           curl http://localhost:9000/
 
-      - name: Build package
-        run: |
-          make build
-
       - name: Install Jupyter Notebook ${{ matrix.jupyter-version }}
         run: |
+          source .venv/bin/activate
           pip install -U notebook==${{ matrix.jupyter-version }}
+          pip freeze
+
+      - name: Build package
+        run: |
+          source .venv/bin/activate
+          make build
+
+      - name: Install package
+        run: |
+          source .venv/bin/activate
+          pip install dist/*.tar.gz
           pip freeze
 
       - name: Run tests
         run: |
+          source .venv/bin/activate
           make test-all
           make report
 

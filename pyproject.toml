@@ -65,9 +65,9 @@ markers = [
     "gcs: requires gcs creds (deselect with '-m \"not minio\"')"
 ]
 
-# [tool.coverage.run]
-# parallel = true
-# branch = true
+[tool.coverage.run]
+parallel = true
+branch = true
 
 [tool.coverage.report]
 omit = ["s3contents/tests/*"]

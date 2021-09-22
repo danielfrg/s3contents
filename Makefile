@@ -17,15 +17,11 @@ first: help
 # Build
 
 env:  ## Create Python env
-	mamba env create
-
-
-develop:  ## Install package for development
-	python -m pip install --no-build-isolation -e .
+	poetry install
 
 
 build:  ## Build package
-	python setup.py sdist
+	poetry build
 
 
 upload-pypi:  ## Upload package to PyPI
@@ -40,9 +36,9 @@ upload-test:  ## Upload package to test PyPI
 # Testing
 
 check:  ## Check linting
+	isort --check-only --diff .
+	black --check --diff .
 	flake8
-	isort . --check-only --diff --project s3contents
-	black . --check --diff
 
 
 fmt:  ## Format source

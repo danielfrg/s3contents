@@ -1,10 +1,12 @@
 import time
 
 import pytest
+from notebook.services.contents.tests.test_largefilemanager import (
+    TestLargeFileManager,
+)
 
 from s3contents import S3ContentsManager
 from s3contents.chunks import content_chunks
-from notebook.services.contents.tests.test_largefilemanager import TestLargeFileManager
 
 
 @pytest.mark.minio

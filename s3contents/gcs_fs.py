@@ -10,9 +10,9 @@ from s3contents.ipycompat import Unicode
 
 class GCSFS(GenericFS):
 
-    project = Unicode(help="GCP Project", allow_none=True, default_value=None).tag(
-        config=True, env="JPYNB_GCS_PROJECT"
-    )
+    project = Unicode(
+        help="GCP Project", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_GCS_PROJECT")
     token = Unicode(
         help="Path to the GCP token", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_GCS_TOKEN_PATH")
@@ -78,23 +78,31 @@ class GCSFS(GenericFS):
         # we need to check if the dir_keep_file exists
         is_dir = self.isfile(path + self.separator + self.dir_keep_file)
         path_ = self.path(path)
-        self.log.debug("S3contents.GCSFS: `%s` is a directory: %s", path_, is_dir)
+        self.log.debug(
+            "S3contents.GCSFS: `%s` is a directory: %s", path_, is_dir
+        )
         return is_dir
 
     def mv(self, old_path, new_path):
-        self.log.debug("S3contents.GCSFS: Move file `%s` to `%s`", old_path, new_path)
+        self.log.debug(
+            "S3contents.GCSFS: Move file `%s` to `%s`", old_path, new_path
+        )
         self.cp(old_path, new_path)
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
         old_path_, new_path_ = self.path(old_path), self.path(new_path)
-        self.log.debug("S3contents.GCSFS: Coping `%s` to `%s`", old_path_, new_path_)
+        self.log.debug(
+            "S3contents.GCSFS: Coping `%s` to `%s`", old_path_, new_path_
+        )
 
         if self.isdir(old_path):
             old_dir_path, new_dir_path = old_path, new_path
             for obj in self.ls(old_dir_path):
                 old_item_path = obj
-                new_item_path = old_item_path.replace(old_dir_path, new_dir_path, 1)
+                new_item_path = old_item_path.replace(
+                    old_dir_path, new_dir_path, 1
+                )
                 self.cp(old_item_path, new_item_path)
         elif self.isfile(old_path):
             self.fs.copy(old_path_, new_path_)
@@ -180,7 +188,11 @@ class GCSFS(GenericFS):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         path = self.strip(path)
         if isinstance(path, str):
-            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
+            path = (
+                path[len(self.prefix_) :]
+                if path.startswith(self.prefix_)
+                else path
+            )
             path = path[1:] if path.startswith(self.separator) else path
             return path
         if isinstance(path, (list, tuple)):

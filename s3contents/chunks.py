@@ -7,9 +7,10 @@ import base64
 import contextvars
 import time
 
-
 # Used as a "registry" for uploads.
-content_chunks = contextvars.ContextVar("jupyterlab_content_chunks", default={})
+content_chunks = contextvars.ContextVar(
+    "jupyterlab_content_chunks", default={}
+)
 
 
 def store_content_chunk(path: str, content: str):
@@ -33,7 +34,9 @@ def assemble_chunks(path: str) -> str:
     if path not in current_value:
         raise ValueError(f"No chunk for path {path}")
 
-    return base64.b64encode(b"".join(current_value[path]["chunks"])).decode("ascii")
+    return base64.b64encode(b"".join(current_value[path]["chunks"])).decode(
+        "ascii"
+    )
 
 
 def delete_chunks(path):

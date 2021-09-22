@@ -35,53 +35,73 @@ jobs:
           - /tmp/tmp-data:/data
 
     steps:
-    - uses: actions/checkout@v2
-    - run: git fetch --prune --unshallow
+      - uses: actions/checkout@v2
+      - run: git fetch --prune --unshallow
 
-    - name: Verify Minio
-      run: |
-        sudo mkdir -p /tmp/tmp-data/notebooks
-        curl http://localhost:9000/
+      # ------------------------------------------------------------------------
+      # Python env
 
-    - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Print Python versions
-      run: |
-        which python
-        which pip
-        python --version
-        pip --version
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.2.0a2
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip --version
-        pip install -U -r requirements-dev.txt
-        pip freeze
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.jupyter-version }}-${{ hashFiles('**/poetry.lock') }}
 
-    - name: Build package
-      run: |
-        make build
+      - name: Install Python dependencies (notebook==${{ matrix.jupyter-version }})
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --no-root --with test
+          source .venv/bin/activate
+          pip install -U notebook==${{ matrix.jupyter-version }}
+          pip freeze
 
-    - name: Install package
-      run: |
-        pip install dist/*.tar.gz
-        pip freeze
+      - name: Print Python info
+        run: |
+          source .venv/bin/activate
+          which python
+          python --version
+          which pip
+          pip --version
 
-    - name: Install Jupyter Notebook ${{ matrix.jupyter-version }}
-      run: |
-        pip install -U notebook==${{ matrix.jupyter-version }}
-        pip freeze
+      # ------------------------------------------------------------------------
+      # Test
 
-    - name: Run tests
-      run: |
-        make test-all
-        make report
+      - name: Verify Minio
+        run: |
+          sudo mkdir -p /tmp/tmp-data/notebooks
+          curl http://localhost:9000/
 
-    - name: Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
+      - name: Build package
+        run: |
+          source .venv/bin/activate
+          make build
+
+      - name: Install package
+        run: |
+          source .venv/bin/activate
+          pip install dist/*.tar.gz
+          pip freeze
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          make test-all
+          make report
+
+      - name: Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml

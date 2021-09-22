@@ -5,9 +5,9 @@ from s3contents.ipycompat import Unicode
 
 class GCSContentsManager(GenericContentsManager):
 
-    project = Unicode(help="GCP Project", allow_none=True, default_value=None).tag(
-        config=True, env="JPYNB_GCS_PROJECT"
-    )
+    project = Unicode(
+        help="GCP Project", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_GCS_PROJECT")
     token = Unicode(
         help="Path to the GCP token", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_GCS_TOKEN_PATH")

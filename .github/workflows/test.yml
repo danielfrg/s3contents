@@ -60,10 +60,13 @@ jobs:
           path: python/.venv
           key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.jupyter-version }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies (notebook==${{ matrix.jupyter-version }})
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
           poetry install --no-interaction --no-root --with test
+          source .venv/bin/activate
+          pip install -U notebook==${{ matrix.jupyter-version }}
+          pip freeze
 
       - name: Print Python info
         run: |
@@ -80,12 +83,6 @@ jobs:
         run: |
           sudo mkdir -p /tmp/tmp-data/notebooks
           curl http://localhost:9000/
-
-      - name: Install Jupyter Notebook ${{ matrix.jupyter-version }}
-        run: |
-          source .venv/bin/activate
-          pip install -U notebook==${{ matrix.jupyter-version }}
-          pip freeze
 
       - name: Build package
         run: |

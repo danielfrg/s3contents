@@ -20,12 +20,8 @@ env:  ## Create Python env
 	mamba env create
 
 
-develop:  ## Install package for development
-	python -m pip install --no-build-isolation -e .
-
-
 build:  ## Build package
-	python setup.py sdist
+	poetry build
 
 
 upload-pypi:  ## Upload package to PyPI

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3content"
-version = "0.8.0"
+version = "0"
 packages = [{ include = "s3contents" }]
 homepage = "https://github.com/danielfrg/s3contents"
 repository = "https://github.com/danielfrg/s3contents"
@@ -47,9 +47,10 @@ xfail_strict = true
 addopts = [
   "--ignore=site-packages",
   "--ignore=dist-packages",
+  "--ignore=dist",
   "--strict-markers"
 ]
-norecursedirs = ["site-packages", "dist-packages"]
+norecursedirs = ["site-packages", "dist-packages", "dist"]
 markers = [
     "minio: requires minio server (deselect with '-m \"not minio\"')",
     "gcs: requires gcs creds (deselect with '-m \"not minio\"')"

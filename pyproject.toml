@@ -49,25 +49,28 @@ pytest-cov = "^2.12.1"
 mock = "^4.0.3"
 
 [tool.pytest.ini_options]
-xfail_strict = true
 addopts = [
   "--ignore=site-packages",
   "--ignore=dist-packages",
   "--ignore=dist",
-  "--strict-markers"
+  "--strict-markers",
+  "--cov-config=pyproject.toml",
+  "--cov=s3contents",
+  "--cov-report=term-missing"
 ]
+xfail_strict = true
 norecursedirs = ["site-packages", "dist-packages", "dist"]
 markers = [
     "minio: requires minio server (deselect with '-m \"not minio\"')",
     "gcs: requires gcs creds (deselect with '-m \"not minio\"')"
 ]
 
-[tool.coverage.run]
-parallel = true
-branch = true
+# [tool.coverage.run]
+# parallel = true
+# branch = true
 
 [tool.coverage.report]
-omit = ["s3contents/_generated_version.py", "s3contents/tests/*"]
+omit = ["s3contents/tests/*"]
 
 [tool.black]
 line_length = 79

@@ -63,7 +63,15 @@ jobs:
       - name: Install Python dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
-          poetry install --no-interaction --no-root
+          poetry install --no-interaction --no-root --with test
+
+      - name: Print Python info
+        run: |
+          source .venv/bin/activate
+          which python
+          python --version
+          which pip
+          pip --version
 
       # ------------------------------------------------------------------------
       # Test

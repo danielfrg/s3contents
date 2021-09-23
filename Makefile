@@ -42,7 +42,7 @@ check:  ## Check linting
 
 
 fmt:  ## Format source
-	isort . --project s3contents
+	isort .
 	black .
 
 

@@ -50,13 +50,14 @@ mock = "^4.0.3"
 
 [tool.pytest.ini_options]
 addopts = [
+  "-s", "-vv",
   "--ignore=site-packages",
   "--ignore=dist-packages",
   "--ignore=dist",
   "--strict-markers",
-  "--cov-config=pyproject.toml",
   "--cov=s3contents",
-  "--cov-report=term-missing"
+  "--cov-report=term-missing",
+  "--cov-config=pyproject.toml"
 ]
 xfail_strict = true
 norecursedirs = ["site-packages", "dist-packages", "dist"]

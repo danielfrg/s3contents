@@ -2,8 +2,8 @@
 
 [![pypi](https://badge.fury.io/py/s3contents.svg)](https://pypi.org/project/s3contents/)
 [![build](https://github.com/danielfrg/s3contents/workflows/test/badge.svg)](https://github.com/danielfrg/s3contents/actions/workflows/test.yml)
-[![coverage](https://codecov.io/gh/danielfrg/s3contents/branch/master/graph/badge.svg)](https://codecov.io/gh/danielfrg/s3contents?branch=master)
-[![licence](https://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/danielfrg/s3contents/blob/master/LICENSE.txt)
+[![coverage](https://codecov.io/gh/danielfrg/s3contents/branch/main/graph/badge.svg)](https://codecov.io/gh/danielfrg/s3contents?branch=main)
+[![licence](https://img.shields.io/:license-Apache%202-blue.svg)](http://github.com/danielfrg/s3contents/blob/main/LICENSE.txt)
 
 An S3 and GCS backed ContentsManager implementation for Jupyter.
 

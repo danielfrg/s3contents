@@ -60,10 +60,13 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.jupyter-version }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Install Python dependencies (notebook==${{ matrix.jupyter-version }})
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      - name: Ensure cache is healthy
+        if: steps.cached-poetry-dependencies.outputs.cache-hit == 'true'
+        run: poetry run python --version || rm -rf .venv
+
+      - name: Install Python dependencies
         run: |
-          poetry install --no-interaction --no-root --with test
+          poetry install --no-interaction --no-root
           source .venv/bin/activate
           pip install -U notebook==${{ matrix.jupyter-version }}
           pip freeze

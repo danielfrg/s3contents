@@ -19,9 +19,6 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 
-[tool.poetry-version-plugin]
-source = "init"
-
 [tool.poetry.dependencies]
 python = ">=3.7.1,<4"
 notebook = ">=5.6,<7.0"
@@ -49,29 +46,36 @@ pytest-cov = "^2.12.1"
 mock = "^4.0.3"
 
 [tool.pytest.ini_options]
+testpaths = ["s3contents/tests"]
 addopts = [
   "-s", "-vv",
-  "--ignore=site-packages",
-  "--ignore=dist-packages",
   "--ignore=dist",
+  "--ignore=site-packages",
   "--strict-markers",
   "--cov=s3contents",
-  "--cov-report=term-missing",
+  "--cov-report=term",
   "--cov-config=pyproject.toml"
 ]
 xfail_strict = true
-norecursedirs = ["site-packages", "dist-packages", "dist"]
 markers = [
     "minio: requires minio server (deselect with '-m \"not minio\"')",
     "gcs: requires gcs creds (deselect with '-m \"not minio\"')"
 ]
 
-[tool.coverage.run]
-parallel = true
-branch = true
-
 [tool.coverage.report]
+show_missing = true
+ignore_errors = false
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError"
+]
 omit = ["s3contents/tests/*"]
+
+[tool.coverage.paths]
+source = [
+    "s3contents",
+    ".venv/lib/python*/site-packages/s3contents",
+]
 
 [tool.black]
 line_length = 79
@@ -89,6 +93,9 @@ inherit = false
 convention = "numpy"
 match_dir = "s3contents"
 add_ignore = ["D100", "D101", "D102", "D103", "D104", "D105"]
+
+[tool.poetry-version-plugin]
+source = "init"
 
 [build-system]
 requires = ["poetry>=1.1", "setuptools>=57,<58"]

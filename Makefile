@@ -16,9 +16,6 @@ first: help
 all: pkg  ## Build package
 
 
-# ------------------------------------------------------------------------------
-# Python
-
 env:  ## Create Python env
 	poetry install --with dev --with test
 
@@ -71,9 +68,6 @@ minio:  ## Run minio server
 	mkdir -p ${S3DIR}/notebooks
 	docker run -p 9000:9000 -p 9001:9001 -v ${S3DIR}:/data -e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key minio/minio:RELEASE.2021-08-05T22-01-19Z server /data --console-address ":9001"
 
-
-# ------------------------------------------------------------------------------
-# Other
 
 help:  ## Show this help menu
 	@grep -E '^[0-9a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?##"; OFS="\t\t"}; {printf "\033[36m%-30s\033[0m %s\n", $$1, ($$2==""?"":$$2)}'

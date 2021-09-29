@@ -39,11 +39,11 @@ fmt:  ## Format source
 
 
 test-%:  ## Run tests
-	pytest -k "$(PYTEST_K)" -m $(subst test-,,$@)
+	pytest -k $(PYTEST_K) -m $(subst test-,,$@)
 
 
 test-all:  ## Run all tests
-	pytest -k "$(PYTEST_K)" -m "$(PYTEST_MARKERS)"
+	pytest -k $(PYTEST_K) -m $(PYTEST_MARKERS)
 
 
 report:  ## Generate coverage reports

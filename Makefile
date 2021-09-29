@@ -39,11 +39,11 @@ fmt:  ## Format source
 
 
 test-%:  ## Run tests
-	pytest -k $(PYTEST_K) -m $(subst test-,,$@)
+	pytest -k "$(PYTEST_K)" -m $(subst test-,,$@)
 
 
 test-all:  ## Run all tests
-	pytest -k $(TEST_FILTER) -m "not gcs"
+	pytest -k "$(TEST_FILTER)" -m "not gcs"
 
 
 report:  ## Generate coverage reports

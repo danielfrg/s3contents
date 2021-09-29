@@ -1,7 +1,7 @@
 from .gcsmanager import GCSContentsManager  # noqa
 from .s3manager import S3ContentsManager  # noqa
 
-__version__ = "0.8.0-dev"
+__version__ = "0.7.0"
 
 
 # We need this try/except here for tests to work

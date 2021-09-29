@@ -71,6 +71,8 @@ jobs:
         run: |
           rm -rf .venv || true
           poetry install --no-interaction --no-root --with test
+          source .venv/bin/activate
+          pip install -U notebook==${{ matrix.jupyter-version }}
 
       - name: Print Python info
         run: |

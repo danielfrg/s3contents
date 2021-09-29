@@ -81,6 +81,12 @@ jobs:
           python --version
           which pip
           pip --version
+          pip freeze
+
+      - name: Print Jupyter info
+        run: |
+          source .venv/bin/activate
+          pip freeze | grep notebook
 
       # ------------------------------------------------------------------------
       # Test

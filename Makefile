@@ -6,7 +6,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 PYTEST_K ?= ""
-PYTEST_MARKERS ?= ""
+PYTEST_MARKERS ?= "not gcs"
 S3DIR := $(CURDIR)/tmp-data
 
 
@@ -43,7 +43,7 @@ test-%:  ## Run tests
 
 
 test-all:  ## Run all tests
-	pytest -k "$(TEST_FILTER)" -m "not gcs"
+	pytest -k "$(PYTEST_K)" -m "$(PYTEST_MARKERS)"
 
 
 report:  ## Generate coverage reports
@@ -63,7 +63,7 @@ clean:  ## Clean Python build files
 	find . -type d -name .ipynb_checkpoints -exec rm -rf {} +
 
 
-reset: clean  ## Reset
+reset: clean  ## Reset Python
 	rm -rf .venv
 
 

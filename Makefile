@@ -66,8 +66,32 @@ reset: clean  ## Reset Python
 
 minio:  ## Run minio server
 	mkdir -p ${S3DIR}/notebooks
-	docker run -p 9000:9000 -p 9001:9001 -v ${S3DIR}:/data -e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key minio/minio:RELEASE.2021-08-05T22-01-19Z server /data --console-address ":9001"
+	docker run -p 9000:9000 -p 9001:9001 -v ${S3DIR}:/data \
+		-e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key \
+		minio/minio:RELEASE.2021-11-09T03-21-45Z server /data --console-address ":9001"
+
+# from https://docs.min.io/minio/baremetal/installation/deploy-minio-distributed.html?ref=con#deploy-distributed-minio
+minio-distributed:  ## Run minio server in distributed mode (necessary for versioning)
+	echo "Once running, manually create a versioned 'notebooks' bucket in Minio-console"
+# mkdir -p "${S3DIR}/mnt/disk1/notebooks"
+# mkdir -p "${S3DIR}/mnt/disk2/notebooks"
+# mkdir -p "${S3DIR}/mnt/disk3/notebooks"
+# mkdir -p "${S3DIR}/mnt/disk4/notebooks"
+	docker run \
+		-p 9000:9000 -p 9001:9001 \
+		-v "${s3DIR}/mnt/disk1:/data1" \
+		-v "${s3DIR}/mnt/disk2:/data2" \
+		-v "${s3DIR}/mnt/disk3:/data3" \
+		-v "${s3DIR}/mnt/disk4:/data4" \
+		-e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key \
+		minio/minio:RELEASE.2021-11-09T03-21-45Z server \
+		"/data1" \
+		"/data2" \
+		"/data3" \
+		"/data4" \
+		--console-address ":9001"
 
 
 help:  ## Show this help menu
-	@grep -E '^[0-9a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?##"; OFS="\t\t"}; {printf "\033[36m%-30s\033[0m %s\n", $$1, ($$2==""?"":$$2)}'
+	@grep -E '^[0-9a-zA-Z_-]+:.*?##.*$$' $(MAKEFILE_LIST) | sort \
+		| awk 'BEGIN {FS = ":.*?##"; OFS="\t\t"}; {printf "\033[36m%-30s\033[0m %s\n", $$1, ($$2==""?"":$$2)}'

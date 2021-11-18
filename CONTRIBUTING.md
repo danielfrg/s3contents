@@ -2,17 +2,14 @@
 
 ## Development environment
 
+The following requires poetry 1.2.0a2 or newer.
+
 Create Python env
 
 ```
 make env
+conda create --name s3contents
 conda activate s3contents
-```
-
-Install package for developmentt
-
-```
-make develop
 ```
 
 ## Iteration
@@ -38,12 +35,32 @@ c.S3ContentsManager.bucket = "notebooks"
 
 c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {"debug": True}
+
+# only log s3contents but not boto
+import logging
+log = logging.getLogger()
+log.setLevel(logging.ERROR)
+c.log_level = "DEBUG"
+c.Application.log_level = "DEBUG"
 ```
 
 Start Jupyter Notebook in another terminal:
 
 ```
 jupyter notebook
+```
+
+After you have made some changes, recompile with:
+
+```
+conda activate s3contents && make env && jupyter notebook
+```
+
+or use this faster command to copy changes to s3contents installation path:
+
+```bash
+rsync -r --exclude '.git' ./s3contents/ $(echo "$(pip show s3contents | grep Location: | cut -d' ' -f2)/s3contents/") && jupyter notebook
+
 ```
 
 ## Tests

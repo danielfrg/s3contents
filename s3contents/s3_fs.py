@@ -170,7 +170,7 @@ class S3FS(GenericFS):
     def cp(self, old_path, new_path):
         old_path_, new_path_ = self.path(old_path), self.path(new_path)
         self.log.debug(
-            "S3contents.S3FS: Coping `%s` to `%s`", old_path_, new_path_
+            "S3contents.S3FS: Copying `%s` to `%s`", old_path_, new_path_
         )
 
         if self.isdir(old_path):

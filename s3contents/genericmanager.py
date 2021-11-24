@@ -110,7 +110,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
         self.log.debug(
-            "S3contents.GenericManager.get] path('%s') type(%s) format(%s)",
+            "S3contents.GenericManager.get: path('%s') type(%s) format(%s)",
             path,
             type,
             format,
@@ -120,6 +120,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
         # TODO: Figure out why is this happening
         if self.parent:
             if path.startswith(self.parent.root_dir):
+                self.log.debug(
+                    "S3contents.GenericManager.get: removing root_dir (%s) from path",
+                    self.parent.root_dir,
+                )
                 path = path[len(self.parent.root_dir) :]
         # END hack
 

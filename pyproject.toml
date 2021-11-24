@@ -24,6 +24,7 @@ python = ">=3.7.1,<4"
 notebook = ">=5.6,<7.0"
 aiobotocore = {version = "^1.4.0", extras = ["boto3"]}
 s3fs = ">=2021.11.0"
+gcsfs = {version = "^2021.11.0", optional = true}
 
 [tool.poetry.group.dev]
 optional = true

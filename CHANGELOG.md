@@ -1,5 +1,10 @@
 # s3contents Change Log
 
+## 0.8.0
+
+- Update FS dependencies to 2021.11.0
+- Cleaned up dependencies and made extra_requires for gcs
+
 ## 0.7.0
 
 - Support Python 3.9
@@ -9,7 +14,7 @@
 
 - [#97](https://github.com/danielfrg/s3contents/pull/97/) Add `pre_save_hook` and `post_save_hook`
 - [#80](https://github.com/danielfrg/s3contents/pull/80) Uploading large files (>1mb) now works
-    - Implemention required updating dependencies to notebook >=5.6 and python >=3.7
+- Implementation required updating dependencies to notebook >=5.6 and python >=3.7
 
 ## 0.4 - 0.5.1
 

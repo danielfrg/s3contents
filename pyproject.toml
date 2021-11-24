@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3content"
-version = "0.7.0"
+version = "0.8.0"
 packages = [{ include = "s3contents" }]
 homepage = "https://github.com/danielfrg/s3contents"
 repository = "https://github.com/danielfrg/s3contents"

@@ -118,8 +118,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
         # This is a hack to remove some startup dialog error from JupyterLab
         # TODO: Figure out why is this happening
-        if path.startswith(self.parent.root_dir):
-            path = path[len(self.parent.root_dir) :]
+        if self.parent:
+            if path.startswith(self.parent.root_dir):
+                path = path[len(self.parent.root_dir) :]
         # END hack
 
         path = path.strip("/")

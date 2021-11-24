@@ -320,6 +320,9 @@ category = "dev"
 optional = false
 python-versions = ">=3.6"
 
+[package.dependencies]
+tomli = {version = "*", optional = true, markers = "extra == \"toml\""}
+
 [package.extras]
 toml = ["tomli"]
 
@@ -1598,7 +1601,7 @@ gcs = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<4"
-content-hash = "bc5ed54d22c863918bc1d993a86a6a569b0fee6bffcb38de9d15905b7680252f"
+content-hash = "58869737c26892d8e41844e97e18ba82de98c6808b7c5a148e38e9714a30bebb"
 
 [metadata.files]
 aiobotocore = [

@@ -1,10 +1,11 @@
 import json
 from urllib.parse import urlparse
 
+import boto3
 from traitlets import Any
 
 from s3contents.genericmanager import GenericContentsManager, from_dict
-from s3contents.ipycompat import Unicode
+from s3contents.ipycompat import Bool, Unicode
 from s3contents.s3_fs import S3FS
 
 
@@ -13,40 +14,52 @@ class S3ContentsManager(GenericContentsManager):
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
-    secret_access_key = Unicode(
-        help="S3/AWS secret access key", allow_none=True, default_value=None
-    ).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+
+    anon = Bool(help="S3/AWS session token", default_value=False).tag(
+        config=True, env="JPYNB_S3_ANON"
+    )
+
+    boto3_session = Any(
+        help="Place to store custom boto3 session (passed to S3_FS) - could be set by init_s3_hook"
+    )
+
+    bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
+        config=True, env="JPYNB_S3_BUCKET"
+    )
+
+    delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
     endpoint_url = Unicode(
         "https://s3.amazonaws.com", help="S3 endpoint URL"
     ).tag(config=True, env="JPYNB_S3_ENDPOINT_URL")
-    region_name = Unicode("us-east-1", help="Region name").tag(
-        config=True, env="JPYNB_S3_REGION_NAME"
-    )
-    bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
-        config=True, env="JPYNB_S3_BUCKET"
-    )
-    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
-        config=True
-    )
-    signature_version = Unicode(help="").tag(config=True)
-    delimiter = Unicode("/", help="Path delimiter").tag(config=True)
-    sse = Unicode(help="Type of server-side encryption to use").tag(
-        config=True
-    )
 
     kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(
         config=True
     )
 
+    init_s3_hook = Any(help="optional hook for init'ing s3").tag(config=True)
+
+    prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
+        config=True
+    )
+
+    region_name = Unicode("us-east-1", help="Region name").tag(
+        config=True, env="JPYNB_S3_REGION_NAME"
+    )
+
+    secret_access_key = Unicode(
+        help="S3/AWS secret access key", allow_none=True, default_value=None
+    ).tag(config=True, env="JPYNB_S3_SECRET_ACCESS_KEY")
+
     session_token = Unicode(
         help="S3/AWS session token", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_SESSION_TOKEN")
 
-    boto3_session = Any(
-        help="Place to store custom boto3 session (passed to S3_FS) - could be set by init_s3_hook"
+    signature_version = Unicode(help="").tag(config=True)
+
+    sse = Unicode(help="Type of server-side encryption to use").tag(
+        config=True
     )
-    init_s3_hook = Any(help="optional hook for init'ing s3").tag(config=True)
 
     s3fs_additional_kwargs = Any(
         help="optional dictionary to be appended to s3fs additional kwargs"
@@ -57,26 +70,36 @@ class S3ContentsManager(GenericContentsManager):
 
         self.run_init_s3_hook()
         self.bucket = _validate_bucket(self.bucket, self.log)
+
+        self.verify_credentials()
+
         self._fs = S3FS(
-            log=self.log,
             access_key_id=self.access_key_id,
-            secret_access_key=self.secret_access_key,
-            endpoint_url=self.endpoint_url,
-            region_name=self.region_name,
+            anon=self.anon,
+            boto3_session=self.boto3_session,
             bucket=self.bucket,
+            delimiter=self.delimiter,
+            endpoint_url=self.endpoint_url,
+            kms_key_id=self.kms_key_id,
+            log=self.log,
             prefix=self.prefix,
+            region_name=self.region_name,
+            secret_access_key=self.secret_access_key,
             session_token=self.session_token,
             signature_version=self.signature_version,
-            delimiter=self.delimiter,
             sse=self.sse,
-            kms_key_id=self.kms_key_id,
-            boto3_session=self.boto3_session,
             s3fs_additional_kwargs=self.s3fs_additional_kwargs,
         )
 
     def run_init_s3_hook(self):
         if self.init_s3_hook is not None:
             self.init_s3_hook(self)
+
+    def verify_credentials(self):
+        print("!!!!!!!!!")
+        s3 = boto3.client("s3")
+        result = s3.get_bucket_acl(Bucket=self.bucket)
+        print(result)
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model["content"])
@@ -88,10 +111,7 @@ class S3ContentsManager(GenericContentsManager):
 
 
 def _validate_bucket(user_bucket, log):
-    """Helper function to strip off schemas and keys from your bucket.
-
-    Another approach may be to use regexes, but then you have to
-    think about regexes...
+    """Helper function to strip off schemas and keys from the bucket name
 
     Parameters
     ----------

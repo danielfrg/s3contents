@@ -47,7 +47,7 @@ class GCSFS(GenericFS):
     def init(self):
         self.mkdir("")
         self.ls("")
-        assert self.isdir(""), "The root directory should exists :)"
+        assert self.isdir(""), "The root directory should exists"
 
     #  GenericFS methods -----------------------------------------------------------------------------------------------
 

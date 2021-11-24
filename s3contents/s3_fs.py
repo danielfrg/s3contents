@@ -1,6 +1,7 @@
 """
 Utilities to make S3 look like a regular file system
 """
+
 import base64
 import datetime
 import os
@@ -116,9 +117,10 @@ class S3FS(GenericFS):
 
     def init(self):
         try:
-            self.mkdir("")
-            self.ls("")
-            self.isdir("")
+            # self.mkdir("")
+            # self.ls("")
+            # self.isdir("")
+            pass
         except ClientError as ex:
             if "AccessDenied" in str(ex):
                 policy = SAMPLE_ACCESS_POLICY.format(

@@ -1,7 +1,7 @@
 import pytest
 from notebook.services.contents.tests.test_manager import TestContentsManager
 
-from s3contents import GCSContentsManager
+from s3contents.gcs import GCSContentsManager
 
 
 @pytest.mark.gcs

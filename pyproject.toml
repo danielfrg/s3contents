@@ -59,6 +59,7 @@ addopts = [
 ]
 xfail_strict = true
 markers = [
+    "pkg: package tests",
     "minio: requires minio server (deselect with '-m \"not minio\"')",
     "gcs: requires gcs creds (deselect with '-m \"not minio\"')"
 ]

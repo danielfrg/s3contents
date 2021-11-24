@@ -5,7 +5,7 @@ import pytest
 from notebook.services.contents.tests.test_manager import TestContentsManager
 
 from s3contents import S3ContentsManager
-from s3contents.s3manager import _validate_bucket
+from s3contents.s3manager import validate_bucket
 from s3contents.tests.hooks import make_html_post_save, scrub_output_pre_save
 
 
@@ -87,7 +87,7 @@ def test_bucket_validation(user_bucket, caplog):
     import logging
 
     logger = logging.getLogger()
-    validated_bucket = _validate_bucket(user_bucket, logger)
+    validated_bucket = validate_bucket(user_bucket, logger)
     assert (
         validated_bucket == "BUCKET"
     ), "ContentsManager's bucket should be parsed properly"
@@ -98,4 +98,4 @@ def test_bucket_validation_empty_bucket_name(caplog):
 
     logger = logging.getLogger()
     with pytest.raises(ValueError):
-        _validate_bucket("", logger)
+        validate_bucket("", logger)

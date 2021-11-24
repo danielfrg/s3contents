@@ -5,8 +5,8 @@ from notebook.services.contents.tests.test_largefilemanager import (
     TestLargeFileManager,
 )
 
-from s3contents import GCSContentsManager
 from s3contents.chunks import content_chunks
+from s3contents.gcs import GCSContentsManager
 
 
 @pytest.mark.gcs

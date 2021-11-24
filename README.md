@@ -20,8 +20,10 @@
 # S3Contents - Jupyter Notebooks in S3
 
 A transparent, drop-in replacement for Jupyter standard filesystem-backed storage system.
-With this implementation of a Jupyter Contents Manager you can save all your notebooks, files and directory
-structure directly to a S3/GCS bucket on AWS/GCP or a self hosted S3 API compatible like [MinIO](http://minio.io).
+With this implementation of a
+[Jupyter Contents Manager](https://jupyter-server.readthedocs.io/en/latest/developers/contents.html)
+you can save all your notebooks, files and directory structure directly to a
+S3/GCS bucket on AWS/GCP or a self hosted S3 API compatible like [MinIO](http://minio.io).
 
 ## Installation
 
@@ -50,6 +52,9 @@ Create a `jupyter_notebook_config.py` file in one of the
 [Jupyter config directories](https://jupyter.readthedocs.io/en/latest/use/jupyter-directories.html#id1)
 for example: `~/.jupyter/jupyter_notebook_config.py`.
 
+**Jupyter Notebook Classic**: If you plan to use the Classic Jupyter Notebook
+interface you need to change `ServerApp` to `NotebookApp` for all the examples on this page.
+
 ## AWS S3
 
 ```python
@@ -60,6 +65,9 @@ c = get_config()
 # Tell Jupyter to use S3ContentsManager
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.bucket = "<S3 bucket name>"
+
+# Fix JupyterLab issues
+c.ServerApp.root_dir = ""
 ```
 
 ### Authentication
@@ -145,8 +153,9 @@ c.S3ContentsManager.init_s3_hook = make_key_refresh_boto3
 
 ### MinIO playground example
 
-You can test this without creating an S3 bucket or downloading anything else using
-the [`play.minio.io:9443`](https://play.minio.io:9443) playground:
+You can test this using the [`play.minio.io:9000`](https://play.minio.io:9000) playground:
+
+Just be sure to create the bucket first.
 
 ```python
 from s3contents import S3ContentsManager
@@ -157,7 +166,7 @@ c = get_config()
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = "Q3AM3UQ867SPQQA43P2F"
 c.S3ContentsManager.secret_access_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-c.S3ContentsManager.endpoint_url = "https://play.minio.io:9443"
+c.S3ContentsManager.endpoint_url = "https://play.minio.io:9000"
 c.S3ContentsManager.bucket = "s3contents-demo"
 c.S3ContentsManager.prefix = "notebooks/test"
 ```

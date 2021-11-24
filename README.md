@@ -39,10 +39,10 @@ pip install s3contents[gcs]
 
 ## s3contents vs X
 
-There are some implementations of an S3 Jupyter Content Manager such as
-[s3nb](https://github.com/monetate/s3nb) or [s3drive](https://github.com/stitchfix/s3drive))
-but s3contents is the only one tested against new versions of Jupyter.
-It also supports more authentication methods and even supports Google Cloud Storage.
+While there are some implementations of an S3 Jupyter Content Manager such as
+[s3nb](https://github.com/monetate/s3nb) or [s3drive](https://github.com/stitchfix/s3drive)
+s3contents is the only one tested against new versions of Jupyter.
+It also supports more authentication methods and Google Cloud Storage.
 
 This aims to be a fully tested implementation and it's based on [PGContents](https://github.com/quantopian/pgcontents).
 
@@ -66,7 +66,7 @@ c = get_config()
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.bucket = "<S3 bucket name>"
 
-# Fix JupyterLab issues
+# Fix JupyterLab dialog issues
 c.ServerApp.root_dir = ""
 ```
 

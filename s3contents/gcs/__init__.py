@@ -4,10 +4,8 @@ try:
     import gcsfs
 except ImportError:
     print(
-        """ERROR: Trying to use GCS but dependencies are not installed.
+        """ERROR: Trying to use GCS Content Manager but dependencies are not installed.
 Install them with: pip install s3contents[gcs]"""
     )
-    sys.exit(1)
-
 
 from .gcsmanager import GCSContentsManager  # noqa

@@ -117,10 +117,9 @@ class S3FS(GenericFS):
 
     def init(self):
         try:
-            # self.mkdir("")
-            # self.ls("")
-            # self.isdir("")
-            pass
+            self.mkdir("")
+            self.ls("")
+            self.isdir("")
         except ClientError as ex:
             if "AccessDenied" in str(ex):
                 policy = SAMPLE_ACCESS_POLICY.format(

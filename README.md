@@ -224,7 +224,7 @@ pip install s3contents[gcs]
 ```
 
 ```python
-from s3contents.gcsmanager import GCSContentsManager
+from s3contents.gcs import GCSContentsManager
 
 c = get_config(
 

@@ -109,14 +109,19 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def get(self, path, content=True, type=None, format=None):
         # Get a file or directory model.
-
-        self.log.debug(self)
         self.log.debug(
             "S3contents.GenericManager.get] path('%s') type(%s) format(%s)",
             path,
             type,
             format,
         )
+
+        # This is a hack to remove some startup dialog error from JupyterLab
+        # TODO: Figure out why is this happening
+        if path.startswith(self.parent.root_dir):
+            path = path[len(self.parent.root_dir) :]
+        # END hack
+
         path = path.strip("/")
 
         if type is None:
@@ -164,7 +169,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def _directory_model_from_path(self, path, content=False):
         def s3_detail_to_model(s3_detail):
             model_path = s3_detail["Key"]
-            model = base_model(self.fs.unprefix(model_path))
+            model = base_model(self.fs.remove_prefix(model_path))
             if s3_detail["StorageClass"] == "DIRECTORY":
                 model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
                 model["type"] = "directory"

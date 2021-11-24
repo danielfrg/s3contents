@@ -55,7 +55,7 @@ class GCSFS(GenericFS):
         path_ = self.path(path)
         self.log.debug("S3contents.GCSFS: Listing directory: `%s`", path_)
         files = self.fs.ls(path_)
-        return self.unprefix(files)
+        return self.remove_prefix(files)
 
     def isfile(self, path):
         path_ = self.path(path)
@@ -153,7 +153,7 @@ class GCSFS(GenericFS):
         return ret
 
     def write(self, path, content, format):
-        path_ = self.path(self.unprefix(path))
+        path_ = self.path(self.remove_prefix(path))
         self.log.debug("S3contents.GCSFS: Writing file: `%s`", path_)
         with self.fs.open(path_, mode="wb") as f:
             if format == "base64":
@@ -184,7 +184,7 @@ class GCSFS(GenericFS):
 
     prefix_ = property(get_prefix)
 
-    def unprefix(self, path):
+    def remove_prefix(self, path):
         """Remove the self.prefix_ (if present) from a path or list of paths"""
         path = self.strip(path)
         if isinstance(path, str):
@@ -206,6 +206,6 @@ class GCSFS(GenericFS):
     def path(self, *path):
         """Utility to join paths including the bucket and prefix"""
         path = list(filter(None, path))
-        path = self.unprefix(path)
+        path = self.remove_prefix(path)
         items = [self.prefix_] + path
         return self.join(*items)

@@ -140,7 +140,7 @@ class S3FS(GenericFS):
         path_ = self.path(path)
         self.log.debug("S3contents.S3FS.ls: Listing directory: `%s`", path_)
         files = self.fs.ls(path_, refresh=True)
-        return self.unprefix(files)
+        return self.remove_prefix(files)
 
     def isfile(self, path):
         path_ = self.path(path)
@@ -247,7 +247,7 @@ class S3FS(GenericFS):
         return {"ST_MTIME": st_time}
 
     def write(self, path, content, format):
-        path_ = self.path(self.unprefix(path))
+        path_ = self.path(self.remove_prefix(path))
         self.log.debug("S3contents.S3FS: Writing file: `%s`", path_)
         if format not in {"text", "base64"}:
             raise HTTPError(
@@ -266,7 +266,7 @@ class S3FS(GenericFS):
             f.write(content_)
 
     def writenotebook(self, path, content):
-        path_ = self.path(self.unprefix(path))
+        path_ = self.path(self.remove_prefix(path))
         self.log.debug("S3contents.S3FS: Writing notebook: `%s`", path_)
         with self.fs.open(path_, mode="wb") as f:
             f.write(content.encode("utf-8"))
@@ -284,10 +284,12 @@ class S3FS(GenericFS):
 
     prefix_ = property(get_prefix)
 
-    def unprefix(self, path):
-        """Remove the self.prefix_ (if present) from a path or list of paths"""
+    def remove_prefix(self, path):
+        """
+        Remove the self.prefix_ (if present) from a path or list of paths
+        """
         self.log.debug(
-            f"S3FS.unprefix: self.prefix_: {self.prefix_} path: {path}"
+            f"S3FS.remove_prefix: self.prefix_: {self.prefix_} path: {path}"
         )
         if isinstance(path, str):
             path = (
@@ -308,7 +310,7 @@ class S3FS(GenericFS):
     def path(self, *path):
         """Utility to join paths including the bucket and prefix"""
         path = list(filter(None, path))
-        path = self.unprefix(path)
+        path = self.remove_prefix(path)
         items = [self.prefix_] + path
         return self.delimiter.join(items)
 

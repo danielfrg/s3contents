@@ -72,7 +72,7 @@ exclude_lines = [
     "pragma: no cover",
     "raise NotImplementedError"
 ]
-omit = ["s3contents/tests/*"]
+omit = ["s3contents/tests/*", "s3contents/gcs/*"]
 
 [tool.coverage.paths]
 source = [

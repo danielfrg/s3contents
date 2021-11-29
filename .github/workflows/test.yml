@@ -69,6 +69,10 @@ jobs:
           .venv/bin/activate/bin/python --version
           # poetry run python --version
 
+      - name: Check
+        run: |
+          echo ${{ steps.cached-python-env-check.conclusion }}
+
       - name: Install Python dependencies
         if: steps.cached-python-env.outputs.cache-hit != 'true' || steps.cached-python-env-check.conclusion != 'success'
         run: |

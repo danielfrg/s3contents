@@ -88,6 +88,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         ----------
             obj: s3.Object or string
         """
+        self.log.debug(
+            f"guess_type with path={path} and allow_directory={allow_directory}"
+        )
         if path.endswith(".ipynb"):
             return "notebook"
         elif allow_directory and self.dir_exists(path):
@@ -202,6 +205,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_directory_model(path)
         if self.fs.isdir(path):
             lstat = self.fs.lstat(path)
+
+            self.log.debug(
+                f"s3_detail_to_model={s3_detail_to_model}"
+                f"dir_s3_detail: path='{path}', lstat={lstat}"
+            )
+
             if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
                 model["created"] = model["last_modified"] = lstat["ST_MTIME"]
         if content:
@@ -212,6 +221,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             files_s3_detail = sync(
                 self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path
             )
+            # filter out .s3keep files
             filtered_files_s3_detail = list(
                 filter(
                     lambda detail: os.path.basename(detail["Key"])
@@ -219,6 +229,26 @@ class GenericContentsManager(ContentsManager, HasTraits):
                     files_s3_detail,
                 )
             )
+
+            # filter out delete_markers in versioned buckets
+            def is_delete_marker(detail):
+                lstat = self.fs.lstat(detail["Key"])
+                return bool("ST_MTIME" in lstat and lstat["ST_MTIME"])
+
+            filtered_files_s3_detail = list(
+                filter(
+                    lambda detail: is_delete_marker(detail),
+                    filtered_files_s3_detail,
+                )
+            )
+
+            for file_s3_detail in filtered_files_s3_detail:
+                self.log.debug(
+                    f"\n file_s3_detail: {file_s3_detail}"
+                    f"lstat={self.fs.lstat(file_s3_detail['Key'])}"
+                    f"is_delete_marker = {is_delete_marker(file_s3_detail)}"
+                )
+
             model["content"] = list(
                 map(s3_detail_to_model, filtered_files_s3_detail)
             )
@@ -228,6 +258,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         """
         Build a notebook model from database record.
         """
+        self.log.debug(
+            f"_notebook_model_from_path with path={path}, content={content}, format={format}"
+        )
         model = base_model(path)
         model["type"] = "notebook"
         if self.fs.isfile(path):
@@ -251,6 +284,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         """
         Build a file model from database record.
         """
+        self.log.debug(
+            f"_file_model_from_path with path={path}, content={content}, format={format}"
+        )
         model = base_model(path)
         model["type"] = "file"
         if self.fs.isfile(path):
@@ -274,6 +310,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def save(self, model, path):
         """Save a file or directory model to path."""
+
+        self.log.debug(f"save with path={path}, model={model}")
 
         # Chunked uploads
         # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving

@@ -2,16 +2,22 @@
 
 ## Development environment
 
-The following requires poetry 1.2.0a2 or newer.
+The following requires poetry 1.2.0a2 or newer and these poetry `config.toml`
+settings:
 
-Create Python env
+```toml
+[virtualenvs]
+in-project = true
+```
+
+Create Python env:
 
 ```shell
 make env
 source ./.venv/bin/activate
 ```
 
-In case you have no `source ./.venv/bin/activate`, you can use:
+In case you want to use conda:
 
 ```shell
 conda create --name s3contents
@@ -58,11 +64,9 @@ jupyter lab --config ~/.jupyter/jupyter_notebook_config.py
 
 ## Applying changes
 
-`make env` should make poetry install the package in edit mode.
+If you use conda:
 
-In case you have issues, you can use:
-
-```
+```shell
 conda activate s3contents && make env && jupyter lab --config ~/.jupyter/jupyter_notebook_config.py
 ```
 

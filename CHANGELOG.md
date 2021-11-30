@@ -1,5 +1,9 @@
 # s3contents Change Log
 
+## 0.9.0
+
+- Support versioned buckets: list, rename, delete [#134](https://github.com/danielfrg/s3contents/pull/134)
+
 ## 0.8.0
 
 - Update FS dependencies to 2021.11.0

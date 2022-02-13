@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: "0 5 * * *"
-  workflow_dispatch:
 
 jobs:
   test:
@@ -121,16 +121,9 @@ jobs:
           make test-all
           make report
 
-      - name: Upload package
+      - name: Upload test results to GitHub
         uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: pkg-py${{ matrix.python-version }}
-          path: dist
-
-      - name: Upload test restuls
-        uses: actions/upload-artifact@v2
-        if: always()
+        if: failure()
         with:
           name: test-results-py${{ matrix.python-version }}
           path: htmlcov

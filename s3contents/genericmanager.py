@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import mimetypes
@@ -175,28 +176,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return self._file_model_from_path(path, content=content, format=format)
 
     def _directory_model_from_path(self, path, content=False):
-        def s3_detail_to_model(s3_detail):
-            model_path = s3_detail["Key"]
-            model = base_model(self.fs.remove_prefix(model_path))
-            if s3_detail["StorageClass"] == "DIRECTORY":
-                model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
-                model["type"] = "directory"
-                lstat = self.fs.lstat(model_path)
-                if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
-                    model["created"] = model["last_modified"] = lstat[
-                        "ST_MTIME"
-                    ]
-            else:
-                model["last_modified"] = s3_detail.get("LastModified").replace(
-                    microsecond=0, tzinfo=tzutc()
-                )
-                model["created"] = model["last_modified"]
-                # model["size"] = s3_detail.get("Size")
-                model["type"] = (
-                    "notebook" if model_path.endswith(".ipynb") else "file"
-                )
-            return model
-
         self.log.debug(
             "S3contents.GenericManager._directory_model_from_path: path('%s') type(%s)",
             path,
@@ -205,54 +184,77 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_directory_model(path)
         if self.fs.isdir(path):
             lstat = self.fs.lstat(path)
-
-            self.log.debug(
-                f"s3_detail_to_model={s3_detail_to_model}"
-                f"dir_s3_detail: path='{path}', lstat={lstat}"
-            )
-
             if "ST_MTIME" in lstat and lstat["ST_MTIME"]:
                 model["created"] = model["last_modified"] = lstat["ST_MTIME"]
+
+            self.log.debug(
+                f"s3_detail_to_model={self.convert_s3_details_to_models}"
+                f"dir_s3_detail: path='{path}', lstat={lstat}"
+            )
         if content:
             if not self.dir_exists(path):
                 self.no_such_entity(path)
             model["format"] = "json"
             prefixed_path = self.fs.path(path)
-            files_s3_detail = sync(
-                self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path
-            )
-            # filter out .s3keep files
+            files_s3_detail = sync(self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path)
             filtered_files_s3_detail = list(
                 filter(
-                    lambda detail: os.path.basename(detail["Key"])
-                    != self.fs.dir_keep_file,
+                    lambda detail: os.path.basename(detail["Key"]) != self.fs.dir_keep_file and self.fs.remove_prefix(detail["Key"]) != path,
                     files_s3_detail,
                 )
             )
-
-            # filter out delete_markers in versioned buckets
-            def is_delete_marker(detail):
-                lstat = self.fs.lstat(detail["Key"])
-                return bool("ST_MTIME" in lstat and lstat["ST_MTIME"])
-
-            filtered_files_s3_detail = list(
-                filter(
-                    lambda detail: is_delete_marker(detail),
-                    filtered_files_s3_detail,
-                )
-            )
-
-            for file_s3_detail in filtered_files_s3_detail:
-                self.log.debug(
-                    f"\n file_s3_detail: {file_s3_detail}"
-                    f"lstat={self.fs.lstat(file_s3_detail['Key'])}"
-                    f"is_delete_marker = {is_delete_marker(file_s3_detail)}"
-                )
-
-            model["content"] = list(
-                map(s3_detail_to_model, filtered_files_s3_detail)
-            )
+            filtered_files_s3_detail = sync(self.fs.fs.loop, self.get_content_s3_metadata, filtered_files_s3_detail)
+            filtered_files_s3_detail = self.filter_deleted_markers(filtered_files_s3_detail)
+            model['content'] = self.convert_s3_details_to_models(filtered_files_s3_detail)
         return model
+
+    def filter_deleted_markers(self, s3_details):
+        def is_delete_marker(detail):
+            return bool("ST_MTIME" in detail and detail["ST_MTIME"])
+        return list(filter(is_delete_marker, s3_details))
+
+    async def get_content_s3_metadata(self, s3_details):
+        async def s3_detail_metadata(s3_detail):
+            if s3_detail["StorageClass"] == "DIRECTORY":
+                dir_path = os.path.join(self.fs.path(s3_detail["Key"]), ".s3keep")
+                lstat = await self.fs.fs._info(dir_path)
+                s3_detail['LastModified'] = lstat['LastModified']
+            st_time = s3_detail.get("LastModified")
+            if st_time:
+                s3_detail["ST_MTIME"] = datetime.datetime(
+                    st_time.year,
+                    st_time.month,
+                    st_time.day,
+                    st_time.hour,
+                    st_time.minute,
+                    st_time.second,
+                    tzinfo=st_time.tzinfo,
+                )
+            return s3_detail
+
+        tasks = [self.fs.fs.loop.create_task(s3_detail_metadata(detail)) for detail in s3_details]
+        details_with_meta = await asyncio.gather(*tasks, loop=self.fs.fs.loop)
+        return details_with_meta
+
+    def convert_s3_details_to_models(self, s3_details):
+        models = []
+        for s3_detail in s3_details:
+            model_path = s3_detail["Key"]
+            model = base_model(self.fs.remove_prefix(model_path))
+            if s3_detail["StorageClass"] == "DIRECTORY":
+                model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
+                model["type"] = "directory"
+                model['last_modified'] = model['created'] = s3_detail.get('LastModified')
+                if "ST_MTIME" in s3_detail and s3_detail["ST_MTIME"]:
+                    model["created"] = model["last_modified"] = s3_detail["ST_MTIME"]
+            else:
+                model["last_modified"] = s3_detail.get("LastModified").replace(microsecond=0, tzinfo=tzutc())
+                model["created"] = model["last_modified"]
+                model["type"] = (
+                    "notebook" if model_path.endswith(".ipynb") else "file"
+                )
+            models.append(model)
+        return models
 
     def _notebook_model_from_path(self, path, content=False, format=None):
         """

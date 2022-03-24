@@ -14,7 +14,7 @@ from tornado.web import HTTPError
 from traitlets import Any
 
 from s3contents.genericfs import GenericFS, NoSuchFile
-from s3contents.ipycompat import Unicode
+from s3contents.ipycompat import Unicode, Bool
 
 SAMPLE_ACCESS_POLICY = """
 {{
@@ -47,6 +47,9 @@ class S3FS(GenericFS):
     )
     bucket = Unicode("notebooks", help="Bucket name to store notebooks").tag(
         config=True, env="JPYNB_S3_BUCKET"
+    )
+    skip_tls_verify = Bool(False, help="Skip endpoint tls verify").tag(
+        config=True, env="JPYNB_S3_SKIP_TLS_VERIFY"
     )
     signature_version = Unicode(help="").tag(config=True)
     sse = Unicode(help="Type of server-side encryption to use").tag(
@@ -90,6 +93,8 @@ class S3FS(GenericFS):
             else self.endpoint_url,
             "region_name": self.region_name,
         }
+        if self.skip_tls_verify:
+            client_kwargs.update({"verify": False})
         config_kwargs = {}
         if self.signature_version:
             config_kwargs["signature_version"] = self.signature_version

@@ -32,6 +32,10 @@ class S3ContentsManager(GenericContentsManager):
         "https://s3.amazonaws.com", help="S3 endpoint URL"
     ).tag(config=True, env="JPY_S3_ENDPOINT_URL")
 
+    skip_tls_verify = Bool(False, help="Skip endpoint tls verify").tag(
+        config=True, env="JPYNB_S3_SKIP_TLS_VERIFY"
+    )
+
     kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(
         config=True, env="JPY_S3_KMS_KEY_ID"
     )
@@ -79,6 +83,7 @@ class S3ContentsManager(GenericContentsManager):
             bucket=self.bucket,
             delimiter=self.delimiter,
             endpoint_url=self.endpoint_url,
+            skip_tls_verify=self.skip_tls_verify,
             kms_key_id=self.kms_key_id,
             log=self.log,
             prefix=self.prefix,

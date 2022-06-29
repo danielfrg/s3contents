@@ -217,8 +217,11 @@ class GenericContentsManager(ContentsManager, HasTraits):
         async def s3_detail_metadata(s3_detail):
             if s3_detail["StorageClass"] == "DIRECTORY":
                 dir_path = os.path.join(self.fs.path(s3_detail["Key"]), ".s3keep")
-                lstat = await self.fs.fs._info(dir_path)
-                s3_detail['LastModified'] = lstat['LastModified']
+                try:
+                    lstat = await self.fs.fs._info(dir_path)
+                    s3_detail['LastModified'] = lstat['LastModified']
+                except FileNotFoundError:
+                    pass
             st_time = s3_detail.get("LastModified")
             if st_time:
                 s3_detail["ST_MTIME"] = datetime.datetime(

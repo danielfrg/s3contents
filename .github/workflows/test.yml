@@ -17,16 +17,15 @@ env:
   FORCE_COLOR: "1"
 
 jobs:
-  test:
+  run:
     name: Test ${{ matrix.python-version }} on ${{ startsWith(matrix.os, 'macos-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows' || 'Linux' }}
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8, 3.9]
-        jupyter-version:
-          ["5.6", "5.7", "5.*", "6.0", "6.1", "6.2", "6.3", "6.*"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
+        jupyter-version: ["6.0", "6.1", "6.2", "6.3", "6.*", "7.*"]
 
     runs-on: ${{ matrix.os }}
 

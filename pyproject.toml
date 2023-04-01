@@ -39,7 +39,7 @@ Source = "https://github.com/danielfrg/s3contents"
 
 [project.optional-dependencies]
 gcs = ["gcsfs>=2021.11.0"]
-test = ["coverage[toml]", "pytest", "pytest-cov"]
+test = ["coverage[toml]", "nose", "pytest", "pytest-cov"]
 
 [build-system]
 requires = ["hatchling"]

@@ -18,7 +18,7 @@ env:
 
 jobs:
   run:
-    name: Test Py${{ matrix.python-version }} Notebook(${{ jupyter-version }})
+    name: Test Py${{ matrix.python-version }} Notebook(${{ matrix.jupyter-version }})
 
     strategy:
       fail-fast: false

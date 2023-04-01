@@ -18,7 +18,7 @@ env:
 
 jobs:
   run:
-    name: Test ${{ matrix.python-version }} on ${{ startsWith(matrix.os, 'macos-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows' || 'Linux' }}
+    name: Test Py${{ matrix.python-version }} Notebook(${{ jupyter-version }})
 
     strategy:
       fail-fast: false
@@ -62,17 +62,18 @@ jobs:
         with:
           path: ${{ env.pythonLocation }}
           key: >
-            python-test
+            python
             ${{ runner.os }}
             python-${{ matrix.python-version }}
+            jupyter-${{ matrix.jupyter-version }}
             ${{ hashFiles('pyproject.toml') }}
             ${{ hashFiles('requirements/*') }}
 
       - name: Install dependencies
         if: steps.cached-python-env.outputs.cache-hit != 'true'
         run: |
-          pip install -r requirements/pyproject.txt
-          pip install -r requirements/examples.txt
+          pip install -r requirements/all.txt
+          pip install -U notebook==${{ matrix.jupyter-version }}
 
       - name: Install Hatch
         run: |

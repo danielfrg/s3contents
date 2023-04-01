@@ -110,5 +110,6 @@ dmypy.json
 _generated_version.py
 
 ### Project specific ###
+.venv
 tmp-data
 foo

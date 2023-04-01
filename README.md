@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://pypi.org/project/s3contents/">
-        <img src="https://badge.fury.io/py/s3contents.svg">
+        <img src="https://img.shields.io/pypi/v/mkdocs-jupyter.svg">
     </a>
     <a href="https://github.com/danielfrg/s3contents/actions/workflows/test.yml">
         <img src="https://github.com/danielfrg/s3contents/workflows/test/badge.svg">

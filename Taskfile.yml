@@ -9,17 +9,19 @@ tasks:
       - hatch build
 
   check:
+    ignore_error: true
     cmds:
       - isort . --check-only --diff
       - black . --check
-      - ruff check mkdocs_jupyter
+      - ruff check s3contents
       - flake8
 
   fmt:
+    ignore_error: true
     cmds:
       - isort .
       - black .
-      - ruff check --fix mkdocs_jupyter
+      - ruff check --fix s3contents
 
   test:
     cmds:

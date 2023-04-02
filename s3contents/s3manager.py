@@ -9,7 +9,6 @@ from s3contents.s3_fs import S3FS
 
 
 class S3ContentsManager(GenericContentsManager):
-
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPY_S3_ACCESS_KEY_ID")

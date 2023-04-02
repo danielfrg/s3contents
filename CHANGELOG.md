@@ -1,5 +1,9 @@
 # s3contents Change Log
 
+## 0.10.0
+
+- Support for Python 3.10+
+
 ## 0.9.0
 
 - Support versioned buckets: list, rename, delete [#134](https://github.com/danielfrg/s3contents/pull/134)

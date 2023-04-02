@@ -4,7 +4,6 @@ from s3contents.ipycompat import Unicode
 
 
 class GCSContentsManager(GenericContentsManager):
-
     project = Unicode(
         help="GCP Project", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_GCS_PROJECT")

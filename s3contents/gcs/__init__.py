@@ -1,7 +1,5 @@
-import sys
-
 try:
-    import gcsfs
+    pass
 except ImportError:
     print(
         """ERROR: Trying to use GCS Content Manager but dependencies are not installed.

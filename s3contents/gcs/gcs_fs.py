@@ -9,7 +9,6 @@ from s3contents.ipycompat import Unicode
 
 
 class GCSFS(GenericFS):
-
     project = Unicode(
         help="GCP Project", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_GCS_PROJECT")
@@ -49,7 +48,7 @@ class GCSFS(GenericFS):
         self.ls("")
         assert self.isdir(""), "The root directory should exists"
 
-    #  GenericFS methods -----------------------------------------------------------------------------------------------
+    #  GenericFS methods -------------------------------------------------------
 
     def ls(self, path):
         path_ = self.path(path)
@@ -163,7 +162,7 @@ class GCSFS(GenericFS):
                 content_ = content.encode("utf8")
             f.write(content_)
 
-    #  Utilities -------------------------------------------------------------------------------------------------------
+    #  Utilities ---------------------------------------------------------------
 
     def strip(self, path):
         if isinstance(path, str):

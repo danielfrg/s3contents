@@ -14,7 +14,7 @@ from tornado.web import HTTPError
 from traitlets import Any
 
 from s3contents.genericfs import GenericFS, NoSuchFile
-from s3contents.ipycompat import Unicode, Bool
+from s3contents.ipycompat import Bool, Unicode
 
 SAMPLE_ACCESS_POLICY = """
 {{
@@ -31,7 +31,6 @@ SAMPLE_ACCESS_POLICY = """
 
 
 class S3FS(GenericFS):
-
     access_key_id = Unicode(
         help="S3/AWS access key ID", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_S3_ACCESS_KEY_ID")
@@ -131,7 +130,8 @@ class S3FS(GenericFS):
                     bucket=os.path.join(self.bucket, self.prefix)
                 )
                 self.log.error(
-                    "AccessDenied error while creating initial S3 objects. Create an IAM policy like:\n{policy}".format(
+                    "AccessDenied error while creating initial S3 objects.\
+                    Create an IAM policy like:\n{policy}".format(
                         policy=policy
                     )
                 )
@@ -139,7 +139,7 @@ class S3FS(GenericFS):
             else:
                 raise ex
 
-    #  GenericFS methods -----------------------------------------------------------------------------------------------
+    #  GenericFS methods -------------------------------------------------------
 
     def ls(self, path=""):
         path_ = self.path(path)
@@ -276,7 +276,7 @@ class S3FS(GenericFS):
         with self.fs.open(path_, mode="wb") as f:
             f.write(content.encode("utf-8"))
 
-    #  Utilities -------------------------------------------------------------------------------------------------------
+    #  Utilities ---------------------------------------------------------------
 
     def get_prefix(self):
         """Full prefix: bucket + optional prefix"""

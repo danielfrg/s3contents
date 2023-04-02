@@ -2,19 +2,17 @@
 
 ## Upload to PyPI
 
-- Update version on `__init__.py`
-- Update version on `pyproject.toml`
+- Update version on `__about__.py`
 - Update `CHANGELOG.md`
-- Update `README.md`
 
 ```shell
 export VERSION=1.0.0
 
 # Optional reset
-make clean
+task clean
 
-make all
-make upload-pypi
+task build
+hatch publish
 
 git commit -am "Release ${VERSION}" --allow-empty
 git tag ${VERSION}

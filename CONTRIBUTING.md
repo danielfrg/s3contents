@@ -1,38 +1,23 @@
 # Contributing
 
-## Development environment
+Requirements:
 
-The following requires poetry 1.2.0a2 or newer and these poetry `config.toml`
-settings:
+- [Python Hatch](https://hatch.pypa.io/latest)
 
-```toml
-[virtualenvs]
-in-project = true
-```
-
-Create Python env:
+## Create Python env:
 
 ```shell
-make env
-source ./.venv/bin/activate
-```
+hatch env
 
-In case you want to use conda:
-
-```shell
-conda create --name s3contents
-conda activate s3contents
+# Activate env
+hatch shell
 ```
 
 ## Iteration
 
-Start minio (using docker) in one terminal:
+Configure Jupyter:
 
-```shell
-make minio
-```
-
-Edit `~/.jupyter/jupyter_notebook_config.py`:
+- Edit `~/.jupyter/jupyter_notebook_config.py`:
 
 ```python
 c = get_config()
@@ -56,36 +41,27 @@ c.log_level = "DEBUG"
 c.Application.log_level = "DEBUG"
 ```
 
+Start Minio (using docker) in one terminal:
+
+```shell
+task minio
+```
+
 Start Jupyter Notebook in another terminal:
 
 ```shell
 jupyter lab --config ~/.jupyter/jupyter_notebook_config.py
 ```
 
-## Applying changes
-
-If you use conda:
-
-```shell
-conda activate s3contents && make env && jupyter lab --config ~/.jupyter/jupyter_notebook_config.py
-```
-
-or this faster one that will copy changes to the installation path:
-
-```bash
-rsync -r --exclude '.git' ./s3contents/ $(echo "$(pip show s3contents | grep Location: | cut -d' ' -f2)/s3contents/") && jupyter lab  --config ~/.jupyter/jupyter_notebook_config.py
-
-```
-
 ## Tests
 
 ```shell
-make test
+task test
 ```
 
 Check linting and format
 
 ```shell
-make check
-make fmt
+task check
+task fmt
 ```

@@ -1,0 +1,93 @@
+version: "3"
+
+env:
+  PYTEST_K: ""
+
+tasks:
+  build:
+    cmds:
+      - hatch build
+
+  check:
+    ignore_error: true
+    cmds:
+      - isort . --check-only --diff
+      - black . --check
+      - ruff check s3contents
+      - flake8
+
+  fmt:
+    ignore_error: true
+    cmds:
+      - isort .
+      - black .
+      - ruff check --fix s3contents
+
+  test:
+    cmds:
+      - pytest -k "{{.PYTEST_K}}"
+
+  test-all:
+    cmds:
+      - pytest . -m "not gcs"
+
+  report:
+    cmds:
+      - coverage xml
+      - coverage html
+
+  lockfiles:
+    cmds:
+      - pip-compile -q --resolver=backtracking -o requirements/pyproject.txt pyproject.toml --extra=test
+      - pip-compile -q --resolver=backtracking -o requirements/linting.txt requirements/linting.in
+
+  publish:
+    cmds:
+      - hatch publish
+
+  clean:
+    cmds:
+      - rm -rf .pytest_cache dist htmlcov test-results .ruff_cache
+      - rm -f .coverage coverage.xml
+      - find . -type f -name '*.py[co]' -delete
+      - find . -type d -name __pycache__ -exec rm -rf {} +
+      - find . -type d -name .ipynb_checkpoints -exec rm -rf {} +
+
+  reset:
+    cmds:
+      - task: clean
+      - rm -rf .venv
+
+  # ------------------------------------------------------------------------------
+  # Minio (todo: migrate to taskfile)
+
+  # S3DIR := $(CURDIR)/tmp-data
+
+  minio:
+    cmds:
+      - mkdir -p ${S3DIR}/notebooks
+      - docker run -p 9000:9000 -p 9001:9001 -v ${S3DIR}:/data -e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key minio/minio:RELEASE.2021-11-09T03-21-45Z server /data --console-address ":9001"
+
+  # from https://docs.min.io/minio/baremetal/installation/deploy-minio-distributed.html?ref=con#deploy-distributed-minio
+  ## Run minio server in distributed mode (necessary for versioning)
+  minio-distributed:
+    cmds:
+      - echo "Once running, manually create a versioned 'notebooks' bucket in Minio-console"
+      - mkdir -p "${S3DIR}/mnt/disk1/notebooks"
+      - mkdir -p "${S3DIR}/mnt/disk2/notebooks"
+      - mkdir -p "${S3DIR}/mnt/disk3/notebooks"
+      - mkdir -p "${S3DIR}/mnt/disk4/notebooks"
+      - |
+        docker run
+          -p 9000:9000 -p 9001:9001
+          -v "${s3DIR}/mnt/disk1:/data1" \
+          -v "${s3DIR}/mnt/disk2:/data2" \
+          -v "${s3DIR}/mnt/disk3:/data3" \
+          -v "${s3DIR}/mnt/disk4:/data4" \
+          -e MINIO_ROOT_USER=access-key -e MINIO_ROOT_PASSWORD=secret-key \
+          minio/minio:RELEASE.2021-11-09T03-21-45Z server \
+          "/data1" \
+          "/data2" \
+          "/data3" \
+          "/data4" \
+          --console-address ":9001"

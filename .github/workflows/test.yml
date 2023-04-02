@@ -8,15 +8,26 @@ on:
   schedule:
     - cron: "0 5 * * *"
 
+concurrency:
+  group: test-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
 jobs:
-  test:
-    runs-on: ubuntu-20.04
+  run:
+    name: Test Py${{ matrix.python-version }} Notebook(${{ matrix.jupyter-version }})
 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        jupyter-version:
-          ["5.6", "5.7", "5.*", "6.0", "6.1", "6.2", "6.3", "6.*"]
+        os: [ubuntu-latest]
+        python-version: [3.9, "3.10", "3.11"]
+        jupyter-version: ["5.*", "6.3", "6.4", "6.*"]
+
+    runs-on: ${{ matrix.os }}
 
     # Can't use Minio official image because we can't specify the docker command in Github Actions
     # https://github.community/t5/GitHub-Actions/Job-service-command/m-p/33901
@@ -36,68 +47,49 @@ jobs:
           - /tmp/tmp-data:/data
 
     steps:
-      - uses: actions/checkout@v2
-      - run: git fetch --prune --unshallow
+      - uses: actions/checkout@v3
+      - uses: arduino/setup-task@v1
 
       # ------------------------------------------------------------------------
       # Python
 
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Python - Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.2.0a2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
+      - uses: actions/cache@v3
         id: cached-python-env
-        uses: actions/cache@v2
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-py${{ matrix.python-version }}-jp${{ matrix.jupyter-version }}-${{ hashFiles('**/poetry.lock') }}-2
+          path: ${{ env.pythonLocation }}
+          key: >
+            python
+            ${{ runner.os }}
+            python-${{ matrix.python-version }}
+            jupyter-${{ matrix.jupyter-version }}
+            ${{ hashFiles('pyproject.toml') }}
+            ${{ hashFiles('requirements/*') }}
 
-      - name: Ensure cache is healthy
-        id: cached-python-env-check
-        continue-on-error: true
-        if: steps.cached-python-env.outputs.cache-hit == 'true'
+      - name: Install dependencies
+        if: steps.cached-python-env.outputs.cache-hit != 'true'
         run: |
-          .venv/bin/activate/bin/python --version
-          # poetry run python --version
-
-      - name: Debug options
-        run: |
-          echo ${{ steps.cached-python-env.outputs.cache-hit }}
-          echo ${{ steps.cached-python-env-check.outcome }}
-
-      - name: Install Python dependencies
-        if: steps.cached-python-env.outputs.cache-hit != 'true' || steps.cached-python-env-check.outcome != 'success'
-        run: |
-          rm -rf .venv || true
-          poetry install --no-interaction --no-root --with test
-          source .venv/bin/activate
+          pip install -r requirements/all.txt
           pip install -U notebook==${{ matrix.jupyter-version }}
+
+      - name: Install Hatch
+        run: |
+          pip install --upgrade hatch
 
       - name: Print Python info
         run: |
-          source .venv/bin/activate
           which python
           python --version
           which pip
           pip --version
           pip freeze
 
-      - name: Print Jupyter info
-        run: |
-          source .venv/bin/activate
-          pip freeze | grep notebook
-
       # ------------------------------------------------------------------------
-      # Test
+      # Build and test
 
       - name: Verify Minio
         run: |
@@ -106,20 +98,17 @@ jobs:
 
       - name: Build package
         run: |
-          source .venv/bin/activate
-          make all
+          task build
 
       - name: Install package
         run: |
-          source .venv/bin/activate
           pip install dist/*.tar.gz
           pip freeze
 
       - name: Run tests
         run: |
-          source .venv/bin/activate
-          make test-all
-          make report
+          task test-all
+          task report
 
       - name: Codecov
         uses: codecov/codecov-action@v2

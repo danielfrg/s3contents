@@ -27,7 +27,7 @@ tasks:
 
   test-all:
     cmds:
-      - pytest .
+      - pytest . -m "not gcs"
 
   report:
     cmds:

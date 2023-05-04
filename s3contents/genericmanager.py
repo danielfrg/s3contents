@@ -119,17 +119,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
             format,
         )
 
-        # This is a hack to remove some startup dialog error from JupyterLab
-        # TODO: Figure out why is this happening
-        if self.parent:
-            if path.startswith(self.parent.root_dir):
-                self.log.debug(
-                    "S3contents.GenericManager.get: removing root_dir (%s) from path",
-                    self.parent.root_dir,
-                )
-                path = path[len(self.parent.root_dir) :]
-        # END hack
-
         path = path.strip("/")
 
         if type is None:

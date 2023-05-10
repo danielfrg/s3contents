@@ -115,10 +115,8 @@ c.S3ContentsManager.init_s3_hook = init_function
 The optional `init_s3_hook` configuration can be used to enable AWS key rotation (described [here](https://dev.to/li_chastina/auto-refresh-aws-tokens-using-iam-role-and-boto3-2cjf) and [here](https://www.owenrumney.co.uk/2019/01/15/implementing-refreshingawscredentials-python/)) as follows:
 
 ```python
-import boto3
-import botocore
-from botocore.credentials import RefreshableCredentials
-from botocore.session import get_session
+from aiobotocore.credentials import AioRefreshableCredentials
+from aiobotocore.session import get_session
 from configparser import ConfigParser
 
 from s3contents import S3ContentsManager
@@ -133,17 +131,18 @@ def refresh_external_credentials():
         "expiry_time": config['default']['aws_expiration']
     }
 
-session_credentials = RefreshableCredentials.create_from_metadata(
-        metadata = refresh_external_credentials(),
-        refresh_using = refresh_external_credentials,
-        method = 'custom-refreshing-key-file-reader'
-)
+async def async_refresh_credentials():
+    return refresh_external_credentials()
 
 def make_key_refresh_boto3(this_s3contents_instance):
-    refresh_session =  get_session() # from botocore.session
+    session_credentials = AioRefreshableCredentials.create_from_metadata(
+        metadata = refresh_external_credentials(),
+        refresh_using = async_refresh_credentials,
+        method = 'custom-refreshing-key-file-reader'
+    )
+    refresh_session =  get_session() # from aibotocore.session
     refresh_session._credentials = session_credentials
-    my_s3_session =  boto3.Session(botocore_session=refresh_session)
-    this_s3contents_instance.boto3_session = my_s3_session
+    this_s3contents_instance.boto3_session = refresh_session
 
 # Tell Jupyter to use S3ContentsManager
 c.ServerApp.contents_manager_class = S3ContentsManager

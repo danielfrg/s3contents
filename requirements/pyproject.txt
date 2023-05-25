@@ -136,7 +136,7 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-tornado==6.2
+tornado==6.3.2
     # via jupyter-client
 traitlets==5.9.0
     # via

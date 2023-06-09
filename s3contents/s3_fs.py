@@ -212,7 +212,8 @@ class S3FS(GenericFS):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode="rb") as f:
             content = f.read()
-        if format is None or format == "text":
+        # format is not base64-encoded. "json" is requested by jupyter collaboration.
+        if format is None or format in ["text", "json"]:
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:

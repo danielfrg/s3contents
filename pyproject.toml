@@ -29,6 +29,7 @@ dependencies = [
   "nbconvert>=6.0,<8.0",
   "aiobotocore[boto3]>=1.4.0",
   "s3fs>=2021.11.0",
+  "gcsfs>=2021.11.0"
 ]
 dynamic = ["version"]
 
@@ -38,7 +39,6 @@ Issues = "https://github.com/danielfrg/s3contents/issues"
 Source = "https://github.com/danielfrg/s3contents"
 
 [project.optional-dependencies]
-gcs = ["gcsfs>=2021.11.0"]
 test = ["coverage[toml]", "nose", "pytest", "pytest-cov"]
 
 [build-system]

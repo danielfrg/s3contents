@@ -7,6 +7,7 @@ import os
 from dateutil.tz import tzutc
 from fsspec.asyn import sync
 from tornado.web import HTTPError
+import gcsfs
 
 from s3contents.chunks import (
     assemble_chunks,
@@ -184,6 +185,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
                 self.no_such_entity(path)
             model["format"] = "json"
             prefixed_path = self.fs.path(path)
+            
+            if isinstance(self.fs.fs, gcsfs.GCSFileSystem):
+                self.log.debug("FS is GCS")
+                return self._list_contents(model, prefixed_path)
+            self.log.debug("FS is S3")
+            
             files_s3_detail = sync(
                 self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path
             )

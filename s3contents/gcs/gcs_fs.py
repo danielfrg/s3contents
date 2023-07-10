@@ -48,7 +48,7 @@ class GCSFS(GenericFS):
         self.ls("")
         assert self.isdir(""), "The root directory should exists"
 
-    #  GenericFS methods -------------------------------------------------------
+    #  GenericFS methods ------------------------------------------------------
 
     def ls(self, path):
         path_ = self.path(path)
@@ -75,8 +75,8 @@ class GCSFS(GenericFS):
     def isdir(self, path):
         # GCSFS doesnt return exists=True for a directory with no files so
         # we need to check if the dir_keep_file exists
-        is_dir = self.isfile(path + self.separator + self.dir_keep_file)
         path_ = self.path(path)
+        is_dir = self.isfile(path_ + self.separator + self.dir_keep_file)
         self.log.debug(
             "S3contents.GCSFS: `%s` is a directory: %s", path_, is_dir
         )
@@ -96,9 +96,11 @@ class GCSFS(GenericFS):
         )
 
         if self.isdir(old_path):
-            old_dir_path, new_dir_path = old_path, new_path
+            old_dir_path, new_dir_path = old_path_, new_path_
             for obj in self.ls(old_dir_path):
-                old_item_path = obj
+                old_item_path = self.path(obj)
+                print("old_item_path:", old_item_path)
+                print("old: ", old_dir_path, "new:", new_dir_path)
                 new_item_path = old_item_path.replace(
                     old_dir_path, new_dir_path, 1
                 )
@@ -144,7 +146,10 @@ class GCSFS(GenericFS):
                     raise HTTPError(400, err, reason="bad format")
 
     def lstat(self, path):
-        path_ = self.path(path)
+        if self.isdir(path):
+            path_ = self.path(path + self.separator + self.dir_keep_file)
+        else:
+            path_ = self.path(path)
         info = self.fs.info(path_)
         ret = {}
         if "updated" in info:
@@ -162,7 +167,7 @@ class GCSFS(GenericFS):
                 content_ = content.encode("utf8")
             f.write(content_)
 
-    #  Utilities ---------------------------------------------------------------
+    #  Utilities --------------------------------------------------------------
 
     def strip(self, path):
         if isinstance(path, str):

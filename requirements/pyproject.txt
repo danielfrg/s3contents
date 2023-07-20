@@ -104,7 +104,7 @@ platformdirs==3.2.0
     # via jupyter-core
 pluggy==1.0.0
     # via pytest
-pygments==2.14.0
+pygments==2.15.0
     # via nbconvert
 pyrsistent==0.19.3
     # via jsonschema

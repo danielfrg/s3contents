@@ -3,10 +3,6 @@ Utilities for managing compat between notebook versions.
 
 Taken from: https://github.com/quantopian/pgcontents/blob/master/pgcontents/utils/ipycompat.py
 """
-import sys
-import platform
-
-from ipython_genutils.py3compat import string_types
 from nbformat import from_dict, reads, writes
 from nbformat.v4.nbbase import (
     new_code_cell,

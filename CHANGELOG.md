@@ -1,5 +1,9 @@
 # s3contents Change Log
 
+## 0.11.0
+
+- Support for Notebook 7
+
 ## 0.10.0
 
 - Support for Python 3.10+

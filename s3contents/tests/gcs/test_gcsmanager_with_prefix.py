@@ -1,5 +1,6 @@
 import pytest
-from notebook.services.contents.tests.test_manager import TestContentsManager
+
+from s3contents.tests.utils import *
 
 try:
     from s3contents.gcs import GCSContentsManager

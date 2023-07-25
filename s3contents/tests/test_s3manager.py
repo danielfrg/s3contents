@@ -2,12 +2,11 @@ import os
 import time
 
 import pytest
-from notebook.services.contents.tests.test_manager import TestContentsManager
 
 from s3contents import S3ContentsManager
 from s3contents.s3manager import validate_bucket
 from s3contents.tests.hooks import make_html_post_save, scrub_output_pre_save
-
+from s3contents.tests.utils import *
 
 @pytest.mark.minio
 class S3ContentsManagerTestCase(TestContentsManager):

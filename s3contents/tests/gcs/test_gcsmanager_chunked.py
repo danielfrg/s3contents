@@ -2,15 +2,7 @@ import time
 
 import pytest
 
-try:
-    # only available in notebook < 7
-    from notebook.services.contents.tests.test_largefilemanager import (
-        TestLargeFileManager,
-    )
-except ImportError:
-    class TestLargeFileManager(object):
-        pass
-
+from s3contents.tests.utils import *
 from s3contents.chunks import content_chunks
 
 try:

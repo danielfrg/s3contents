@@ -1,11 +1,6 @@
 import pytest
 
-try:
-    # only available in notebook < 7
-    from notebook.services.contents.tests.test_manager import TestContentsManager
-except ImportError:
-    class TestContentsManager(object):
-        pass
+from s3contents.tests.utils import *
 
 try:
     from s3contents.gcs import GCSContentsManager

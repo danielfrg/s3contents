@@ -263,7 +263,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
                 model['last_modified'] = model['created'] = s3_detail.get(
                     'LastModified'
                 )
-                model["size"] = s3_detail.get("Size", 0)
                 if "ST_MTIME" in s3_detail and s3_detail["ST_MTIME"]:
                     model["created"] = model["last_modified"] = s3_detail[
                         "ST_MTIME"

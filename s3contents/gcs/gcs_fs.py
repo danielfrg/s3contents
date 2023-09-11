@@ -154,6 +154,9 @@ class GCSFS(GenericFS):
         ret = {}
         if "updated" in info:
             ret["ST_MTIME"] = info["updated"]
+        
+        ret['SIZE'] = info.get("size", 0)
+        
         return ret
 
     def write(self, path, content, format):

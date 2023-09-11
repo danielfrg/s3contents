@@ -79,6 +79,10 @@ class S3FS(GenericFS):
         help="optional dictionary to be appended to s3fs additional kwargs"
     ).tag(config=True)
 
+    s3fs_config_kwargs = Any(
+        help="optional dictionary to be appended to s3fs config kwargs"
+    ).tag(config=True)
+
     def __init__(self, log, **kwargs):
         super(S3FS, self).__init__(**kwargs)
         self.log = log
@@ -94,7 +98,13 @@ class S3FS(GenericFS):
         }
         if self.skip_tls_verify:
             client_kwargs.update({"verify": False})
-        config_kwargs = {}
+        
+        if self.s3fs_config_kwargs:
+            self.must_be_dictionary(self.s3fs_config_kwargs)
+            config_kwargs = self.s3fs_config_kwargs
+        else:
+            config_kwargs = {}
+
         if self.signature_version:
             config_kwargs["signature_version"] = self.signature_version
         if self.s3fs_additional_kwargs:

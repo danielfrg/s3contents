@@ -69,6 +69,10 @@ class S3ContentsManager(GenericContentsManager):
         help="optional dictionary to be appended to s3fs additional kwargs"
     ).tag(config=True)
 
+    s3fs_config_kwargs = Any(
+        help="optional dictionary to be appended to s3fs config kwargs"
+    ).tag(config=True)
+
     def __init__(self, *args, **kwargs):
         super(S3ContentsManager, self).__init__(*args, **kwargs)
 
@@ -92,6 +96,7 @@ class S3ContentsManager(GenericContentsManager):
             signature_version=self.signature_version,
             sse=self.sse,
             s3fs_additional_kwargs=self.s3fs_additional_kwargs,
+            s3fs_config_kwargs=self.s3fs_config_kwargs,
         )
 
     def run_init_s3_hook(self):

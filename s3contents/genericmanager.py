@@ -19,6 +19,7 @@ from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import (
     Any,
     ContentsManager,
+    AuthenticatedFileHandler,
     GenericFileCheckpoints,
     HasTraits,
     TraitError,
@@ -28,6 +29,7 @@ from s3contents.ipycompat import (
     reads,
     string_types,
     validate,
+    default,
 )
 
 DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
@@ -57,6 +59,14 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def __init__(self, *args, **kwargs):
         super(GenericContentsManager, self).__init__(*args, **kwargs)
         self._fs = None
+
+    @default("files_handler_class")
+    def _files_handler_class_default(self):
+        return AuthenticatedFileHandler
+
+    @default("files_handler_params")
+    def _files_handler_params_default(self):
+        return {"path": ""}
 
     def get_fs(self):
         return self._fs

@@ -22,6 +22,7 @@ try:
     from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
     from notebook.services.contents.filemanager import FileContentsManager
     from notebook.services.contents.manager import ContentsManager
+    from notebook.base.handlers import AuthenticatedFileHandler
     ct_mgr_deps_loaded = True
 except ModuleNotFoundError:
     pass
@@ -35,6 +36,7 @@ if not ct_mgr_deps_loaded:
         from jupyter_server.services.contents.filecheckpoints import GenericFileCheckpoints
         from jupyter_server.services.contents.filemanager import FileContentsManager
         from jupyter_server.services.contents.manager import ContentsManager
+        from jupyter_server.base.handlers import AuthenticatedFileHandler
         ct_mgr_deps_loaded = True
     except ModuleNotFoundError:
         pass
@@ -55,6 +57,7 @@ from traitlets import (
     TraitError,
     Unicode,
     validate,
+    default,
 )
 from traitlets.config import Config
 
@@ -98,6 +101,7 @@ __all__ = [
     "Checkpoints",
     "Config",
     "ContentsManager",
+    "AuthenticatedFileHandler",
     "Dict",
     "FileContentsManager",
     "GenericCheckpointsMixin",
@@ -117,5 +121,6 @@ __all__ = [
     "string_types",
     "strip_transient",
     "validate",
+    "default",
     "writes",
 ]

@@ -233,12 +233,14 @@ class S3FS(GenericFS):
             path_ = self.path(path, self.dir_keep_file)
 
         st_time = None
+        size = 0
         try:
             self.fs.invalidate_cache(path_)
             info = self.fs.info(path_)
             st_time = info["LastModified"]
+            size = info.get("size", 0)
         except FileNotFoundError:
-            return {"ST_MTIME": None}
+            return {"ST_MTIME": None, "SIZE": 0}
 
         # Remove the microsend information to match Jupyter base tests
         st_time = datetime.datetime(
@@ -250,7 +252,7 @@ class S3FS(GenericFS):
             st_time.second,
             tzinfo=st_time.tzinfo,
         )
-        return {"ST_MTIME": st_time}
+        return {"ST_MTIME": st_time, "SIZE": size}
 
     def write(self, path, content, format):
         path_ = self.path(self.remove_prefix(path))

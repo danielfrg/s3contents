@@ -272,6 +272,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
                     microsecond=0, tzinfo=tzutc()
                 )
                 model["created"] = model["last_modified"]
+                model["size"] = s3_detail.get("Size", 0)
                 model["type"] = (
                     "notebook" if model_path.endswith(".ipynb") else "file"
                 )
@@ -288,9 +289,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_model(path)
         model["type"] = "notebook"
         if self.fs.isfile(path):
-            model["created"] = model["last_modified"] = self.fs.lstat(path)[
-                "ST_MTIME"
-            ]
+            info = self.fs.lstat(path)
+            model["created"] = model["last_modified"] = info["ST_MTIME"]
+            model["size"] = info["SIZE"]
         else:
             self.do_error("Not Found", 404)
         if content:
@@ -314,9 +315,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         model = base_model(path)
         model["type"] = "file"
         if self.fs.isfile(path):
-            model["created"] = model["last_modified"] = self.fs.lstat(path)[
-                "ST_MTIME"
-            ]
+            info = self.fs.lstat(path)
+            model["created"] = model["last_modified"] = info["ST_MTIME"]
+            model["size"] = info["SIZE"]
         else:
             model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
         if content:

@@ -103,7 +103,6 @@ class GenericContentsManager(ContentsManager, HasTraits):
             f"guess_type with path={path} and allow_directory={allow_directory}"
         )
         if path.endswith(".ipynb"):
-            self.log.debug("this is a test of enviroment: ('%s')", path)
             return "notebook"
         elif allow_directory and self.dir_exists(path):
             return "directory"

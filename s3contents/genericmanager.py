@@ -103,6 +103,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             f"guess_type with path={path} and allow_directory={allow_directory}"
         )
         if path.endswith(".ipynb"):
+            self.log.debug("this is a test of enviroment: ('%s')", path)
             return "notebook"
         elif allow_directory and self.dir_exists(path):
             return "directory"
@@ -303,7 +304,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["created"] = model["last_modified"] = info["ST_MTIME"]
             model["size"] = info["SIZE"]
         else:
-            self.do_error("Not Found", 404)
+            model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)

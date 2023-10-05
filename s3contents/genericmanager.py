@@ -303,7 +303,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["created"] = model["last_modified"] = info["ST_MTIME"]
             model["size"] = info["SIZE"]
         else:
-            self.do_error("Not Found", 404)
+            model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)

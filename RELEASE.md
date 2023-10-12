@@ -12,7 +12,7 @@ export VERSION=1.0.0
 task clean
 
 task build
-hatch publish
+rye publish
 
 git commit -am "Release ${VERSION}" --allow-empty
 git tag ${VERSION}

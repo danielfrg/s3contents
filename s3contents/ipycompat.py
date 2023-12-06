@@ -12,31 +12,31 @@ from nbformat.v4.nbbase import (
 )
 from nbformat.v4.rwbase import strip_transient
 
-# Pick dependencies from either notebook (notebook version<=6) or jupyter_server (jupyterlab, notebook>=7)
+# Pick dependencies from jupyter_server (jupyterlab, notebook>=7) but fallback to notebook (notebook version<=6)
 ct_mgr_deps_loaded = False
 try:
-    from notebook.services.contents.checkpoints import (
-      Checkpoints,
-      GenericCheckpointsMixin,
+    from jupyter_server.services.contents.checkpoints import (
+        Checkpoints,
+        GenericCheckpointsMixin,
     )
-    from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
-    from notebook.services.contents.filemanager import FileContentsManager
-    from notebook.services.contents.manager import ContentsManager
-    from notebook.base.handlers import AuthenticatedFileHandler
+    from jupyter_server.services.contents.filecheckpoints import GenericFileCheckpoints
+    from jupyter_server.services.contents.filemanager import FileContentsManager
+    from jupyter_server.services.contents.manager import ContentsManager
+    from jupyter_server.base.handlers import AuthenticatedFileHandler
     ct_mgr_deps_loaded = True
 except ModuleNotFoundError:
     pass
 
 if not ct_mgr_deps_loaded:
     try:
-        from jupyter_server.services.contents.checkpoints import (
-          Checkpoints,
-          GenericCheckpointsMixin,
+        from notebook.services.contents.checkpoints import (
+            Checkpoints,
+            GenericCheckpointsMixin,
         )
-        from jupyter_server.services.contents.filecheckpoints import GenericFileCheckpoints
-        from jupyter_server.services.contents.filemanager import FileContentsManager
-        from jupyter_server.services.contents.manager import ContentsManager
-        from jupyter_server.base.handlers import AuthenticatedFileHandler
+        from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
+        from notebook.services.contents.filemanager import FileContentsManager
+        from notebook.services.contents.manager import ContentsManager
+        from notebook.base.handlers import AuthenticatedFileHandler
         ct_mgr_deps_loaded = True
     except ModuleNotFoundError:
         pass

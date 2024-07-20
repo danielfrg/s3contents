@@ -3,6 +3,7 @@ Utilities for managing compat between notebook versions.
 
 Taken from: https://github.com/quantopian/pgcontents/blob/master/pgcontents/utils/ipycompat.py
 """
+
 from nbformat import from_dict, reads, writes
 from nbformat.v4.nbbase import (
     new_code_cell,
@@ -15,28 +16,36 @@ from nbformat.v4.rwbase import strip_transient
 # Pick dependencies from jupyter_server (jupyterlab, notebook>=7) but fallback to notebook (notebook version<=6)
 ct_mgr_deps_loaded = False
 try:
+    from jupyter_server.base.handlers import AuthenticatedFileHandler
     from jupyter_server.services.contents.checkpoints import (
         Checkpoints,
         GenericCheckpointsMixin,
     )
-    from jupyter_server.services.contents.filecheckpoints import GenericFileCheckpoints
-    from jupyter_server.services.contents.filemanager import FileContentsManager
+    from jupyter_server.services.contents.filecheckpoints import (
+        GenericFileCheckpoints,
+    )
+    from jupyter_server.services.contents.filemanager import (
+        FileContentsManager,
+    )
     from jupyter_server.services.contents.manager import ContentsManager
-    from jupyter_server.base.handlers import AuthenticatedFileHandler
+
     ct_mgr_deps_loaded = True
 except ModuleNotFoundError:
     pass
 
 if not ct_mgr_deps_loaded:
     try:
+        from notebook.base.handlers import AuthenticatedFileHandler
         from notebook.services.contents.checkpoints import (
             Checkpoints,
             GenericCheckpointsMixin,
         )
-        from notebook.services.contents.filecheckpoints import GenericFileCheckpoints
+        from notebook.services.contents.filecheckpoints import (
+            GenericFileCheckpoints,
+        )
         from notebook.services.contents.filemanager import FileContentsManager
         from notebook.services.contents.manager import ContentsManager
-        from notebook.base.handlers import AuthenticatedFileHandler
+
         ct_mgr_deps_loaded = True
     except ModuleNotFoundError:
         pass
@@ -56,8 +65,8 @@ from traitlets import (
     Integer,
     TraitError,
     Unicode,
-    validate,
     default,
+    validate,
 )
 from traitlets.config import Config
 
@@ -79,7 +88,7 @@ def import_item(name):
        The module that was imported.
     """
 
-    parts = name.rsplit('.', 1)
+    parts = name.rsplit(".", 1)
     if len(parts) == 2:
         # called with 'foo.bar....'
         package, obj = parts
@@ -87,11 +96,12 @@ def import_item(name):
         try:
             pak = getattr(module, obj)
         except AttributeError:
-            raise ImportError('No module named %s' % obj)
+            raise ImportError("No module named %s" % obj)
         return pak
     else:
         # called with un-dotted string
         return __import__(parts[0])
+
 
 string_types = (str,)
 

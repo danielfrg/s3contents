@@ -1,14 +1,16 @@
+import os
+
+from fsspec.asyn import sync
+
 from s3contents.gcs.gcs_fs import GCSFS
 from s3contents.genericmanager import GenericContentsManager
 from s3contents.ipycompat import Unicode
-from fsspec.asyn import sync
-import os
 
 
 class GCSContentsManager(GenericContentsManager):
-    project = Unicode(
-        help="GCP Project", allow_none=True, default_value=None
-    ).tag(config=True, env="JPYNB_GCS_PROJECT")
+    project = Unicode(help="GCP Project", allow_none=True, default_value=None).tag(
+        config=True, env="JPYNB_GCS_PROJECT"
+    )
     token = Unicode(
         help="Path to the GCP token", allow_none=True, default_value=None
     ).tag(config=True, env="JPYNB_GCS_TOKEN_PATH")
@@ -72,7 +74,5 @@ class GCSContentsManager(GenericContentsManager):
                 f"files_tcs_detail={files_gcs_detail}\n"
                 f"lstat={self.fs.lstat(files_gcs_detail)}\n"
             )
-        model["content"] = self._convert_file_records(
-            filtered_files_gcs_detail
-        )
+        model["content"] = self._convert_file_records(filtered_files_gcs_detail)
         return model

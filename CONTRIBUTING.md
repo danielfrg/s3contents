@@ -2,15 +2,12 @@
 
 Requirements:
 
-- [Python Hatch](https://hatch.pypa.io/latest)
+- [Rye](https://rye.astral.sh/)
 
 ## Create Python env:
 
 ```shell
-hatch env
-
-# Activate env
-hatch shell
+rye sync
 ```
 
 ## Iteration
@@ -44,7 +41,7 @@ c.Application.log_level = "DEBUG"
 Start Minio (using docker) in one terminal:
 
 ```shell
-task minio
+just minio
 ```
 
 Start Jupyter Notebook in another terminal:
@@ -56,12 +53,12 @@ jupyter lab --config ~/.jupyter/jupyter_notebook_config.py
 ## Tests
 
 ```shell
-task test
+just test
 ```
 
 Check linting and format
 
 ```shell
-task check
-task fmt
+just check
+just fmt
 ```

@@ -2,8 +2,8 @@ import time
 
 import pytest
 
-from s3contents.tests.utils import *
 from s3contents.chunks import content_chunks
+from s3contents.tests.utils import *
 
 try:
     from s3contents.gcs import GCSContentsManager

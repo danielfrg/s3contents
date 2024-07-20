@@ -2,7 +2,7 @@
 name = "s3contents"
 description = "S3 Contents Manager for Jupyter"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = "Apache-2.0"
 keywords = [
   "jupyter",
@@ -18,10 +18,10 @@ authors = [{ name = "Daniel Rodriguez", email = "daniel@danielfrg.com" }]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -33,13 +33,23 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[project.urls]
-Documentation = "https://github.com/danielfrg/s3contents#readme"
-Issues = "https://github.com/danielfrg/s3contents/issues"
-Source = "https://github.com/danielfrg/s3contents"
-
-[project.optional-dependencies]
-test = ["coverage[toml]", "nose", "pytest", "pytest-cov"]
+[tool.rye]
+managed = true
+dev-dependencies = [
+  # Testing
+  "coverage[toml]",
+  "pymdown-extensions",
+  "pytest",
+  "pytest-cov",
+  # Linting
+  "black",
+  "flake8",
+  "isort",
+  "pip-tools",
+  "ruff",
+  # Development
+  "jupyterlab",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -52,31 +62,16 @@ exclude = [".github", "docs"]
 [tool.hatch.version]
 path = "s3contents/__about__.py"
 
-[tool.hatch.envs.default]
-features = ["test"]
-dependencies = [
-  # Linting
-  "black",
-  "flake8",
-  "isort",
-  "pip-tools",
-  "ruff",
-  # Development
-  "jupyterlab",
-]
-
-[tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=adsctl --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310", "311"]
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.pytest.ini_options]
 testpaths = ["s3contents/tests"]
 addopts = [
   "-s",
   "-vv",
+  "--strict-config",
+  "--strict-markers",
   "--ignore=dist",
   "--ignore=site-packages",
   # "--strict-markers",
@@ -84,17 +79,20 @@ addopts = [
   "--cov-report=term",
   "--cov-config=pyproject.toml",
 ]
-xfail_strict = true
 markers = [
   "pkg: package tests",
   "minio: requires minio server (deselect with '-m \"not minio\"')",
   "gcs: requires gcs creds (deselect with '-m \"not minio\"')",
 ]
+xfail_strict = true
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = ["tests/*"]
 
 [tool.coverage.report]
-show_missing = true
-ignore_errors = false
-
 exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
@@ -107,9 +105,14 @@ omit = ["s3contents/tests/*"]
 [tool.coverage.paths]
 source = ["s3contents", ".venv/lib/python*/site-packages/s3contents"]
 
-[tool.black]
-line_length = 79
-skip_string_normalization = true
+[tool.ruff]
+lint.select = [
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # pyflakes
+  # "I",  # isort
+  "B", # flake8-bugbear
+]
 
 [tool.isort]
 ensure_newline_before_comments = true
@@ -118,8 +121,16 @@ multi_line_output = 3
 include_trailing_comma = true
 profile = "black"
 
+[tool.mypy]
+strict = true
+
 [tool.pydocstyle]
 add_ignore = ["D100", "D101", "D102", "D103", "D104", "D105"]
 convention = "numpy"
 inherit = false
 match_dir = "s3contents"
+
+[project.urls]
+Documentation = "https://github.com/danielfrg/s3contents#readme"
+Issues = "https://github.com/danielfrg/s3contents/issues"
+Source = "https://github.com/danielfrg/s3contents"

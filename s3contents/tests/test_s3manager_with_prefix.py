@@ -3,6 +3,7 @@ import pytest
 from s3contents import S3ContentsManager
 from s3contents.tests.utils import *
 
+
 @pytest.mark.minio
 class S3ContentsManagerTestCase_prefix(TestContentsManager):
     def setUp(self):

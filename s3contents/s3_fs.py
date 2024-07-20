@@ -51,12 +51,8 @@ class S3FS(GenericFS):
         config=True, env="JPYNB_S3_SKIP_TLS_VERIFY"
     )
     signature_version = Unicode(help="").tag(config=True)
-    sse = Unicode(help="Type of server-side encryption to use").tag(
-        config=True
-    )
-    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(
-        config=True
-    )
+    sse = Unicode(help="Type of server-side encryption to use").tag(config=True)
+    kms_key_id = Unicode(help="KMS ID to use to encrypt workbooks").tag(config=True)
 
     prefix = Unicode("", help="Prefix path inside the specified bucket").tag(
         config=True
@@ -98,7 +94,7 @@ class S3FS(GenericFS):
         }
         if self.skip_tls_verify:
             client_kwargs.update({"verify": False})
-        
+
         if self.s3fs_config_kwargs:
             self.must_be_dictionary(self.s3fs_config_kwargs)
             config_kwargs = self.s3fs_config_kwargs
@@ -141,9 +137,7 @@ class S3FS(GenericFS):
                 )
                 self.log.error(
                     "AccessDenied error while creating initial S3 objects.\
-                    Create an IAM policy like:\n{policy}".format(
-                        policy=policy
-                    )
+                    Create an IAM policy like:\n{policy}".format(policy=policy)
                 )
                 sys.exit(1)
             else:
@@ -170,31 +164,23 @@ class S3FS(GenericFS):
         # FileNotFoundError handled by s3fs
         is_dir = self.fs.isdir(path_)
 
-        self.log.debug(
-            "S3contents.S3FS: `%s` is a directory: %s", path_, is_dir
-        )
+        self.log.debug("S3contents.S3FS: `%s` is a directory: %s", path_, is_dir)
         return is_dir
 
     def mv(self, old_path, new_path):
-        self.log.debug(
-            "S3contents.S3FS: Move file `%s` to `%s`", old_path, new_path
-        )
+        self.log.debug("S3contents.S3FS: Move file `%s` to `%s`", old_path, new_path)
         self.cp(old_path, new_path)
         self.rm(old_path)
 
     def cp(self, old_path, new_path):
         old_path_, new_path_ = self.path(old_path), self.path(new_path)
-        self.log.debug(
-            "S3contents.S3FS: Copying `%s` to `%s`", old_path_, new_path_
-        )
+        self.log.debug("S3contents.S3FS: Copying `%s` to `%s`", old_path_, new_path_)
 
         if self.isdir(old_path):
             old_dir_path, new_dir_path = old_path, new_path
             for obj in self.ls(old_dir_path):
                 old_item_path = obj
-                new_item_path = old_item_path.replace(
-                    old_dir_path, new_dir_path, 1
-                )
+                new_item_path = old_item_path.replace(old_dir_path, new_dir_path, 1)
                 self.cp(old_item_path, new_item_path)
             self.mkdir(new_path)  # Touch with dir_keep_file
         elif self.isfile(old_path):
@@ -306,15 +292,9 @@ class S3FS(GenericFS):
         """
         Remove the self.prefix_ (if present) from a path or list of paths
         """
-        self.log.debug(
-            f"S3FS.remove_prefix: self.prefix_: {self.prefix_} path: {path}"
-        )
+        self.log.debug(f"S3FS.remove_prefix: self.prefix_: {self.prefix_} path: {path}")
         if isinstance(path, str):
-            path = (
-                path[len(self.prefix_) :]
-                if path.startswith(self.prefix_)
-                else path
-            )
+            path = path[len(self.prefix_) :] if path.startswith(self.prefix_) else path
             path = path[1:] if path.startswith(self.delimiter) else path
             return path
         if isinstance(path, (list, tuple)):

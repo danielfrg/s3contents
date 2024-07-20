@@ -9,9 +9,9 @@
 export VERSION=1.0.0
 
 # Optional reset
-task clean
+just clean
 
-task build
+just build
 rye publish
 
 git commit -am "Release ${VERSION}" --allow-empty

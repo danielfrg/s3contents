@@ -41,6 +41,4 @@ def make_html_post_save(model, s3_path, contents_manager, **kwargs):
     (body, resources) = html_exporter.from_notebook_node(my_notebook)
 
     base, ext = os.path.splitext(s3_path)
-    contents_manager.fs.write(
-        path=(base + ".html"), content=body, format=_format
-    )
+    contents_manager.fs.write(path=(base + ".html"), content=body, format=_format)

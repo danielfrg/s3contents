@@ -6,6 +6,7 @@ from s3contents import S3ContentsManager
 from s3contents.chunks import content_chunks
 from s3contents.tests.utils import *
 
+
 @pytest.mark.minio
 class S3ContentsManagerLargeFileTestCase(TestLargeFileManager):
     def setUp(self):

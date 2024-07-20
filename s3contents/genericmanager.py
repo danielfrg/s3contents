@@ -4,10 +4,10 @@ import json
 import mimetypes
 import os
 
+import gcsfs
 from dateutil.tz import tzutc
 from fsspec.asyn import sync
 from tornado.web import HTTPError
-import gcsfs
 
 from s3contents.chunks import (
     assemble_chunks,
@@ -18,18 +18,18 @@ from s3contents.chunks import (
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import (
     Any,
-    ContentsManager,
     AuthenticatedFileHandler,
+    ContentsManager,
     GenericFileCheckpoints,
     HasTraits,
     TraitError,
     Unicode,
+    default,
     from_dict,
     import_item,
     reads,
     string_types,
     validate,
-    default,
 )
 
 DUMMY_CREATED_DATE = datetime.datetime.fromtimestamp(86400)
@@ -116,9 +116,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
     def dir_exists(self, path):
         # Does a directory exist at the given path?
-        self.log.debug(
-            "S3contents.GenericManager.dir_exists: path('%s')", path
-        )
+        self.log.debug("S3contents.GenericManager.dir_exists: path('%s')", path)
         return self.fs.isdir(path)
 
     def get(self, path, content=True, type=None, format=None):
@@ -161,9 +159,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             content,
             format,
         )
-        return self._notebook_model_from_path(
-            path, content=content, format=format
-        )
+        return self._notebook_model_from_path(path, content=content, format=format)
 
     def _get_file(self, path, content=True, format=None):
         self.log.debug(
@@ -195,15 +191,13 @@ class GenericContentsManager(ContentsManager, HasTraits):
                 self.no_such_entity(path)
             model["format"] = "json"
             prefixed_path = self.fs.path(path)
-            
+
             if isinstance(self.fs.fs, gcsfs.GCSFileSystem):
                 self.log.debug("FS is GCS")
                 return self._list_contents(model, prefixed_path)
             self.log.debug("FS is S3")
-            
-            files_s3_detail = sync(
-                self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path
-            )
+
+            files_s3_detail = sync(self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path)
             filtered_files_s3_detail = list(
                 filter(
                     lambda detail: os.path.basename(detail["Key"])
@@ -220,7 +214,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             filtered_files_s3_detail = self.filter_deleted_markers(
                 filtered_files_s3_detail
             )
-            model['content'] = self.convert_s3_details_to_models(
+            model["content"] = self.convert_s3_details_to_models(
                 filtered_files_s3_detail
             )
         return model
@@ -234,12 +228,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
     async def get_content_s3_metadata(self, s3_details):
         async def s3_detail_metadata(s3_detail):
             if s3_detail["StorageClass"] == "DIRECTORY":
-                dir_path = os.path.join(
-                    self.fs.path(s3_detail["Key"]), ".s3keep"
-                )
+                dir_path = os.path.join(self.fs.path(s3_detail["Key"]), ".s3keep")
                 try:
                     lstat = await self.fs.fs._info(dir_path)
-                    s3_detail['LastModified'] = lstat['LastModified']
+                    s3_detail["LastModified"] = lstat["LastModified"]
                 except FileNotFoundError:
                     pass
             st_time = s3_detail.get("LastModified")
@@ -270,22 +262,18 @@ class GenericContentsManager(ContentsManager, HasTraits):
             if s3_detail["StorageClass"] == "DIRECTORY":
                 model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
                 model["type"] = "directory"
-                model['last_modified'] = model['created'] = s3_detail.get(
-                    'LastModified'
+                model["last_modified"] = model["created"] = s3_detail.get(
+                    "LastModified"
                 )
                 if "ST_MTIME" in s3_detail and s3_detail["ST_MTIME"]:
-                    model["created"] = model["last_modified"] = s3_detail[
-                        "ST_MTIME"
-                    ]
+                    model["created"] = model["last_modified"] = s3_detail["ST_MTIME"]
             else:
                 model["last_modified"] = s3_detail.get("LastModified").replace(
                     microsecond=0, tzinfo=tzutc()
                 )
                 model["created"] = model["last_modified"]
                 model["size"] = s3_detail.get("Size", 0)
-                model["type"] = (
-                    "notebook" if model_path.endswith(".ipynb") else "file"
-                )
+                model["type"] = "notebook" if model_path.endswith(".ipynb") else "file"
             models.append(model)
         return models
 
@@ -352,9 +340,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
         chunk = model.get("chunk", None)
         if chunk is not None:
-            return self._save_large_file(
-                chunk, model, path, model.get("format")
-            )
+            return self._save_large_file(chunk, model, path, model.get("format"))
 
         self.log.debug("S3contents.GenericManager.save %s: '%s'", model, path)
         if "type" not in model:
@@ -375,12 +361,8 @@ class GenericContentsManager(ContentsManager, HasTraits):
             else:
                 validation_message = self._save_directory(path)
         except Exception as e:
-            self.log.error(
-                "Error while saving file: %s %s", path, e, exc_info=True
-            )
-            self.do_error(
-                "Unexpected error while saving file: %s %s" % (path, e), 500
-            )
+            self.log.error("Error while saving file: %s %s", path, e, exc_info=True)
+            self.do_error("Unexpected error while saving file: %s %s" % (path, e), 500)
 
         model = self.get(path, type=model["type"], content=False)
 
@@ -507,13 +489,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if self.post_save_hook:
             try:
                 self.log.debug("Running post-save hook on %s", s3_path)
-                self.post_save_hook(
-                    s3_path=s3_path, model=model, contents_manager=self
-                )
+                self.post_save_hook(s3_path=s3_path, model=model, contents_manager=self)
             except Exception as e:
-                self.log.error(
-                    "Post-save hook failed o-n %s", s3_path, exc_info=True
-                )
+                self.log.error("Post-save hook failed o-n %s", s3_path, exc_info=True)
                 raise HTTPError(
                     500,
                     "Unexpected error while running post hook save: %s" % e,

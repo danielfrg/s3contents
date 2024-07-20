@@ -27,9 +27,9 @@ class S3ContentsManager(GenericContentsManager):
 
     delimiter = Unicode("/", help="Path delimiter").tag(config=True)
 
-    endpoint_url = Unicode(
-        "https://s3.amazonaws.com", help="S3 endpoint URL"
-    ).tag(config=True, env="JPY_S3_ENDPOINT_URL")
+    endpoint_url = Unicode("https://s3.amazonaws.com", help="S3 endpoint URL").tag(
+        config=True, env="JPY_S3_ENDPOINT_URL"
+    )
 
     skip_tls_verify = Bool(False, help="Skip endpoint tls verify").tag(
         config=True, env="JPYNB_S3_SKIP_TLS_VERIFY"
@@ -136,12 +136,8 @@ def validate_bucket(user_bucket, log):
         * When the user provides an empty bucket
     """
     if not user_bucket:
-        raise ValueError(
-            f"user_bucket function argument is empty: {user_bucket}"
-        )
-    log.debug(
-        f"s3manager.validate_bucket: User provided bucket: {user_bucket}"
-    )
+        raise ValueError(f"user_bucket function argument is empty: {user_bucket}")
+    log.debug(f"s3manager.validate_bucket: User provided bucket: {user_bucket}")
     res = urlparse(user_bucket)
     scheme, netloc, path, params, query, fragment = res
     if netloc:
@@ -154,10 +150,7 @@ def validate_bucket(user_bucket, log):
         )
         return bucket
     if scheme or netloc or params or query or fragment:
-        log.error(
-            "s3manager.validate_bucket: "
-            f"Invalid bucket specification: {res}"
-        )
+        log.error("s3manager.validate_bucket: " f"Invalid bucket specification: {res}")
         raise ValueError(f"Invalid bucket specification: {res}")
 
     bucket = path

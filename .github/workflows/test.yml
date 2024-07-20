@@ -106,7 +106,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest .
+          pytest . -m "not gcs"
           just report
 
       - name: Codecov

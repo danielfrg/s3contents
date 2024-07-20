@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: arduino/setup-task@v1
+      - uses: extractions/setup-just@v1
 
       # ------------------------------------------------------------------------
       # Python
@@ -97,7 +97,7 @@ jobs:
           curl http://localhost:9000/
 
       - name: Build package
-        run: task build
+        run: just build
 
       - name: Install package
         run: |
@@ -106,8 +106,8 @@ jobs:
 
       - name: Run tests
         run: |
-          task test-all
-          task report
+          just test-all
+          just report
 
       - name: Codecov
         uses: codecov/codecov-action@v2

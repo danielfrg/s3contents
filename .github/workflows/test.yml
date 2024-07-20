@@ -97,7 +97,7 @@ jobs:
           curl http://localhost:9000/
 
       - name: Build package
-        run: just build
+        run: hatch build
 
       - name: Install package
         run: |
@@ -106,7 +106,7 @@ jobs:
 
       - name: Run tests
         run: |
-          just test-all
+          pytest .
           just report
 
       - name: Codecov

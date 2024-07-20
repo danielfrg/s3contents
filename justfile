@@ -20,8 +20,8 @@ test FILTER="":
   rye run pytest -k "{{FILTER}}"
 
 report:
-  rye run coverage xml
-  rue run coverage html
+  coverage xml
+  coverage html
 
 publish:
   rye publish

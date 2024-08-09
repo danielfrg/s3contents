@@ -8,7 +8,7 @@ aiobotocore[boto3]==2.4.2
     # via
     #   s3contents (pyproject.toml)
     #   s3fs
-aiohttp==3.9.4
+aiohttp==3.10.2
     # via
     #   aiobotocore
     #   s3fs

@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import hashlib
 import json
 import mimetypes
 import os
@@ -119,8 +120,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         self.log.debug("S3contents.GenericManager.dir_exists: path('%s')", path)
         return self.fs.isdir(path)
 
-    def get(self, path, content=True, type=None, format=None):
+    def get(self, path, content=True, type=None, format=None, require_hash=False):
         # Get a file or directory model.
+        # require_hash was added in jupyter_server 2.11
         self.log.debug(
             "S3contents.GenericManager.get: path('%s') type(%s) format(%s)",
             path,
@@ -141,9 +143,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         except KeyError:
             raise ValueError("Unknown type passed: '{}'".format(type))
 
-        return func(path=path, content=content, format=format)
+        return func(path=path, content=content, format=format, require_hash=require_hash)
 
-    def _get_directory(self, path, content=True, format=None):
+    def _get_directory(self, path, content=True, format=None, require_hash=False):
         self.log.debug(
             "S3contents.GenericManager._get_directory: path('%s') content(%s) format(%s)",
             path,
@@ -152,23 +154,25 @@ class GenericContentsManager(ContentsManager, HasTraits):
         )
         return self._directory_model_from_path(path, content=content)
 
-    def _get_notebook(self, path, content=True, format=None):
+    def _get_notebook(self, path, content=True, format=None, require_hash=False):
         self.log.debug(
-            "S3contents.GenericManager._get_notebook: path('%s') type(%s) format(%s)",
+            "S3contents.GenericManager._get_notebook: path('%s') type(%s) format(%s) require_hash(%s)",
             path,
             content,
             format,
+            require_hash,
         )
-        return self._notebook_model_from_path(path, content=content, format=format)
+        return self._notebook_model_from_path(path, content=content, format=format, require_hash=require_hash)
 
-    def _get_file(self, path, content=True, format=None):
+    def _get_file(self, path, content=True, format=None, require_hash=False):
         self.log.debug(
-            "S3contents.GenericManager._get_file: path('%s') type(%s) format(%s)",
+            "S3contents.GenericManager._get_file: path('%s') type(%s) format(%s) require_hash(%s)",
             path,
             content,
             format,
+            require_hash,
         )
-        return self._file_model_from_path(path, content=content, format=format)
+        return self._file_model_from_path(path, content=content, format=format, require_hash=require_hash)
 
     def _directory_model_from_path(self, path, content=False):
         self.log.debug(
@@ -277,7 +281,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
             models.append(model)
         return models
 
-    def _notebook_model_from_path(self, path, content=False, format=None):
+    def _notebook_model_from_path(self, path, content=False, format=None, require_hash=False):
         """
         Build a notebook model from database record.
         """
@@ -292,18 +296,26 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["size"] = info["SIZE"]
         else:
             model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
+
+        bytes_content = None
         if content:
             if not self.fs.isfile(path):
                 self.no_such_entity(path)
-            file_content, _ = self.fs.read(path, format)
+            file_content, _, bytes_content = self.fs.read(path, format)
             nb_content = reads(file_content, as_version=NBFORMAT_VERSION)
             self.mark_trusted_cells(nb_content, path)
             model["format"] = "json"
             model["content"] = nb_content
             self.validate_notebook_model(model)
+
+        if require_hash:
+            if bytes_content is None:
+                _, _, bytes_content = self.fs.read(path, format)
+            model.update(**self._get_hash(bytes_content))
+
         return model
 
-    def _file_model_from_path(self, path, content=False, format=None):
+    def _file_model_from_path(self, path, content=False, format=None, require_hash=False):
         """
         Build a file model from database record.
         """
@@ -318,10 +330,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["size"] = info["SIZE"]
         else:
             model["created"] = model["last_modified"] = DUMMY_CREATED_DATE
+
+        bytes_content = None
         if content:
             try:
                 # Get updated format from fs.read()
-                content, format_ = self.fs.read(path, format)
+                content, format_, bytes_content = self.fs.read(path, format)
             except NoSuchFile as e:
                 self.no_such_entity(e.path)
             except GenericFSError as e:
@@ -329,6 +343,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
             model["format"] = format_
             model["content"] = content
             model["mimetype"] = mimetypes.guess_type(path)[0] or "text/plain"
+
+        if require_hash:
+            if bytes_content is None:
+                _, _, bytes_content = self.fs.read(path, format)
+            model.update(**self._get_hash(bytes_content))
+
         return model
 
     def save(self, model, path):
@@ -496,6 +516,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
                     500,
                     "Unexpected error while running post hook save: %s" % e,
                 ) from e
+
+    def _get_hash(self, byte_content: bytes, hash_algorithm: str = "sha256") -> dict[str, str]:
+        """Compute the hash hexdigest for the provided bytes."""
+        h = hashlib.new(hash_algorithm)
+        h.update(byte_content)
+        return {"hash": h.hexdigest(), "hash_algorithm": hash_algorithm}
 
 
 def base_model(path):

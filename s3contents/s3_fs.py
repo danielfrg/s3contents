@@ -207,19 +207,19 @@ class S3FS(GenericFS):
         if not self.isfile(path):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode="rb") as f:
-            content = f.read()
+            raw_content = f.read()
         # format is not base64-encoded. "json" is requested by jupyter collaboration.
         if format is None or format in ["text", "json"]:
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:
-                return content.decode("utf-8"), "text"
+                return raw_content.decode("utf-8"), "text"
             except UnicodeError:
                 if format == "text":
                     err = "{} is not UTF-8 encoded".format(path_)
                     self.log.error(err)
                     raise HTTPError(400, err, reason="bad format")
-        return base64.b64encode(content).decode("ascii"), "base64"
+        return base64.b64encode(raw_content).decode("ascii"), "base64", raw_content
 
     def lstat(self, path):
         path_ = self.path(path)

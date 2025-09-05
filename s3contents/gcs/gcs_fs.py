@@ -123,14 +123,14 @@ class GCSFS(GenericFS):
         if not self.isfile(path):
             raise NoSuchFile(path_)
         with self.fs.open(path_, mode="rb") as f:
-            content = f.read()
+            raw_content = f.read()
         if format == "base64":
-            return base64.b64encode(content).decode("ascii"), "base64"
+            return base64.b64encode(raw_content).decode("ascii"), "base64", raw_content
         else:
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:
-                return content.decode("utf-8"), "text"
+                return raw_content.decode("utf-8"), "text", raw_content
             except UnicodeError:
                 if format == "text":
                     err = "{} is not UTF-8 encoded".format(path_)

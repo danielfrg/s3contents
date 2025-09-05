@@ -32,7 +32,7 @@ def make_html_post_save(model, s3_path, contents_manager, **kwargs):
     if model["type"] != "notebook":
         return
 
-    content, _format = contents_manager.fs.read(s3_path, format="text")
+    content, _format, _ = contents_manager.fs.read(s3_path, format="text")
     my_notebook = nbformat.reads(content, as_version=4)
 
     html_exporter = HTMLExporter()

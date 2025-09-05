@@ -213,7 +213,7 @@ class S3FS(GenericFS):
             # Try to interpret as unicode if format is unknown or if unicode
             # was explicitly requested.
             try:
-                return raw_content.decode("utf-8"), "text"
+                return raw_content.decode("utf-8"), "text", raw_content
             except UnicodeError:
                 if format == "text":
                     err = "{} is not UTF-8 encoded".format(path_)

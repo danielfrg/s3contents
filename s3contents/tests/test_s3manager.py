@@ -66,7 +66,7 @@ class S3ContentsManagerTestCase(TestContentsManager):
 
         # test post_save_hook
         html_file = os.path.splitext(path)[0] + ".html"
-        html, _type = cm.fs.read(html_file, "text")
+        html, _type, _ = cm.fs.read(html_file, "text")
 
         assert cm.fs.isfile(html_file)
         assert "<!DOCTYPE html>" in html

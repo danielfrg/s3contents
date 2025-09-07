@@ -52,7 +52,7 @@ if not ct_mgr_deps_loaded:
 
 if not ct_mgr_deps_loaded:
     raise ImportError(
-        "Couldn't import ContentsManager from either nootebook or jupyter_server."
+        "Couldn't import ContentsManager from either notebook or jupyter_server."
         "Make sure that Jupyter Notebook or JupyterLab package is installed."
     )
 

@@ -145,7 +145,7 @@ traitlets==5.9.0
     #   nbclient
     #   nbconvert
     #   nbformat
-urllib3==2.6.0
+urllib3==2.6.3
     # via botocore
 webencodings==0.5.1
     # via

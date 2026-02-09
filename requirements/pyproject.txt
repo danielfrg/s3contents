@@ -86,7 +86,7 @@ multidict==6.0.4
     #   yarl
 nbclient==0.7.2
     # via nbconvert
-nbconvert==7.2.10
+nbconvert==7.17.0
     # via s3contents (pyproject.toml)
 nbformat==5.8.0
     # via

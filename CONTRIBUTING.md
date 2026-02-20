@@ -2,12 +2,12 @@
 
 Requirements:
 
-- [Rye](https://rye.astral.sh/)
+- [uv](https://docs.astral.sh/uv/)
 
 ## Create Python env:
 
 ```shell
-rye sync
+uv sync
 ```
 
 ## Iteration

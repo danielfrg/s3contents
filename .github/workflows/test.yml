@@ -24,8 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.9, "3.10", 3.11]
-        jupyter-version: ["6.3", "6.4", "6.*", "7.1", "7.*"]
+        python-version: [3.12, 3.13, 3.14]
+        jupyter-version: ["6.*", "7.4", "7.5", "7.*"]
 
     runs-on: ubuntu-latest
 
@@ -47,46 +47,29 @@ jobs:
           - /tmp/tmp-data:/data
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: extractions/setup-just@v1
 
       # ------------------------------------------------------------------------
-      # Python
+      # Python + uv
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: actions/cache@v3
-        id: cached-python-env
-        with:
-          path: ${{ env.pythonLocation }}
-          key: >
-            python
-            ${{ runner.os }}
-            python-${{ matrix.python-version }}
-            jupyter-${{ matrix.jupyter-version }}
-            ${{ hashFiles('pyproject.toml') }}
-            ${{ hashFiles('requirements/*') }}
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        if: steps.cached-python-env.outputs.cache-hit != 'true'
         run: |
-          pip install -r requirements/all.txt
-          pip install -U notebook==${{ matrix.jupyter-version }}
-
-      - name: Install Hatch
-        run: |
-          pip install --upgrade hatch
+          uv sync --python ${{ matrix.python-version }}
+          uv pip install -U notebook==${{ matrix.jupyter-version }}
 
       - name: Print Python info
         run: |
-          which python
-          python --version
-          which pip
-          pip --version
-          pip freeze
+          uv run python --version
+          uv pip freeze
 
       # ------------------------------------------------------------------------
       # Build and test
@@ -97,20 +80,15 @@ jobs:
           curl http://localhost:9000/
 
       - name: Build package
-        run: hatch build
-
-      - name: Install package
-        run: |
-          pip install dist/*.tar.gz
-          pip freeze
+        run: uv build
 
       - name: Run tests
         run: |
-          pytest . -m "not gcs"
+          uv run pytest . -m "not gcs"
           just report
 
       - name: Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
 
@@ -118,5 +96,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results-py${{ matrix.python-version }}
+          name: test-results-py${{ matrix.python-version }}-nb${{ matrix.jupyter-version }}
           path: htmlcov

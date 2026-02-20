@@ -2,7 +2,7 @@
 name = "s3contents"
 description = "S3 Contents Manager for Jupyter"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 license = "Apache-2.0"
 keywords = [
   "jupyter",
@@ -18,10 +18,9 @@ authors = [{ name = "Daniel Rodriguez", email = "daniel@danielfrg.com" }]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -33,9 +32,8 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[tool.rye]
-managed = true
-dev-dependencies = [
+[dependency-groups]
+dev = [
   # Testing
   "coverage[toml]",
   "pymdown-extensions",
@@ -45,7 +43,6 @@ dev-dependencies = [
   "black",
   "flake8",
   "isort",
-  "pip-tools",
   "ruff",
   # Development
   "jupyterlab",

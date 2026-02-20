@@ -12,7 +12,7 @@ export VERSION=1.0.0
 just clean
 
 just build
-rye publish
+uv publish
 
 git commit -am "Release ${VERSION}" --allow-empty
 git tag ${VERSION}

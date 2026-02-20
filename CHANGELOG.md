@@ -1,5 +1,9 @@
 # s3contents Change Log
 
+## 0.12.0
+
+- Drop support for Notebook 6
+
 ## 0.11.0
 
 - Support for Notebook 7

@@ -2436,7 +2436,7 @@ dev = [
 requires-dist = [
     { name = "aiobotocore", extras = ["boto3"], specifier = ">=1.4.0" },
     { name = "gcsfs", specifier = ">=2021.11.0" },
-    { name = "nbconvert", specifier = ">=6.0,<8.0" },
+    { name = "nbconvert", specifier = ">=7.0,<8.0" },
     { name = "s3fs", specifier = ">=2021.11.0" },
 ]
 

@@ -25,7 +25,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "nbconvert>=6.0,<8.0",
+  "nbconvert>=7.0,<8.0",
   "aiobotocore[boto3]>=1.4.0",
   "s3fs>=2021.11.0",
   "gcsfs>=2021.11.0"

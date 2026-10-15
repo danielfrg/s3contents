@@ -7,7 +7,7 @@
         <img src="https://img.shields.io/pypi/v/mkdocs-jupyter.svg">
     </a>
     <a href="https://github.com/danielfrg/s3contents/actions/workflows/test.yml">
-        <img src="https://github.com/danielfrg/s3contents/workflows/test/badge.svg">
+        <img src="https://github.com/danielfrg/s3contents/actions/workflows/test.yml/badge.svg">
     </a>
     <a href="https://codecov.io/gh/danielfrg/s3contents?branch=main">
         <img src="https://codecov.io/gh/danielfrg/s3contents/branch/main/graph/badge.svg">

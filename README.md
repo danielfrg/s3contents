@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://pypi.org/project/s3contents/">
-        <img src="https://img.shields.io/pypi/v/mkdocs-jupyter.svg">
+        <img src="https://img.shields.io/pypi/v/s3contents.svg">
     </a>
     <a href="https://github.com/danielfrg/s3contents/actions/workflows/test.yml">
         <img src="https://github.com/danielfrg/s3contents/actions/workflows/test.yml/badge.svg">
@@ -23,7 +23,7 @@ A transparent, drop-in replacement for Jupyter standard filesystem-backed storag
 With this implementation of a
 [Jupyter Contents Manager](https://jupyter-server.readthedocs.io/en/latest/developers/contents.html)
 you can save all your notebooks, files and directory structure directly to a
-S3/GCS bucket on AWS/GCP or a self hosted S3 API compatible like [MinIO](http://minio.io).
+S3/GCS bucket on AWS/GCP or a self hosted S3 API compatible like [MinIO](https://min.io).
 
 ## Installation
 
@@ -44,7 +44,7 @@ While there are some implementations of an S3 Jupyter Content Manager such as
 s3contents is the only one tested against new versions of Jupyter.
 It also supports more authentication methods and Google Cloud Storage.
 
-This aims to be a fully tested implementation and it's based on [PGContents](https://github.com/quantopian/pgcontents).
+This aims to be a fully tested implementation and it's based on [PGContents](https://github.com/quantopian/pgcontents) (now archived).
 
 ## Configuration
 
@@ -152,7 +152,7 @@ c.S3ContentsManager.init_s3_hook = make_key_refresh_boto3
 
 ### MinIO playground example
 
-You can test this using the [`play.minio.io:9000`](https://play.minio.io:9000) playground:
+You can test this using the [`play.min.io:9000`](https://play.min.io:9000) playground:
 
 Just be sure to create the bucket first.
 
@@ -165,7 +165,7 @@ c = get_config()
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.access_key_id = "Q3AM3UQ867SPQQA43P2F"
 c.S3ContentsManager.secret_access_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-c.S3ContentsManager.endpoint_url = "https://play.minio.io:9000"
+c.S3ContentsManager.endpoint_url = "https://play.min.io:9000"
 c.S3ContentsManager.bucket = "s3contents-demo"
 c.S3ContentsManager.prefix = "notebooks/test"
 ```
@@ -278,6 +278,9 @@ def make_html_post_save(model, s3_path, contents_manager, **kwargs):
     """
     Convert notebooks to HTML after saving via nbconvert
     """
+    import os
+
+    import nbformat
     from nbconvert import HTMLExporter
 
     if model["type"] != "notebook":

@@ -6,6 +6,17 @@ from s3contents.ipycompat import HasTraits
 
 
 class GenericFS(HasTraits):
+    def open_upload(self, path):
+        """Open an unpublished S3/GCS upload with a bounded write buffer."""
+        # open(autocommit=False) registers a writer in the shared transaction.
+        # We own its lifetime, so bypass that implicit registration.
+        return self.fs._open(
+            self.path(self.remove_prefix(path)),
+            mode="wb",
+            block_size=5 * 1024**2,
+            autocommit=False,
+        )
+
     def ls(self, path=""):
         raise NotImplementedError(
             "Should be implemented by the file system abstraction"

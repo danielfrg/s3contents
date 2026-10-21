@@ -10,12 +10,7 @@ from dateutil.tz import tzutc
 from fsspec.asyn import sync
 from tornado.web import HTTPError
 
-from s3contents.chunks import (
-    assemble_chunks,
-    delete_chunks,
-    prune_stale_chunks,
-    store_content_chunk,
-)
+from s3contents.chunks import ChunkUploads
 from s3contents.genericfs import GenericFSError, NoSuchFile
 from s3contents.ipycompat import (
     Any,
@@ -60,6 +55,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def __init__(self, *args, **kwargs):
         super(GenericContentsManager, self).__init__(*args, **kwargs)
         self._fs = None
+        self._chunk_uploads = ChunkUploads(self.log)
 
     @default("files_handler_class")
     def _files_handler_class_default(self):
@@ -143,7 +139,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
         except KeyError:
             raise ValueError("Unknown type passed: '{}'".format(type))
 
-        return func(path=path, content=content, format=format, require_hash=require_hash)
+        return func(
+            path=path, content=content, format=format, require_hash=require_hash
+        )
 
     def _get_directory(self, path, content=True, format=None, require_hash=False):
         self.log.debug(
@@ -162,7 +160,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
             format,
             require_hash,
         )
-        return self._notebook_model_from_path(path, content=content, format=format, require_hash=require_hash)
+        return self._notebook_model_from_path(
+            path, content=content, format=format, require_hash=require_hash
+        )
 
     def _get_file(self, path, content=True, format=None, require_hash=False):
         self.log.debug(
@@ -172,7 +172,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
             format,
             require_hash,
         )
-        return self._file_model_from_path(path, content=content, format=format, require_hash=require_hash)
+        return self._file_model_from_path(
+            path, content=content, format=format, require_hash=require_hash
+        )
 
     def _directory_model_from_path(self, path, content=False):
         self.log.debug(
@@ -281,7 +283,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
             models.append(model)
         return models
 
-    def _notebook_model_from_path(self, path, content=False, format=None, require_hash=False):
+    def _notebook_model_from_path(
+        self, path, content=False, format=None, require_hash=False
+    ):
         """
         Build a notebook model from database record.
         """
@@ -315,7 +319,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
 
         return model
 
-    def _file_model_from_path(self, path, content=False, format=None, require_hash=False):
+    def _file_model_from_path(
+        self, path, content=False, format=None, require_hash=False
+    ):
         """
         Build a file model from database record.
         """
@@ -354,7 +360,12 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def save(self, model, path):
         """Save a file or directory model to path."""
 
-        self.log.debug(f"save with path={path}, model={model}")
+        self.log.debug(
+            "save with path=%s, type=%s, chunk=%s",
+            path,
+            model.get("type"),
+            model.get("chunk"),
+        )
 
         # Chunked uploads
         # See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
@@ -371,6 +382,7 @@ class GenericContentsManager(ContentsManager, HasTraits):
         if model["type"] not in ("file", "directory", "notebook"):
             self.do_error("Unhandled contents type: %s" % model["type"], 400)
 
+        self._chunk_uploads.abort(path.strip("/"))
         self.run_pre_save_hook(model=model, path=path)
 
         try:
@@ -393,54 +405,35 @@ class GenericContentsManager(ContentsManager, HasTraits):
         return model
 
     def _save_large_file(self, chunk, model, path, format):
-        if "type" not in model:
-            self.do_error("No file type provided", 400)
-        if model["type"] != "file":
-            self.do_error(
-                'File type "{}" is not supported for large file transfer'.format(
-                    model["type"]
-                ),
-                400,
-            )
-        if "content" not in model and model["type"] != "directory":
-            self.do_error("No file content provided", 400)
-
-        if format not in {"text", "base64"}:
-            self.do_error(
-                "Must specify format of file contents as 'text' or 'base64'",
-                400,
-            )
-
-        prune_stale_chunks()
-
-        self.log.debug(
-            "S3contents.GenericManager.save (chunk %s) %s: '%s'",
-            chunk,
-            model,
-            path,
-        )
-
+        path = path.strip("/")
         try:
-            if chunk == 1:
+            if model.get("type") != "file":
+                self.do_error("Chunked uploads require file type 'file'", 400)
+            if "content" not in model:
+                self.do_error("No file content provided", 400)
+            if type(chunk) is int and chunk == 1:
+                self._chunk_uploads.abort(path)
                 self.run_pre_save_hook(model=model, path=path)
-            # Store the chunk in our registry
-            store_content_chunk(path, model["content"])
-        except Exception as e:
-            self.log.error(
-                "S3contents.GenericManager._save_large_file: error while saving file: %s %s",
-                path,
-                e,
-                exc_info=True,
+            self._chunk_uploads.write(
+                self.fs, path, chunk, model["content"], model.get("format")
             )
-            self.do_error(f"Unexpected error while saving file: {path} {e}")
+        except HTTPError:
+            self._chunk_uploads.abort(path)
+            raise
+        except Exception as error:
+            self._chunk_uploads.abort(path)
+            self.log.error("Error uploading %s", path, exc_info=True)
+            raise HTTPError(
+                500, f"Unexpected error while saving file: {path}"
+            ) from error
 
+        saved_model = self.get(path, content=False)
         if chunk == -1:
-            # Last chunk: we want to combine the chunks in the registry to compose the full file content
-            model["content"] = assemble_chunks(path)
-            delete_chunks(path)
-            self._save_file(model, path)
-
-        return self.get(path, content=False)
+            self.run_post_save_hook(
+                model=saved_model,
+                s3_path=saved_model["path"],
+            )
+        return saved_model
 
     def _save_notebook(self, model, path):
         nb_contents = from_dict(model["content"])
@@ -485,9 +478,11 @@ class GenericContentsManager(ContentsManager, HasTraits):
     def delete_file(self, path):
         """Delete the file or directory at path."""
         self.log.debug("S3contents.GenericManager.delete_file '%s'", path)
+        path = path.strip("/")
+        cancelled = self._chunk_uploads.abort(path, recursive=True)
         if self.file_exists(path) or self.dir_exists(path):
             self.fs.rm(path)
-        else:
+        elif not cancelled:
             self.no_such_entity(path)
 
     def is_hidden(self, path):
@@ -517,7 +512,9 @@ class GenericContentsManager(ContentsManager, HasTraits):
                     "Unexpected error while running post hook save: %s" % e,
                 ) from e
 
-    def _get_hash(self, byte_content: bytes, hash_algorithm: str = "sha256") -> dict[str, str]:
+    def _get_hash(
+        self, byte_content: bytes, hash_algorithm: str = "sha256"
+    ) -> dict[str, str]:
         """Compute the hash hexdigest for the provided bytes."""
         h = hashlib.new(hash_algorithm)
         h.update(byte_content)

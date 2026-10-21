@@ -1,58 +1,163 @@
-"""
-Utilities for managing chunked file uploads.
-See https://jupyter-notebook.readthedocs.io/en/stable/extending/contents.html#chunked-saving
-"""
+"""Bounded-memory sessions for Jupyter chunked file uploads."""
 
 import base64
-import contextvars
+import binascii
+import threading
 import time
+from dataclasses import dataclass
+from typing import Any
 
-# Used as a "registry" for uploads.
-content_chunks = contextvars.ContextVar("jupyterlab_content_chunks", default={})
-
-
-def store_content_chunk(path: str, content: str):
-    """Store a base64 chunk in the registry as bytes"""
-
-    current_value = content_chunks.get()
-
-    if path not in current_value:
-        current_value[path] = {"started_at": time.time(), "chunks": []}
-
-    current_value[path]["chunks"].append(
-        base64.b64decode(content.encode("ascii"), validate=True)
-    )
+from tornado.web import HTTPError
 
 
-def assemble_chunks(path: str) -> str:
-    """Assemble the chunk bytes into a single base64 string"""
-
-    current_value = content_chunks.get()
-
-    if path not in current_value:
-        raise ValueError(f"No chunk for path {path}")
-
-    return base64.b64encode(b"".join(current_value[path]["chunks"])).decode("ascii")
+@dataclass
+class UploadSession:
+    writer: Any
+    format: str
+    next_chunk: int
+    last_activity: float
 
 
-def delete_chunks(path):
-    """Should be called once the upload is complete to free the memory"""
+class ChunkUploads:
+    """Own buffered writers for one contents manager.
 
-    current_value = content_chunks.get()
-    del current_value[path]
+    Only the final chunk publishes an object. A first chunk restarts an upload;
+    missing or out-of-order chunks are rejected rather than silently corrupting
+    the file. Sessions are process-local, matching Jupyter's upload protocol.
+    """
 
+    def __init__(self, log, timeout=3600):
+        self.log = log
+        self.timeout = timeout
+        self.sessions = {}
+        self._lock = threading.RLock()
+        self._timer = None
 
-def prune_stale_chunks():
-    """Called periodically to avoid keeping large objects in memory
-    when a chunked upload does not finish"""
+    def write(self, fs, path, chunk, content, format):
+        with self._lock:
+            try:
+                if type(chunk) is not int or (chunk < 1 and chunk != -1):
+                    raise HTTPError(400, "Chunk must be an integer >=1 or -1")
+                if format not in ("text", "base64"):
+                    raise HTTPError(400, "Chunk format must be text or base64")
+                if not isinstance(content, str):
+                    raise HTTPError(400, "Chunk content must be a string")
+                if chunk == 1:
+                    self.abort(path)
+                else:
+                    session = self.sessions.get(path)
+                    if session is None:
+                        raise HTTPError(409, "Restart upload with chunk 1")
+                    if chunk != -1 and chunk != session.next_chunk:
+                        raise HTTPError(409, "Chunks must arrive in order")
+                    if format != session.format:
+                        raise HTTPError(400, "Chunk format changed")
 
-    current_value = content_chunks.get()
-    now = time.time()
-    stale_paths = []
+                try:
+                    data = (
+                        content.encode("utf8")
+                        if format == "text"
+                        else base64.b64decode(
+                            content.encode("ascii"),
+                            validate=True,
+                        )
+                    )
+                except (UnicodeError, binascii.Error) as error:
+                    raise HTTPError(400, "Invalid chunk encoding") from error
 
-    for path, chunk_info in current_value.items():
-        if now - chunk_info["started_at"] > 3600:
-            stale_paths.append(path)
+                if chunk == 1:
+                    session = UploadSession(
+                        fs.open_upload(path), format, 2, time.monotonic()
+                    )
+                    self.sessions[path] = session
 
-    for path in stale_paths:
-        del current_value[path]
+                # Keep intermediate writes on backend block boundaries. GCS
+                # requires nonfinal resumable parts to be 256 KiB aligned, even
+                # when incoming Jupyter chunks have arbitrary sizes.
+                writer = session.writer
+                view = memoryview(data)
+                offset = 0
+                while offset < len(view):
+                    remaining = writer.blocksize - writer.buffer.tell()
+                    end = min(len(view), offset + remaining)
+                    session.writer.write(view[offset:end])
+                    offset = end
+                session.last_activity = time.monotonic()
+                if chunk == -1:
+                    # Only the final request may finalize the remote object.
+                    # Send GCS's short tail as a final part, without flushing
+                    # with autocommit=False before a separate commit.
+                    session.writer.autocommit = True
+                    session.writer.close()
+                    session.writer.buffer = None
+                    del self.sessions[path]
+                else:
+                    session.next_chunk = chunk + 1
+                self._schedule_cleanup()
+            except Exception:
+                self.abort(path)
+                raise
+
+    def abort(self, path, recursive=False):
+        """Discard sessions without publishing partial data."""
+        with self._lock:
+            if recursive:
+                cancelled = False
+                prefix = path + "/"
+                for upload_path in list(self.sessions):
+                    if upload_path == path or upload_path.startswith(prefix):
+                        cancelled = self.abort(upload_path) or cancelled
+                return cancelled
+            session = self.sessions.pop(path, None)
+            if session is None:
+                return False
+            writer = session.writer
+            # Both backends inherit a destructor that calls close(). Prevent it
+            # from flushing even if discard fails or no remote session exists.
+            writer.autocommit = False
+            writer.closed = True
+            try:
+                writer.discard()
+            except Exception:
+                self.log.warning(
+                    "Could not discard upload for %s",
+                    path,
+                    exc_info=True,
+                )
+            finally:
+                writer.buffer = None
+                self._schedule_cleanup()
+            return True
+
+    def _schedule_cleanup(self):
+        if not self.sessions:
+            if self._timer is not None:
+                self._timer.cancel()
+                self._timer = None
+        elif self._timer is None:
+            deadline = min(s.last_activity for s in self.sessions.values())
+            delay = max(0.001, deadline + self.timeout - time.monotonic())
+            self._timer = threading.Timer(delay, self._expire)
+            self._timer.daemon = True
+            self._timer.start()
+
+    def _expire(self):
+        with self._lock:
+            # A canceled callback may already be waiting on this lock while a
+            # restart installs a new timer. Only that timer owns cleanup.
+            if self._timer is not threading.current_thread():
+                return
+            # Keep _timer set during aborts so they do not schedule another
+            # callback until every stale session has been considered.
+            now = time.monotonic()
+            for path, session in list(self.sessions.items()):
+                if now - session.last_activity >= self.timeout:
+                    self.abort(path)
+            self._timer = None
+            self._schedule_cleanup()
+
+    def close(self):
+        """Discard unfinished uploads when the owner shuts down."""
+        with self._lock:
+            for path in list(self.sessions):
+                self.abort(path)

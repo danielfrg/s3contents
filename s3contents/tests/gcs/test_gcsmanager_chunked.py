@@ -1,8 +1,5 @@
-import time
-
 import pytest
 
-from s3contents.chunks import content_chunks
 from s3contents.tests.utils import *
 
 try:
@@ -37,17 +34,6 @@ class GcsContentsManagerLargeFileTestCase(TestLargeFileManager):
             model={"type": "directory"},
             path=api_path,
         )
-
-    def test_save(self):
-        current_value = content_chunks.get()
-        current_value["stale_file.txt"] = {
-            "started_at": time.time() - 4000,
-            "chunks": [],
-        }
-
-        super().test_save()
-
-        self.assertNotIn("stale_file.txt", current_value)
 
 
 # This needs to be removed or else we'll run the main IPython tests as well.

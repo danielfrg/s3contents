@@ -236,26 +236,6 @@ c.GCSContentsManager.bucket = "<GCP bucket name>"
 Note that the file `~/.config/gcloud/application_default_credentials.json` assumes
 a POSIX system when you did `gcloud init`.
 
-## Chunked uploads
-
-Large file uploads stream through S3 or GCS using a 5 MiB write buffer per
-active upload, plus the current request's content. Files become visible only
-after the final chunk succeeds; failed uploads leave an existing file intact.
-Text and base64 chunks are supported. With the 5 MiB S3 part size, S3's
-10,000-part limit allows files up to approximately 48.8 GiB.
-
-Chunk numbers must start at `1`, increase in order, and end with `-1`. Sending
-another first chunk restarts the upload. An ordinary save or deletion cancels
-an active upload to that path; deleting a directory also cancels uploads below
-it. Uploads idle for one hour are discarded, even if no more requests arrive.
-S3 credentials need permission to abort multipart uploads for this cleanup.
-
-Upload sessions belong to one contents manager in one server process. Route all
-chunks of an upload to the same process, and allow only one active upload per
-path. After a server restart, restart unfinished uploads from chunk `1`. An S3
-bucket lifecycle rule for incomplete multipart uploads can clean up parts left
-behind by a terminated process or a failed abort request.
-
 ## Other configuration
 
 ### File Save Hooks

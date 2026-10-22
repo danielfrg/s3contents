@@ -1,5 +1,9 @@
 # s3contents Change Log
 
+## 0.13.0
+
+- Stream chunked uploads to S3 and GCS with bounded memory instead of buffering entire files in memory [#214](https://github.com/danielfrg/s3contents/pull/214).
+
 ## 0.12.0
 
 - Drop support for Notebook 6

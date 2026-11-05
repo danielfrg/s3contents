@@ -150,7 +150,7 @@ def validate_bucket(user_bucket, log):
         )
         return bucket
     if scheme or netloc or params or query or fragment:
-        log.error("s3manager.validate_bucket: " f"Invalid bucket specification: {res}")
+        log.error(f"s3manager.validate_bucket: Invalid bucket specification: {res}")
         raise ValueError(f"Invalid bucket specification: {res}")
 
     bucket = path

@@ -88,9 +88,9 @@ def test_bucket_validation(user_bucket, caplog):
 
     logger = logging.getLogger()
     validated_bucket = validate_bucket(user_bucket, logger)
-    assert (
-        validated_bucket == "BUCKET"
-    ), "ContentsManager's bucket should be parsed properly"
+    assert validated_bucket == "BUCKET", (
+        "ContentsManager's bucket should be parsed properly"
+    )
 
 
 def test_bucket_validation_empty_bucket_name(caplog):

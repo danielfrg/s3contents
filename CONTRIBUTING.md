@@ -21,6 +21,7 @@ c = get_config()
 
 # Tell Jupyter to use S3ContentsManager for storage
 from s3contents import S3ContentsManager
+
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.endpoint_url = "http://localhost:9000"
 c.S3ContentsManager.access_key_id = "access-key"
@@ -32,6 +33,7 @@ c.ServerApp.tornado_settings = {"debug": True}
 
 # only log s3contents but not boto
 import logging
+
 log = logging.getLogger()
 log.setLevel(logging.ERROR)
 c.log_level = "DEBUG"

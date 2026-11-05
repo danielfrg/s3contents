@@ -37,8 +37,7 @@ class ResumableTransport:
             assert "/upload/storage/v1/b/test-bucket/o" in path
             self._next_session += 1
             location = (
-                "https://storage.googleapis.com/resumable-upload/"
-                f"{self._next_session}"
+                f"https://storage.googleapis.com/resumable-upload/{self._next_session}"
             )
             self.sessions[location] = {
                 "key": kwargs["json"]["name"],

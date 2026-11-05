@@ -78,7 +78,9 @@ Access and secret keys:
 
 ```python
 c.S3ContentsManager.access_key_id = "<AWS Access Key ID / IAM Access Key ID>"
-c.S3ContentsManager.secret_access_key = "<AWS Secret Access Key / IAM Secret Access Key>"
+c.S3ContentsManager.secret_access_key = (
+    "<AWS Secret Access Key / IAM Secret Access Key>"
+)
 ```
 
 Session token:
@@ -121,28 +123,32 @@ from configparser import ConfigParser
 
 from s3contents import S3ContentsManager
 
+
 def refresh_external_credentials():
     config = ConfigParser()
-    config.read('/home/jovyan/.aws/credentials')
+    config.read("/home/jovyan/.aws/credentials")
     return {
-        "access_key": config['default']['aws_access_key_id'],
-        "secret_key": config['default']['aws_secret_access_key'],
-        "token": config['default']['aws_session_token'],
-        "expiry_time": config['default']['aws_expiration']
+        "access_key": config["default"]["aws_access_key_id"],
+        "secret_key": config["default"]["aws_secret_access_key"],
+        "token": config["default"]["aws_session_token"],
+        "expiry_time": config["default"]["aws_expiration"],
     }
+
 
 async def async_refresh_credentials():
     return refresh_external_credentials()
 
+
 def make_key_refresh_boto3(this_s3contents_instance):
     session_credentials = AioRefreshableCredentials.create_from_metadata(
-        metadata = refresh_external_credentials(),
-        refresh_using = async_refresh_credentials,
-        method = 'custom-refreshing-key-file-reader'
+        metadata=refresh_external_credentials(),
+        refresh_using=async_refresh_credentials,
+        method="custom-refreshing-key-file-reader",
     )
-    refresh_session =  get_session() # from aibotocore.session
+    refresh_session = get_session()  # from aibotocore.session
     refresh_session._credentials = session_credentials
     this_s3contents_instance.boto3_session = refresh_session
+
 
 # Tell Jupyter to use S3ContentsManager
 c.ServerApp.contents_manager_class = S3ContentsManager
@@ -265,6 +271,7 @@ def scrub_output_pre_save(model, **kwargs):
         cell["outputs"] = []
         cell["execution_count"] = None
 
+
 c.S3ContentsManager.pre_save_hook = scrub_output_pre_save
 ```
 
@@ -296,6 +303,7 @@ def make_html_post_save(model, s3_path, contents_manager, **kwargs):
 
     base, ext = os.path.splitext(s3_path)
     contents_manager.fs.write(path=(base + ".html"), content=body, format=_format)
+
 
 c.S3ContentsManager.post_save_hook = make_html_post_save
 ```

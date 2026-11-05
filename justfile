@@ -7,13 +7,11 @@ build:
   uv build
 
 check:
-  uv run isort . --check-only --diff
-  uv run black . --check
   uv run ruff check s3contents
-  uv run flake8
+  uv run ruff format --check
 
 fmt:
-  uv run isort .
+  uv run ruff check --select I --fix
   uv run ruff format
 
 test FILTER="":

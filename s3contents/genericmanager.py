@@ -206,9 +206,10 @@ class GenericContentsManager(ContentsManager, HasTraits):
             files_s3_detail = sync(self.fs.fs.loop, self.fs.fs._lsdir, prefixed_path)
             filtered_files_s3_detail = list(
                 filter(
-                    lambda detail: os.path.basename(detail["Key"])
-                    != self.fs.dir_keep_file
-                    and self.fs.remove_prefix(detail["Key"]) != path,
+                    lambda detail: (
+                        os.path.basename(detail["Key"]) != self.fs.dir_keep_file
+                        and self.fs.remove_prefix(detail["Key"]) != path
+                    ),
                     files_s3_detail,
                 )
             )

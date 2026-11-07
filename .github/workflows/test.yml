@@ -27,7 +27,7 @@ jobs:
         python-version: [3.13, 3.14]
         jupyter-version: ["7.4", "7.5", "7.*"]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Can't use Minio official image because we can't specify the docker command in Github Actions
     # https://github.community/t5/GitHub-Actions/Job-service-command/m-p/33901
@@ -47,14 +47,14 @@ jobs:
           - /tmp/tmp-data:/data
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v1
+      - uses: actions/checkout@v7
+      - uses: extractions/setup-just@v4
 
       # ------------------------------------------------------------------------
       # Python + uv
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           enable-cache: true
 
@@ -88,12 +88,12 @@ jobs:
           just report
 
       - name: Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           file: ./coverage.xml
 
       - name: Upload test results to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-py${{ matrix.python-version }}-nb${{ matrix.jupyter-version }}
